@@ -28,6 +28,13 @@ class Badge(ndb.Model):
   value = ndb.IntegerProperty(required = False)
   checkpoints = ndb.JsonProperty(required = False)
 
+class Achievement(ndb.Model):
+  teacher_id = ndb.StringProperty(required = True)
+  class_id = ndb.StringProperty(required = True)
+  badge_id = ndb.StringProperty(required = True)
+  status = ndb.StringProperty(required = True)
+
+
 def existing_user(google_user):
   if google_user:
     user_object = User.query(User.google_id == str(google_user.user_id())).get()
@@ -105,6 +112,12 @@ def get_student_course(courseID, student, teacherID):
   else:
     return None
 
+def get_enrolled_students(course):
+  approved_registrations = Registrations.query(Registrations.status == "approved", ancestor = course.key)
+  students = []
+  for registration in approved_registrations:
+    students.append(get_student(registration.student_id))
+  return students
 
 def get_enrolled_courses(student):
   if student:
@@ -188,3 +201,20 @@ def create_new_checkpoint(name, description, course):
 def get_course_checkpoints(course):
   checkpoints = Checkpoint.query(ancestor = course.key)
   return checkpoints
+
+
+def new_achievement(student_id, teacher, badge_id, course_id, status):
+  logging.info(student_id)
+  student = get_student(student_id)
+  if student:
+    the_achievement = Achievement(
+      teacher_id = teacher_id, 
+      badge_id = badge_id,
+      course_id = course_id,
+      status = status,
+      parent = student.key
+      )
+    the_achievement.put()
+
+
+

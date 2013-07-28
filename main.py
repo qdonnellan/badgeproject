@@ -4,14 +4,9 @@ from icon_list import the_list
 import re, logging
 from google.appengine.api import users
 from database import *
+from ajax import *
+from useful import valid_user
 
-def valid_user():
-  current_google_user = users.get_current_user()
-  local_user = existing_user(current_google_user)
-  if local_user:
-    return local_user
-  else:
-    return False
 
 class badgeCreator(MainHandler):
   def get(self, badgeID=None):
@@ -164,6 +159,7 @@ class singleBadge(MainHandler):
 
 
 
+
 app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
   ('/badge_creator/(\w+)', badgeCreator),
@@ -177,6 +173,7 @@ app = webapp2.WSGIApplication([
   ('/badge/(\w+)', singleBadge),
   ('/edit_course', editCourse),
   ('/edit_course/(\w+)', editCourse),
+  ('/achievementHandler', achievementHandler),
   ('/course/(\w+)/new_checkpoint', newCheckpoint),
   ('/course/(\w+)', course),
   ('/(\w+)', simplePages),

@@ -1,0 +1,53 @@
+{% if courses %}
+  <ul class="nav nav-tabs">
+    {% for course in courses %}
+    <li 
+      {% if active_course == 'course.key.id()' %} class="active"
+      {% elif not active_course and loop.first %} class="active"
+      {% endif%}
+      >
+      <a href="#badge_course_{{course.key.id()}}" data-toggle="tab">{{course.course_name}}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="tab-content">
+    {% for course in courses %}
+      <div class="tab-pane fade 
+        {% if active_course == 'course.key.id()' %}in active 
+        {% elif not active_course and loop.first %}in active
+        {% endif %}" id="badge_course_{{course.key.id()}}">
+        
+      {% if get_enrolled_students(course) %}
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Badge Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in get_enrolled_students(course) %}
+            <form action="/achievementHandler" method = "post" class="achievement-form">
+              <input type="hidden" name="student_id" value = "{{student.key.id()}}">
+              <input type="hidden" name="course_id" value = "{{course.key.id()}}">
+              <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
+
+              <tr>
+                <td>{{student.formalName}}</td>
+                <td> -- </td>
+                <td>
+                  <button class="btn btn-success btn-small" type="submit">award badge</button> 
+                  <button class="btn btn-info btn-small" type="submit">view evidence</button>
+                </td>
+              </tr>
+            </form>
+          {% endfor %}
+        </tbody>
+      </table>
+        
+      {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

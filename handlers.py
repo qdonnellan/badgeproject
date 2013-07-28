@@ -2,7 +2,7 @@ import os
 import jinja2
 import webapp2
 from google.appengine.api import users
-from database import existing_user, get_student, get_user_courses, get_enrolled_courses, get_course_checkpoints
+from database import existing_user, get_student, get_user_courses, get_enrolled_courses, get_course_checkpoints, get_enrolled_students
 
 template_dir=os.path.join(os.path.dirname(__file__),"templates")
 jinja_environment=jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),autoescape=True)
@@ -27,6 +27,7 @@ class MainHandler(webapp2.RequestHandler):
       courses = get_user_courses(local_user),
       enrollments = get_enrolled_courses(local_user),
       get_course_checkpoints = get_course_checkpoints, 
+      get_enrolled_students = get_enrolled_students,
       **kw))
 
 
