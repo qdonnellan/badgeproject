@@ -1,0 +1,103 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div>
+  <div class="row">
+    <h1>{{course.course_name}}</h1>
+  </div>
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
+    <li><a href="#special" data-toggle="tab">Special Badges</a></li>
+    <li ><a href="#students" data-toggle="tab">Students</a></li>    
+    
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade" id="students">
+      {% if registrations %}
+        <div>
+          <h3>Students Enrolled in Course</h3>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Registration Status</th>
+                <th>Notifications</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for registration in registrations %}
+              <tr>
+                <td>{{get_student(registration.student_id).formalName}}</td>
+                <td>{{registration.status}}</td>
+                <td>...</td>
+                <td>
+                {% if registration.status == "pending"%}
+                  <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
+                  <a class="btn btn-small btn-danger" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a></td>
+                {% elif registration.status == "approved" %}
+                  <a class="btn btn-small btn-danger" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
+                {% elif registration.status == "denied" %}
+                  <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.studen_id}}/approved">approve</a> 
+                {% elif registration.status == "revoked" %}
+                  <a class="btn btn-small btn-info" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">re-admit</a>
+
+                {% endif %}             
+
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+
+    </div>
+    <div class="tab-pane active fade in" id="checkpoints">
+    <br>
+    <div>
+      <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
+    </div>
+    <br>
+      {% if checkpoints %}
+        {% for checkpoint in checkpoints %}
+          <div class="panel col-lg-12">
+            <div class="col-lg-6">
+              <h3>{{checkpoint.name}}</h3>
+              <p>{{checkpoint.description}}</p>
+            </div>
+            <div class="col-lg-6">
+              {% if badges %}
+                {% for badge in badges %}
+                  {% if badge.checkpoints %}
+                    {% if course.key.id() ~ "_" ~ checkpoint.key.id() in badge.checkpoints %}
+                      <div class="badge-div pull-left">
+                        <div class="small-badge">
+                          <a href="/badge/{{badge.key.id()}}">
+                            <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                              <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div>
+
+          </div>
+        {% endfor %}
+      {% endif %}
+      
+
+    </div>
+    <div class="tab-pane fade" id="special">sdf.</div>
+  </div>
+
+  
+</div>  
+
+{% endblock %}

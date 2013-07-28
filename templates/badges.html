@@ -1,0 +1,33 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div>
+  <div class="row">
+    <h1>Your Badge Vault</h1>
+    <a class="btn btn-primary" href="/badge_creator">Create a New Badge</a>
+  </div>  
+  <hr>
+  <div class="row">
+    {% for badge in badges %}
+    <div class="col-sm-4">
+      <div class="badge-div pull-left">
+      <a href="/badge/{{badge.key.id()}}">
+        <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+        </div>
+        </a>
+      </div>
+      <div class="badge-new-description">
+        <h3>{{badge.name}}</h3>
+        <p>{{badge.requirement}}</p>
+        <p><a href="/badge_creator/{{badge.key.id()}}">Edit Badge</a></p>
+      </div>
+    </div>
+    {% if loop.index is divisibleby 3 %}</div><hr><div class="row">{% endif %} 
+    {% endfor %}
+  </div>
+</div>
+
+
+{% endblock %}

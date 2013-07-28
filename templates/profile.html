@@ -1,0 +1,63 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div class="container-fluid">
+  <div class="row-fluid">
+    <h1>{{local_user.formalName}}</h1>
+    <p>{{google_user_api.get_current_user().email()}}</p>
+    <a href="/edit_course" class="btn btn-primary">Create New Course</a>
+    <a href="/register" class="btn btn-primary">Register for Course</a>
+  </div>
+  {% if enrollments %}
+    <div class="row-fluid">
+      <h3>Courses you are registered for</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Registration Status</th>
+            <th>Notifications</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in enrollments %}
+          <tr>
+            <td>{{entry["course"].course_name}} <a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">Your Badges</a> <a href="/student_course/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">Course Page</td>
+            <td>{{entry["status"]}}</td>
+            <td>...</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>  {% endif %}
+  {% if courses or courses in [none, []] %}
+    <div class="row-fluid">
+      <h3>Courses you are teaching</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Registered Students</th>
+            <th>Notifications</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in courses %}
+          <tr>
+            <td>{{course.course_name}}</td>
+            <td>...</td>
+            <td>...</td>
+            <td><a class="btn btn-small" href="/course/{{course.key.id()}}">View Course</a> <a class="btn btn-small" href="/edit_course/{{course.key.id()}}">Settings</a></td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+  
+</div>  
+
+{% endblock %}

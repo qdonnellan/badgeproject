@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href = "/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href = "/stylesheets/farbtastic.css" rel="stylesheet">
+    <link href = "/stylesheets/custom.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:300,400' rel='stylesheet' type='text/css'>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> 
+    <script type="text/javascript" src="/javascript/farbtastic.js"></script>
+    {% block extra_js %}{% endblock %}
+  </head>   
+  
+  <body> 
+    <div class="navbar navbar-static-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <div class="nav pull-left">
+            <li class="disabled"><a><span class="text-success">the badge project</span></a></li>
+            <li class="divider-vertical"></li>
+          </div>
+          <ul class="nav">
+            
+            {% if local_user %}
+              <li class="{{profile_active}}"><a href="/profile"><i class="icon-user"></i> Profile</a></li>
+              <li class="{{badges_active}}"><a href="/badge_creator"><i class="icon-certificate"></i> Badge Maker</a></li>              
+            {% else %}
+              <li><a href="/link">Get Started</a></li>
+            {% endif %}
+          </ul>
+          {% if local_user %}
+            <ul class="nav pull-right">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{local_user.formalName}}<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="/profile"><i class='icon-user'></i> View Profile</a></li>
+                  <li><a href="{{google_user_api.create_logout_url('/')}}"><i class='icon-signout'></i> Log out</a></li>                                    
+                </ul>
+              </li>
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+      {% block body %}{% endblock %}  
+
+
+
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>    
+    <script src="/bootstrap/js/bootstrap.js"></script>
+    <script src="/javascript/bootstrap-fileupload.min.js"></script>           
+  </body>
+</html>

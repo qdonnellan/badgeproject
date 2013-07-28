@@ -1,0 +1,143 @@
+{% extends 'user_base.html' %}
+{% block extra_js %}
+<script type="text/javascript">
+  $(document).ready(function() {        
+    $('#icon_colorpicker').farbtastic("#icon_color").mousemove(function (){
+      $("#the-badge").css({"color":$.farbtastic("#icon_colorpicker").color});
+    });
+    /*
+    $('#border_colorpicker').farbtastic("#border_color").mousemove(function (){
+      $("#the-badge").css("border-color",$.farbtastic("#border_colorpicker").color);
+    }); */
+    $('#background_colorpicker').farbtastic("#background").mousemove(function (){
+      $(".badge-new").css({"background-color":$.farbtastic("#background_colorpicker").color});
+    });
+  });
+</script>
+{% endblock%}
+
+{% block body %}
+<form id="badge-form" method="post" >
+  <div>
+    <div class="row">
+      <div class="col-lg-5">
+        <div class="row">
+          <div class="col-lg-12">
+            <h2>Badge Design</h2>
+            <p class="muted">This is what your badge will look like. Adjust the appearance using the color toggles and icon-chooser below. </p>
+            <div class="badge-creator-div">          
+              <h2><div class="badge-new">
+                <div class="badge-icon-container"><i id="the-badge" class="icon-{{badge.icon}}"></i></div>
+              </div></h2>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <h3>Icon Style</h3>
+            <input type="text" id="icon_name" name="icon" class="typeahead form-control" style="margin: 0 auto;" data-provide="typeahead" data-items="4" value="{{badge.icon}}">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <h3>Icon Color</h3>
+            <input type="text" id="icon_color" name="icon_color" class="form-control" value="{{badge.icon_color}}" />
+            <div id="icon_colorpicker"></div>
+          </div>
+          <div class="col-lg-6">
+            <h3>Background</h3>
+            <input type="text" id="background" name="background"  class="form-control" value="{{badge.background}}" />
+            <div id="background_colorpicker"></div>
+          </div> 
+        </div>
+      </div>
+
+      <div class="col-lg-7">        
+        <div class="col-lg-6">
+          <h2>Badge Name</h2>
+          <p class="muted">Give this badge an identity</p>
+          <input type="text" class="form-control" name="badge_name" {% if badge.name %}value ="{{badge.name}}"{% endif %}>
+        </div>
+        <div class="col-lg-6">
+          <h2>Badge Value</h2>
+          <p class="muted">Assign an integer value to this badge</p>
+          <input type="text" class="form-control" name="badge_value"{% if badge.value%}value="{{badge.value}}"{% endif %}>
+        </div>        
+        <div class="col-lg-12">
+          <h2>Badge Requirements</h2>
+          <p class="muted">Describe what must be done to unlock this badge</p>
+          <textarea rows="5" class="form-control" name="requirement" class="span12">{% if badge.requirement %}{{badge.requirement}}{% endif %}</textarea>
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <button type="submit" class="btn btn-primary btn-large pull-right">Save Badge</button>
+          <h2>Assign Checkpoints</h2>
+          <p class="muted">Assign this badge to specific checkpoints in your courses</p>
+          {% if courses %}
+            <ul class="nav nav-tabs">
+              {% for course in courses %}
+              <li {% if loop.first %}class="active"{% endif%}><a href="#checkpoint_course_{{course.key.id()}}" data-toggle="tab">{{course.course_name}}</a></li>
+              {% endfor %}
+            </ul>
+            <div class="tab-content">
+              {% for course in courses %}
+                <div class="tab-pane fade {% if loop.first %}in active {% endif %}" id="checkpoint_course_{{course.key.id()}}">
+                {% if get_course_checkpoints(course) %}
+                  {% for checkpoint in get_course_checkpoints(course) %}
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" {% if badge.checkpoints and course.key.id() ~ '_' ~ checkpoint.key.id() in badge.checkpoints %}checked{% endif %} value="{{course.key.id()}}_{{checkpoint.key.id()}}" name="checkpoint_options">{{checkpoint.name}}
+                      </label>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  There are no checkpoints for this course yet
+                {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>      
+    </div>
+    
+  </div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  /*$("#the-badge").css("border-color","{{badge.border_color}}");*/
+  $(".badge-new").css("background-color","{{badge.background}}");
+  $("#the-badge").css("color","{{badge.icon_color}}");
+});</script>
+
+<script>
+$(document).ready(function() {
+
+$("#icon_name").typeahead({
+    "source": {{icon_array | safe }},
+    //match any item
+    matcher: function(item) {
+        if (this.query == '*') {
+            return true;
+        } else {
+            return item.indexOf(this.query) >= 0;
+        }
+    },
+    //avoid highlightning of "*"
+    highlighter: function(item) {
+        return "<div> <i class='icon-" + item + "'></i> " + item + "</div>"
+    },
+    updater: function (item) {
+      $('#the-badge').removeClass()
+      $('#the-badge').addClass('icon-' + item)
+      return item
+    }
+});
+});
+</script>
+
+
+
+
+{% endblock %}

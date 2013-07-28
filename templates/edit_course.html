@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row-fluid">
+    <div class="marketing span8 offset2">
+      {% if course %}
+        <h1>Edit Course</h1>
+      {% else %}
+        <h1>Create New Course</h1>
+      {% endif %}
+      <hr class="soften">
+    </div>
+    <div class="span8 offset2">
+      <form method="post">   
+        <h3>Course Name</h3>
+        {% if course %}
+          <p>Change your course name</p>
+          <input type="text" id="course_name" name="course_name" value="{{course.course_name}}"/>
+        {% else %}
+          <p>All we need from you is a course name that accurately describes the class you are teaching. </p>    
+          <input type="text" id="course_name" name="course_name" placeholder="Type course name here" />
+        {% endif %}
+        <h3>Course Code</h3>
+        <p>Your students will need your google email address and this code to register for your course</p>
+        {% if course and course.course_code %}
+          <input type="text" id="course_code" name="course_code" value="{{course.course_code}}"/>
+        {% else %}
+          <input type="text" id="course_code" name="course_code" placeholder='eg. "CAL101"' />
+        {% endif %}
+        <br>
+        <button class="btn btn-primary" type="submit">Save Course</button>
+      </form>
+    </div>
+  </div>
+</div>  
+
+
+{% endblock %}

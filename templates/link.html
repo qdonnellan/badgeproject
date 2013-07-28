@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% if google_user_api.get_current_user() %}
+  <div class="container">
+    <div class="row-fluid">
+      <div class="marketing span8 offset2">
+        <h1>Google Account Linked</h1>
+        <p class="marketing-byline">Your Google account is successfully linked but you have not completed registration.</p>
+      </div>
+      <div class="span8 offset2">
+        <form method="post">
+          <h2>1. Verify Google Account</h2>
+          <p>Make sure the email below belongs to you, otherwise you'll be creating an account for someone else!</p>
+          <p><button class="btn disabled">{{google_user_api.get_current_user().email()}} </button></p>
+          <p>
+            <a class="text-error" href="{{google_user_api.create_logout_url('/link')}}"><i class="icon-signout"></i> Use a different account</a>
+          </p>
+          <hr>
+          <h2>2. Your Name</h2>
+          <p>Please provide your real name (first and last). Your teacher will need this information to correctly identify you on The Badge Project. We will never give your personal information to anyone other than the teachers you choose to view your account.</p>         
+          <input type="text" id="formalname" name="formalName" placeholder="Type your name here">         
+          <hr>
+          <h2>3. Complete Registration</h2>
+          <p>When you are certain that the above information is correct, click "create account" below. Your account creation will be finalized and you will be taken to your profile page</p>
+          <button class="btn btn-success" type="submit">Create Account</button>
+        </form>
+      </div>
+    </div>
+  </div>  
+{% else %}
+  <div class="container">
+    <div class="row-fluid">
+      <div class="marketing span8 offset2">
+        <h1>Link Google Account</h1>
+        <p class="marketing-byline">The Badge Project uses Google Authentication to manage users</p>
+        <p>If you don't already have a Google Account, you'll be prompted to create one. If you already have an account you simply will be asked to sign in and link your account with The Badge Project</p>
+        <p>
+          <a class="btn btn-primary" href="{{google_user_api.create_login_url('/link')}}">Link Google Account</a>
+        </p>
+      </div>
+    </div>
+  </div>  
+{% endif %}
+
+{% endblock %}
