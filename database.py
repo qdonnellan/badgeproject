@@ -30,7 +30,7 @@ class Badge(ndb.Model):
 
 class Achievement(ndb.Model):
   teacher_id = ndb.StringProperty(required = True)
-  class_id = ndb.StringProperty(required = True)
+  course_id = ndb.StringProperty(required = True)
   badge_id = ndb.StringProperty(required = True)
   status = ndb.StringProperty(required = True)
 
@@ -204,17 +204,35 @@ def get_course_checkpoints(course):
 
 
 def new_achievement(student_id, teacher, badge_id, course_id, status):
-  logging.info(student_id)
-  student = get_student(student_id)
-  if student:
-    the_achievement = Achievement(
-      teacher_id = teacher_id, 
-      badge_id = badge_id,
-      course_id = course_id,
-      status = status,
-      parent = student.key
-      )
-    the_achievement.put()
+  the_achievement = fetch_achievement(student_id, badge_id, teacher.key.id(), course_id)
+  if the_achievement:
+    the_achievement.populate(status = status)
+  else:
+    student = get_student(student_id)
+    if student:
+      the_achievement = Achievement(
+        teacher_id = str(teacher.key.id()), 
+        badge_id = badge_id,
+        course_id = course_id,
+        status = status,
+        parent = student.key
+        )
+  the_achievement.put()
+
+def fetch_achievement(student_id, badge_id, teacher_id, course_id):
+  the_achievement = Achievement.query(
+    Achievement.teacher_id == str(teacher_id), 
+    Achievement.course_id == str(course_id),
+    Achievement.badge_id == str(badge_id),
+    ancestor = get_student(student_id).key)
+  return the_achievement.get()
+
+def achievement_status(student_id, badge_id, teacher_id, course_id):
+  the_achievement = fetch_achievement(student_id, badge_id, teacher_id, course_id)
+  if the_achievement:
+    return the_achievement.status
+  else:
+    return 'Not yet obtained'
 
 
 

@@ -8,14 +8,14 @@
   </div>
 
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
-    <li><a href="#special" data-toggle="tab">Special Badges</a></li>
-    <li ><a href="#students" data-toggle="tab">Students</a></li>    
+    <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
+    <li {% if active_tab == 'special' %}class = "active"{% endif %}><a href="#special" data-toggle="tab">Special Badges</a></li>
+    <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>    
     
   </ul>
 
   <div class="tab-content">
-    <div class="tab-pane fade" id="students">
+    <div class="tab-pane fade {% if active_tab == 'students' %}in active{% endif %}" id="students">
       {% if registrations %}
         <div>
           <h3>Students Enrolled in Course</h3>
@@ -37,9 +37,9 @@
                 <td>
                 {% if registration.status == "pending"%}
                   <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
-                  <a class="btn btn-small btn-danger" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a></td>
+                  <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a></td>
                 {% elif registration.status == "approved" %}
-                  <a class="btn btn-small btn-danger" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
+                  <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
                 {% elif registration.status == "denied" %}
                   <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.studen_id}}/approved">approve</a> 
                 {% elif registration.status == "revoked" %}
@@ -55,7 +55,7 @@
       {% endif %}
 
     </div>
-    <div class="tab-pane active fade in" id="checkpoints">
+    <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
     <br>
     <div>
       <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
@@ -94,7 +94,7 @@
       
 
     </div>
-    <div class="tab-pane fade" id="special">sdf.</div>
+    <div class="tab-pane fade {% if active_tab == 'special' %}in active{% endif %}" id="special">sdf.</div>
   </div>
 
   

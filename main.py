@@ -83,6 +83,7 @@ class course(MainHandler):
         registrations = get_registrations(this_course), 
         checkpoints = get_course_checkpoints(this_course),
         courseID = int(courseID),
+        active_tab = self.request.get('active_tab'),
         badges = get_all_badges(valid_user()))
     else:
       self.redirect('/front')
@@ -126,7 +127,7 @@ class completeRegistration(MainHandler):
   def get(self, courseID, studentID, action):
     if valid_user():
       edit_registration(courseID = courseID, teacher = valid_user(), action = action, studentID = studentID)
-    self.redirect('/course/%s' % courseID)
+    self.redirect('/course/%s?active_tab=students' % courseID)
 
 class studentProfile(MainHandler):
   def get(self, teacherID, courseID):
@@ -154,7 +155,7 @@ class newCheckpoint(MainHandler):
 class singleBadge(MainHandler):
   def get(self, badgeID):
     if valid_user():
-      self.render('single_badge.html', badge = get_badge(valid_user(),badgeID))
+      self.render('single_badge.html', badge = get_badge(valid_user(),badgeID), achievement_status = achievement_status, teacher=valid_user())
 
 
 
