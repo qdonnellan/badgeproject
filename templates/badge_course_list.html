@@ -36,6 +36,8 @@
                   <span class="text-success"><i class="icon-certificate"></i> awarded</span>
                 {% elif 'revoked' in current_achievement_status %}
                   <span class="text-danger"><i class="icon-exclamation-sign"></i> you revoked this badge</span>
+                {% elif 'requested' in current_achievement_status %}
+                  <span class="text-info"><i class="icon-question-sign"></i> student has requested badge</span>
                 {% else %}
                   <span class="text-muted">not yet obtained</span>
                 {% endif %}

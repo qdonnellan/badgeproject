@@ -12,19 +12,40 @@
       </div>
     </h4>
     <div class="single-badge-description">
-      <h1>{{badge.name}}</h1>
+      <h1>{{badge.name}}{% if not student_badge %} <small><a href="/badge_creator/{{badge.key.id()}}">[Edit Badge]</a></small>{% endif %}</h1>
+      <p>Value: <span class="badge">{{badge.value}} points</span></p>
+      {% if student_badge and achievement_status == 'awarded' %}
+        <p class="text-success"><i class="icon-ok-sign"></i>You have been awarded this badge</p>
+      {% elif student_badge and achievement_status == 'revoked' %}
+        <p class="text-danger"><i class="icon-exclamation-sign"></i> This badge has been revoked by your teacher</p>
+      {% elif student_badge %}
+        <p class="text-muted">You have not yet earned this badge</p>
+      {% endif %}
       <hr>
-      <p>{{badge.requirement}}</p>
-      <p><a href="/badge_creator/{{badge.key.id()}}">Edit Badge</a></p>
+      <p class="lead">{{badge.requirement}}</p>
+      
     </div>
   </div>
+  {% if not student_badge %}
   <div class="row" id ="badge-course-list">
     {% include 'badge_course_list.html' %}
   </div>
-  <div id="stuffes">
-  </div>
+  {% else %}
+    {% if achievement_status != "awarded" %}
+      <div class="row">
+      <hr>
+      <p>If you feel you have done what is required to be awarded this badge, you may request that your instructor grant you the badge. Please keep in mind that you will not recieve this badge until you instructor grants the final approval</p>
+        {% if achievement_status == "requested" %}
+          <button class="disabled btn">Your request is awaiting approval</button>
+        {% else %}
+          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn btn-primary">Request This Badge</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
 </div>
 
+{% if not student_badge %}
 <script type="text/javascript">
   $('#badge-course-list').on('submit', '.achievement-form', function(e){
     e.preventDefault();
@@ -41,5 +62,6 @@
     return false;
   });
 </script>
+{% endif %}
 
 {% endblock %}

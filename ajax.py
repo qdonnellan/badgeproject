@@ -9,7 +9,7 @@ class achievementHandler(MainHandler):
     course_id = self.request.get('course_id')
     badge_id = self.request.get('badge_id')
     status = self.request.get('status')
-    new_achievement(teacher = teacher, student_id = student_id, badge_id = badge_id, course_id = course_id, status = status)
+    new_achievement(teacher_id = teacher.key.id(), student_id = student_id, badge_id = badge_id, course_id = course_id, status = status)
     courses = get_user_courses(teacher)
     badge = get_badge(teacher,badge_id)
     html = self.render_str('badge_course_list.html', 

@@ -10,13 +10,13 @@ from useful import valid_user
 
 class badgeCreator(MainHandler):
   def get(self, badgeID=None):
-    if valid_user():
+    if valid_user() and valid_user().teacher:
       badge = get_badge(valid_user(),badgeID)
       logging.info(badge.checkpoints)
       self.render('badge_creator.html', badge = get_badge(valid_user(),badgeID), icon_array = the_list, badges_active = "active")
   def post(self, badgeID=None):
-    if valid_user():
-      edit_badge(
+    if valid_user() and valid_user().teacher:
+      badgeID = edit_badge(
         badgeID = badgeID,
         icon = self.request.get("icon"),
         icon_color = self.request.get("icon_color"), 
@@ -28,7 +28,7 @@ class badgeCreator(MainHandler):
         teacher = valid_user(),
         checkpoints = self.request.get_all("checkpoint_options")
         )
-      self.redirect('/badges')
+      self.redirect('/badge/%s' % badgeID)
 
 class simplePages(MainHandler):
   def get(self, pageName):
@@ -88,6 +88,14 @@ class course(MainHandler):
     else:
       self.redirect('/front')
 
+  def post(self, courseID):
+    if valid_user():
+      course_name = self.request.get('course_name')
+      course_code = self.request.get('course_code')
+      edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
+    self.redirect('/course/%s?active_tab=settings' % courseID)
+
+
 class home(MainHandler):
   def get(self):
     current_google_user = users.get_current_user()
@@ -133,7 +141,39 @@ class studentProfile(MainHandler):
   def get(self, teacherID, courseID):
     if valid_user():
       course = get_student_course(courseID = courseID, student = valid_user(), teacherID = teacherID)
-      self.render('student_profile.html', course = course, teacherID=int(teacherID), courseID = int(courseID))
+      if course:
+        self.render('course.html', 
+          course = course, 
+          teacherID=int(teacherID), 
+          courseID = int(courseID),
+          checkpoints = get_course_checkpoints(course),
+          badges = get_all_badges(course.key.parent().get()),
+          student_profile = True,
+          achievement_status = achievement_status,
+          get_checkpoint_percent_completion = get_checkpoint_percent_completion,
+          )
+      else:
+        self.write('You are not registered for this course...')
+
+class studentBadge(MainHandler):
+  def get(self, teacherID, courseID, badgeID):
+    if valid_user():
+      course = get_student_course(courseID = courseID, student = valid_user(), teacherID = teacherID)
+      this_badge_status = achievement_status(student_id = valid_user().key.id(), course_id = courseID, badge_id = badgeID, teacher_id = teacherID)
+      self.render('single_badge.html', 
+        badge = get_badge(course.key.parent().get(), badgeID),
+        achievement_status = this_badge_status,
+        student_badge = True,
+        courseID = course.key.id(),
+        teacherID = teacherID
+        )
+
+class requestBadge(MainHandler):
+  def get(self, teacherID, courseID, badgeID):
+    if valid_user():
+      edit_achievement(valid_user().key.id(), badgeID, teacherID, courseID)
+      self.redirect('/student_badge/%s/%s/%s' % (teacherID, courseID, badgeID))
+
 
 class newCheckpoint(MainHandler):
   def get(self, courseID):
@@ -172,6 +212,8 @@ app = webapp2.WSGIApplication([
   ('/profile', profile),
   ('/badges', listBadges),
   ('/badge/(\w+)', singleBadge),
+  ('/student_badge/(\w+)/(\w+)/(\w+)', studentBadge),
+  ('/request_badge/(\w+)/(\w+)/(\w+)', requestBadge),
   ('/edit_course', editCourse),
   ('/edit_course/(\w+)', editCourse),
   ('/achievementHandler', achievementHandler),

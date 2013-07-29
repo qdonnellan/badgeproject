@@ -9,3 +9,4 @@ def valid_user():
     return local_user
   else:
     return False
+

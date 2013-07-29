@@ -17,7 +17,7 @@
   
   <body> 
     <div class="navbar navbar-fixed-top">
-      <span class="pull-left"><a class="navbar-brand" disabled><i class="icon-user"></i> badge_project</a></span>
+      <span class="pull-left"><a class="navbar-brand">the_badge_project</a></span>
       <div class="container">
         <ul class="nav navbar-nav pull-right">
           <li class="active"><a href="#">Home</a></li>
@@ -30,21 +30,26 @@
       <div class="container">
               
       </div>
-      <ul class="side-list">          
-        <li class="{{profile_active}}"><a href="/profile" >Your Profile<i class="icon-chevron-sign-right"></i></a></li>
-        <li class="{{badges_active}}"><a href="/badges">Badge Vault<i class="icon-chevron-sign-right"></i></a></li>
+      <ul class="side-list">    
+        <br>      
+        <li class="{{profile_active}}"><a href="/profile" ><i class="icon-user"></i> Your Profile<i class="icon-chevron-sign-right"></i></a></li>
+        {% if local_user.teacher %}
+        <li class="{{badges_active}}"><a href="/badges"><i class="icon-certificate"></i> Badge Vault<i class="icon-chevron-sign-right"></i></a></li>
+        {% endif %}
       </ul>
-      {% if courses %}
+      {% if courses and local_user.teacher %}
         <ul class="side-list">          
         {% for course in courses %}
-          <li class="{% if courseID == course.key.id() %}active{% endif %}"><a href="/course/{{course.key.id()}}">{{course.course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+          <li class="{% if courseID == course.key.id() and not student_profile and not student_badge %}active{% endif %}"><a href="/course/{{course.key.id()}}"><i class="icon-group"></i> {{course.course_name}}<i class="icon-chevron-sign-right"></i></a></li>
         {% endfor %}
         </ul>
       {% endif %}
       {% if enrollments %}
       <ul class="side-list"> 
         {% for entry in enrollments %}
-          <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() %}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">{{entry["course"].course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+          {% if entry['status'] == 'approved' %}
+            <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and student_profile %}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"><i class="icon-pencil"></i> {{entry["course"].course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+          {% endif %}
         {% endfor %}
       </ul>
       {% endif %}

@@ -9,6 +9,12 @@
   border-radius: 0.5em
 }
 
+.badge-grey {
+  background: #f6f6f6;
+  color: #e6e6e6;
+  box-shadow:  0.3em 0.3em 0.8em #e6e6e6 inset;
+}
+
 .badge-new-description {
   margin: 0 !important;
 }
@@ -45,16 +51,15 @@
   min-height: 100% !important;
   margin:0px;
   padding:0px !important;
-  width: 200px;
-  background: #024A68;
+  width: 160px;
+  background: #383838;
   color: #8c8c8c;
-  font-weight: 300;
-  text-shadow: 1px 1px 1px #00373d;
+  font-weight: 400;
   font-family: 'Roboto', sans-serif;
 }
 
 .navbar-fixed-top {
-  background: #024A68 !important;
+  background: #383838 !important;
 }
 
 .left-panel .side-list {
@@ -73,19 +78,24 @@
 
 .side-list > li > a {
   display: block;
-  width: 200px;
+  width: 180px;
   margin: 0 0 -1px;
   padding: 15px 0px;
-  padding-left: 20px;
+  padding-left: 10px;
   color: #8c8c8c;  
-  font-size: 16px
+  font-size: 1em
 }
 
-.side-list > li > a > i {
+.side-list > li > a > .icon-chevron-sign-right {
   float: right;
   margin-right: 15px;
   margin-top: 2px;
   text-shadow: none;
+  display: none;
+}
+
+.side-list > .active > a > .icon-chevron-sign-right {
+  display: block !important
 }
 
 .side-list > .active > a {

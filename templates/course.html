@@ -5,16 +5,26 @@
 <div>
   <div class="row">
     <h1>{{course.course_name}}</h1>
+    {% if student_profile %}
+      <p class="text-muted">Instructor: {{course.key.parent().get().formalName}}</p>
+    {% else %}
+      <p class="text-muted">You are the instructor for this course</p>
+    {% endif %}
   </div>
 
   <ul class="nav nav-tabs">
     <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
     <li {% if active_tab == 'special' %}class = "active"{% endif %}><a href="#special" data-toggle="tab">Special Badges</a></li>
-    <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>    
+    {% if user_is_teacher(course, local_user) and not student_profile %}
+      <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>
+      <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
+
+    {% endif %}  
     
   </ul>
 
   <div class="tab-content">
+    {% if user_is_teacher(course, local_user) and not student_profile %}
     <div class="tab-pane fade {% if active_tab == 'students' %}in active{% endif %}" id="students">
       {% if registrations %}
         <div>
@@ -55,46 +65,36 @@
       {% endif %}
 
     </div>
+    {% endif %}
+
     <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
-    <br>
-    <div>
-      <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
-    </div>
-    <br>
-      {% if checkpoints %}
-        {% for checkpoint in checkpoints %}
-          <div class="panel col-lg-12">
-            <div class="col-lg-6">
-              <h3>{{checkpoint.name}}</h3>
-              <p>{{checkpoint.description}}</p>
-            </div>
-            <div class="col-lg-6">
-              {% if badges %}
-                {% for badge in badges %}
-                  {% if badge.checkpoints %}
-                    {% if course.key.id() ~ "_" ~ checkpoint.key.id() in badge.checkpoints %}
-                      <div class="badge-div pull-left">
-                        <div class="small-badge">
-                          <a href="/badge/{{badge.key.id()}}">
-                            <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                              <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-            </div>
-
-          </div>
-        {% endfor %}
+      <br>
+      {% if user_is_teacher(course, local_user) and not student_profile %}
+      <div>
+        <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
+      </div>
       {% endif %}
-      
-
+      <br>
+        {% include 'checkpoint_list.html' %}
     </div>
     <div class="tab-pane fade {% if active_tab == 'special' %}in active{% endif %}" id="special">sdf.</div>
+    <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
+      
+      <div class="row">
+        <div>
+          <form method="post" class="col-lg-6">   
+            <h3>Course Name</h3>
+              <p>Change your course name</p>
+              <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.course_name}}"/>
+            <h3>Course Code</h3>
+            <p>Your students will need your google email address and this code to register for your course</p>
+              <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.course_code}}"/>
+            <br>
+            <button class="btn btn-primary" type="submit">Save Course</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
   

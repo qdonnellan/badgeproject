@@ -28,6 +28,7 @@ class MainHandler(webapp2.RequestHandler):
       enrollments = get_enrolled_courses(local_user),
       get_course_checkpoints = get_course_checkpoints, 
       get_enrolled_students = get_enrolled_students,
+      user_is_teacher = user_is_teacher,
       **kw))
 
 
