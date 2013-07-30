@@ -7,7 +7,11 @@
     <h1>The Badge Project</h1>
     <p class="marketing-byline">An experimental alternative to the traditional gradebook</p>
     <p class="muted">v 0.1 by Quentin Donnellan </p>
-    <a class="btn btn-primary" href="/link">Get Started</a>
+    {% if local_user %}
+      <a class="btn btn-primary" href="/profile">View Your Profile</a>
+    {% else %}
+      <a class="btn btn-primary" href="/link">Get Started</a>
+    {% endif %}
   </div>
 </div>  
 

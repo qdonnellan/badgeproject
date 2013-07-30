@@ -1,0 +1,29 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+    <div>
+      <h1>Request Teacher Access</h1>
+      <hr class="soften">
+    </div>
+    <div class="col-lg-6">
+      <form method="post">   
+        {% if error %}
+        <div class="alert alert-danger">
+          <strong>Woops!</strong> {{error}}
+        </div>
+        {% endif %}
+        <h3>Access Code</h3>
+        <p>Currently, we're only allowing a very select few teachers to have access to the teacher part of this website. If you have been given the teacher code, enter it below. </p>    
+        <input type="text" id="teacher_code" class="form-control" name="teacher_code"  />
+        <br>
+        <button class="btn btn-primary" type="submit">Submit Request</button>
+      </form>
+    </div>
+  </div>
+</div>  
+
+
+{% endblock %}

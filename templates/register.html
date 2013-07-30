@@ -11,7 +11,9 @@
     <div class="col-lg-6">
       <form method="post">   
         {% if error %}
-          <p class="text-error">{{error}}</p>
+          <div class="alert alert-danger">
+            <strong>Woops!</strong> {{error}}
+          </div>
         {% endif %}
         <h3>Your Teacher's Email</h3>
         <p>Type your teacher's email that was given to you</p>    
@@ -19,8 +21,9 @@
         <h3>Course Code</h3>
         <p>Type the course code your teacher provided to you.</p>
         <input type="text" id="course_code" class = "form-control" name="course_code" placeholder='eg. "CAL101"' />
-        <br><br><br>
+        <br>
         <p>Registration is not complete until your teacher grants approval</p>
+
         <button class="btn btn-primary" type="submit">Submit Registration</button>
       </form>
     </div>

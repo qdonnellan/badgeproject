@@ -6,7 +6,11 @@
   <div class="row">
     <h1>{{local_user.formalName}}</h1>
     <p>{{google_user_api.get_current_user().email()}}</p>
-    {% if local_user.teacher %}<a href="/edit_course" class="btn btn-primary">Create New Course</a>{% endif %}
+    {% if local_user.teacher %}
+      <a href="/edit_course" class="btn btn-info">Create New Course</a>
+    {% else %}
+      <a href="/request_teacher_access" class="btn btn-info">Request Teacher Access</a>
+    {% endif %}
     <a href="/register" class="btn btn-primary">Register for Course</a>
   </div>
   {% if enrollments %}

@@ -30,12 +30,9 @@ class badgeCreator(MainHandler):
         )
       self.redirect('/badge/%s' % badgeID)
 
-class simplePages(MainHandler):
-  def get(self, pageName):
-    if pageName in ['front']:
-      self.render('%s.html' % pageName)
-    else:
-      self.redirect('/')
+class front(MainHandler):
+  def get(self):
+    self.render('front.html')
 
 class link(MainHandler):
   def get(self):    
@@ -98,9 +95,8 @@ class course(MainHandler):
 
 class home(MainHandler):
   def get(self):
-    current_google_user = users.get_current_user()
-    if current_google_user:
-      self.render('base.html')
+    if valid_user():
+      self.redirect("/profile")
     else:
       self.redirect('/front')
 
@@ -281,11 +277,27 @@ class singleCheckpoint(MainHandler):
         get_checkpoint_percent_completion = get_checkpoint_percent_completion
         )
 
+class teacherAccessRequest(MainHandler):
+  def get(self):
+    if valid_user():
+      self.render('request_teacher_access.html')
+
+  def post(self):
+    if valid_user():
+      code = self.request.get('teacher_code')
+      if code == 'matt_damon':
+        valid_user().teacher = True
+        valid_user().put()
+        self.redirect('/profile')
+      else:
+        self.redirect('/request_teacher_access?error=invalid code')
+
 
 
 
 app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
+  ('/request_teacher_access', teacherAccessRequest),
   ('/badge_creator/(\w+)', badgeCreator),
   ('/student_profile/(\w+)/(\w+)', studentProfile),
   ('/student_profile/(\w+)/(\w+)/teacher_view', teacherViewStudentProfile),
@@ -307,6 +319,6 @@ app = webapp2.WSGIApplication([
   ('/course/(\w+)/new_checkpoint', newCheckpoint),
   ('/course/(\w+)/edit_checkpoint/(\w+)', editCheckpoint),
   ('/course/(\w+)', course),
-  ('/(\w+)', simplePages),
+  ('/front', front),
   ('.*', home)
 ], debug=False)

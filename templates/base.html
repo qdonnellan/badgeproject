@@ -19,7 +19,12 @@
       <span class="pull-left"><a class="navbar-brand">the_badge_project</a></span>
       <div class="container">
         <ul class="nav navbar-nav pull-right">
+          {% if local_user %}
+          <li><a href="/profile">{{local_user.formalName}}</a></li>
+          <li><a href="{{google_user_api.create_logout_url('/')}}"><i class='icon-signout'></i> Log out</a></li>
+          {% else %}
           <li><a href="/link">Get Started</a></li>
+          {% endif %}
         </ul>
       </div>
     </div>
