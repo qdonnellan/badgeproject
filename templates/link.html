@@ -3,13 +3,13 @@
 {% block body %}
 
 {% if google_user_api.get_current_user() %}
-  <div class="container">
-    <div class="row-fluid">
-      <div class="marketing span8 offset2">
+  <div>
+    <div class="row">
+      <div class="marketing">
         <h1>Google Account Linked</h1>
         <p class="marketing-byline">Your Google account is successfully linked but you have not completed registration.</p>
       </div>
-      <div class="span8 offset2">
+      <div class="">
         <form method="post">
           <h2>1. Verify Google Account</h2>
           <p>Make sure the email below belongs to you, otherwise you'll be creating an account for someone else!</p>

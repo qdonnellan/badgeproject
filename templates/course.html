@@ -22,7 +22,6 @@
   <div class="row">
     <ul class="nav nav-tabs">
       <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
-      <li {% if active_tab == 'special' %}class = "active"{% endif %}><a href="#special" data-toggle="tab">Special Badges</a></li>
       {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile)%}
         <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>
         <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
@@ -91,7 +90,6 @@
         <br>
           {% include 'checkpoint_list.html' %}
       </div>
-      <div class="tab-pane fade {% if active_tab == 'special' %}in active{% endif %}" id="special">sdf.</div>
       <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
         
         <div class="row">

@@ -1,24 +1,24 @@
-{% extends 'base.html' %}
+{% extends 'user_base.html' %}
 
 {% block body %}
 
 <div class="container">
-  <div class="row-fluid">
-    <div class="marketing span8 offset2">
+  <div class="row">
+    <div>
       <h1>Register for a Course</h1>
       <hr class="soften">
     </div>
-    <div class="span8 offset2">
+    <div class="col-lg-6">
       <form method="post">   
         {% if error %}
           <p class="text-error">{{error}}</p>
         {% endif %}
         <h3>Your Teacher's Email</h3>
         <p>Type your teacher's email that was given to you</p>    
-        <input type="text" id="teacher_email" name="teacher_email" placeholder="some_teacher@example.com" />
+        <input type="text" id="teacher_email" class="form-control" name="teacher_email" placeholder="some_teacher@example.com" />
         <h3>Course Code</h3>
         <p>Type the course code your teacher provided to you.</p>
-        <input type="text" id="course_code" name="course_code" placeholder='eg. "CAL101"' />
+        <input type="text" id="course_code" class = "form-control" name="course_code" placeholder='eg. "CAL101"' />
         <br><br><br>
         <p>Registration is not complete until your teacher grants approval</p>
         <button class="btn btn-primary" type="submit">Submit Registration</button>

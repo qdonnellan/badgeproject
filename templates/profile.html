@@ -26,8 +26,8 @@
           <tr>
             <td>{{entry["course"].course_name}} 
             <td>{{entry["status"]}}</td>
-            <td>...</td>
-            <td><a class="btn btn-small btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View Course</a></td>
+            <td> </td>
+            <td>{% if entry["status"]=='approved' %}<a class="btn btn-small btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View Course</a>{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>

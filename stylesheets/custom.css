@@ -125,8 +125,15 @@
   width: 90%;
 }
 
+.no-sidebar-div {
+  margin-top: 50px;
+}
 
 .single-badge-description {
   display: block;
   margin-left: 0
+}
+
+.marketing {
+  text-align: center;
 }
