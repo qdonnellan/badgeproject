@@ -1,6 +1,7 @@
 
 from google.appengine.api import users
 from database import existing_user
+import re
 
 def valid_user():
   current_google_user = users.get_current_user()
@@ -9,4 +10,3 @@ def valid_user():
     return local_user
   else:
     return False
-

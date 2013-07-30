@@ -202,9 +202,20 @@ def create_new_checkpoint(name, description, course):
   new_checkpoint = Checkpoint(name= name, description = description, parent = course.key)
   new_checkpoint.put()
 
+def update_checkpoint(name, description, course, checkpointID):
+  the_checkpoint = get_single_checkpoint(course, checkpointID)
+  if the_checkpoint:
+    the_checkpoint.name = name
+    the_checkpoint.description = description
+    the_checkpoint.put()
+
 def get_course_checkpoints(course):
   checkpoints = Checkpoint.query(ancestor = course.key)
   return checkpoints
+
+def get_single_checkpoint(course, checkpointID):
+  the_checkpoint = ndb.Key(Checkpoint, int(checkpointID), parent = course.key).get()
+  return the_checkpoint
 
 def new_achievement(student_id, teacher_id, badge_id, course_id, status):
   the_achievement = fetch_achievement(student_id, badge_id, teacher_id, course_id)
@@ -214,9 +225,9 @@ def new_achievement(student_id, teacher_id, badge_id, course_id, status):
     student = get_student(student_id)
     if student:
       the_achievement = Achievement(
-        teacher_id = teacher_id, 
-        badge_id = badge_id,
-        course_id = course_id,
+        teacher_id = str(teacher_id), 
+        badge_id = str(badge_id),
+        course_id = str(course_id),
         status = status,
         parent = student.key
         )
@@ -247,6 +258,14 @@ def achievement_status(student_id, badge_id, teacher_id, course_id):
   else:
     return 'Not yet obtained'
 
+def badge_achieved(badge, course, student):
+  teacher = course.key.parent().get()
+  the_achievement = fetch_achievement(student.key.id(), badge.key.id(), teacher.key.id(), course.key.id())
+  if the_achievement and the_achievement.status == 'awarded':
+    return True
+  else:
+    return False
+
 def user_is_teacher(course, user):
   if user.teacher:
     if user.key.id() == course.key.parent().get().key.id():
@@ -266,8 +285,6 @@ def get_checkpoint_percent_completion(course, student, badges, checkpoint):
       if achievement_status(student.key.id(), badge.key.id(), course.key.parent().get().key.id(), course.key.id()) == 'awarded':
         student_points += badge.value
 
-  logging.info(student_points)
-  logging.info(total_possible_points)
   if total_possible_points == 0:
     raw_score = 0
   else:
@@ -276,7 +293,13 @@ def get_checkpoint_percent_completion(course, student, badges, checkpoint):
   return rounded_score
 
 
-
+def badge_in_checkpoint(badge, checkpoint):
+  course = checkpoint.key.parent().get()
+  checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
+  if badge.checkpoints and (checkpoint_key in badge.checkpoints):
+    return True
+  else:
+    return False
 
 
 

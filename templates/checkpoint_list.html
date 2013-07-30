@@ -2,7 +2,7 @@
   {% for checkpoint in checkpoints %}
     <div class="panel col-lg-12">
       <div class="col-lg-4">
-        <h3>{{checkpoint.name}}</h3>
+        <h3>{{checkpoint.name}} <small><a href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">[edit]</a></small></h3>
         <p>{{checkpoint.description}}</p>
       </div>
       <div class="col-lg-6">
@@ -11,17 +11,19 @@
             {% if badge.checkpoints %}
               {% if course.key.id() ~ "_" ~ checkpoint.key.id() in badge.checkpoints %}
                 <div class="badge-div pull-left">
-                  <div class="small-badge">
+                  <div class="small-badge" rel="tooltip" title="{{badge.name}} ({{badge.value}} points)" data-placement="top">
                     {% if student_profile %}
                       <a href="/student_badge/{{teacherID}}/{{course.key.id()}}/{{badge.key.id()}}">
+                    {% elif teacher_view_student_profile %}
+                      <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
                     {% else %}
-                      <a href="/badge/{{badge.key.id()}}">
+                      <a href="/badge/{{badge.key.id()}}" >
                     {% endif %}
-                      {% if student_profile and achievement_status(student_id = local_user.key.id(), teacher_id = teacherID, course_id = courseID, badge_id = badge.key.id())== 'awarded' %}
-                        <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                      {% if (student_profile or teacher_view_student_profile) and achievement_status(student_id = student.key.id(), teacher_id = teacherID, course_id = courseID, badge_id = badge.key.id())== 'awarded' %}
+                        <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
                           <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
                         </div>
-                      {% elif not student_profile and user_is_teacher(course, local_user) %}
+                      {% elif not (student_profile or teacher_view_student_profile) and user_is_teacher(course, local_user) %}
                         <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
                           <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
                         </div>
@@ -40,8 +42,11 @@
       </div>
       <div class="col-lg-2">
       <h1>
-        {% if badges and student_profile %}
-          {{get_checkpoint_percent_completion(course = course, badges = badges, student = local_user, checkpoint = checkpoint)}}%
+        {% if student_profile or teacher_view_student_profile %}
+          {{get_checkpoint_percent_completion(course = course, badges = badges, student = student, checkpoint = checkpoint)}}%
+
+        {% else %}
+          <p><a class="btn btn-info" href ="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}"><i class="icon-bar-chart"></i> Class Progress</a></p>
         {% endif %}
       </h1>
       </div>

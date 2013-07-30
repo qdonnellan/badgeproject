@@ -4,7 +4,14 @@
 
 <div>
   <div class="row">
-    <h1>{{course.course_name}}</h1>
+    <h1>{{course.course_name}} 
+      {% if teacher_view_student_profile %}
+        <a href="/course/{{course.key.id()}}" class="btn btn-default pull-right">Teacher View</a>
+      {% endif %}
+    </h1>
+    {% if teacher_view_student_profile %}
+      <h3 class="text-muted">Viewing Student: <strong class="text-success">{{student.formalName}}</strong></h3>
+    {% endif %}
     {% if student_profile %}
       <p class="text-muted">Instructor: {{course.key.parent().get().formalName}}</p>
     {% else %}
@@ -12,91 +19,98 @@
     {% endif %}
   </div>
 
-  <ul class="nav nav-tabs">
-    <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
-    <li {% if active_tab == 'special' %}class = "active"{% endif %}><a href="#special" data-toggle="tab">Special Badges</a></li>
-    {% if user_is_teacher(course, local_user) and not student_profile %}
-      <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>
-      <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
+  <div class="row">
+    <ul class="nav nav-tabs">
+      <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
+      <li {% if active_tab == 'special' %}class = "active"{% endif %}><a href="#special" data-toggle="tab">Special Badges</a></li>
+      {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile)%}
+        <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>
+        <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
 
-    {% endif %}  
-    
-  </ul>
+      {% endif %}  
+      
+    </ul>
 
-  <div class="tab-content">
-    {% if user_is_teacher(course, local_user) and not student_profile %}
-    <div class="tab-pane fade {% if active_tab == 'students' %}in active{% endif %}" id="students">
-      {% if registrations %}
-        <div>
-          <h3>Students Enrolled in Course</h3>
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Registration Status</th>
-                <th>Notifications</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for registration in registrations %}
-              <tr>
-                <td>{{get_student(registration.student_id).formalName}}</td>
-                <td>{{registration.status}}</td>
-                <td>...</td>
-                <td>
-                {% if registration.status == "pending"%}
-                  <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
-                  <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a></td>
-                {% elif registration.status == "approved" %}
-                  <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
-                {% elif registration.status == "denied" %}
-                  <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.studen_id}}/approved">approve</a> 
-                {% elif registration.status == "revoked" %}
-                  <a class="btn btn-small btn-info" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">re-admit</a>
+    <div class="tab-content">
+      {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
+      <div class="tab-pane fade {% if active_tab == 'students' %}in active{% endif %}" id="students">
+        {% if registrations %}
+          <div>
+            <h3>Students Enrolled in Course</h3>
+            <p class='text-muted'>Click on a student's name to view that student's progress in this course</p>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Registration Status</th>
+                  <th>Notifications</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for registration in registrations %}
+                <tr>
+                  <td>
+                    <a href="/student_profile/{{registration.student_id}}/{{course.key.id()}}/teacher_view">
+                      {{get_student(registration.student_id).formalName}}
+                    </a>
+                  </td>
+                  <td>{{registration.status}}</td>
+                  <td>...</td>
+                  <td>
+                  {% if registration.status == "pending"%}
+                    <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
+                    <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a>
+                  {% elif registration.status == "approved" %}
+                    <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
+                  {% elif registration.status == "denied" %}
+                    <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.studen_id}}/approved">approve</a> 
+                  {% elif registration.status == "revoked" %}
+                    <a class="btn btn-small btn-info" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">re-admit</a>
 
-                {% endif %}             
+                  {% endif %}  
+                  </td>         
 
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
 
-    </div>
-    {% endif %}
-
-    <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
-      <br>
-      {% if user_is_teacher(course, local_user) and not student_profile %}
-      <div>
-        <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
       </div>
       {% endif %}
-      <br>
-        {% include 'checkpoint_list.html' %}
-    </div>
-    <div class="tab-pane fade {% if active_tab == 'special' %}in active{% endif %}" id="special">sdf.</div>
-    <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
-      
-      <div class="row">
+
+      <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
+        <br>
+        {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
         <div>
-          <form method="post" class="col-lg-6">   
-            <h3>Course Name</h3>
-              <p>Change your course name</p>
-              <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.course_name}}"/>
-            <h3>Course Code</h3>
-            <p>Your students will need your google email address and this code to register for your course</p>
-              <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.course_code}}"/>
-            <br>
-            <button class="btn btn-primary" type="submit">Save Course</button>
-          </form>
+          <a class="btn btn-primary" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a>
+        </div>
+        {% endif %}
+        <br>
+          {% include 'checkpoint_list.html' %}
+      </div>
+      <div class="tab-pane fade {% if active_tab == 'special' %}in active{% endif %}" id="special">sdf.</div>
+      <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
+        
+        <div class="row">
+          <div>
+            <form method="post" class="col-lg-6">   
+              <h3>Course Name</h3>
+                <p class="text-muted">Change your course name</p>
+                <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.course_name}}"/>
+              <h3>Course Code</h3>
+              <p class="text-muted">Your students will need your google email address and this code to register for your course</p>
+                <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.course_code}}"/>
+              <br>
+              <button class="btn btn-primary" type="submit">Save Course</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
   
 </div>  
 

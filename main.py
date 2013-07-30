@@ -149,11 +149,29 @@ class studentProfile(MainHandler):
           checkpoints = get_course_checkpoints(course),
           badges = get_all_badges(course.key.parent().get()),
           student_profile = True,
+          student = valid_user(),
           achievement_status = achievement_status,
           get_checkpoint_percent_completion = get_checkpoint_percent_completion,
           )
       else:
         self.write('You are not registered for this course...')
+
+class teacherViewStudentProfile(MainHandler):
+  def get(self, studentID, courseID):
+    if valid_user():
+      course = get_user_courses(valid_user(), courseID)
+      if course:
+        self.render('course.html', 
+          course = course, 
+          teacherID= valid_user().key.id(), 
+          courseID = int(courseID),
+          checkpoints = get_course_checkpoints(course),
+          badges = get_all_badges(valid_user()),
+          teacher_view_student_profile = True,
+          student = get_student(studentID),
+          achievement_status = achievement_status,
+          get_checkpoint_percent_completion = get_checkpoint_percent_completion,
+          )
 
 class studentBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
@@ -165,8 +183,33 @@ class studentBadge(MainHandler):
         achievement_status = this_badge_status,
         student_badge = True,
         courseID = course.key.id(),
-        teacherID = teacherID
+        course = course, 
+        teacherID = int(teacherID)
         )
+
+class teacherViewStudentBadge(MainHandler):
+  def get(self, studentID, courseID, badgeID):
+    if valid_user():
+      course = get_user_courses(valid_user(), courseID)
+      if course:
+        this_badge_status = achievement_status(student_id = studentID, course_id = courseID, badge_id = badgeID, teacher_id = valid_user().key.id())
+        self.render('single_badge.html',
+          badge = get_badge(valid_user(), badgeID),
+          achievement_status = this_badge_status,
+          teacher_view_student_badge = True,
+          student = get_student(studentID),
+          course = course, 
+          courseID = course.key.id(),
+          teacher = valid_user(),
+          teacherID = int(valid_user().key.id())
+          )
+
+class teacherViewAwardBadge(MainHandler):
+  def get(self, studentID, courseID, badgeID, status):
+    if valid_user():
+      if status in ['awarded', 'revoked']:
+        new_achievement(teacher_id = valid_user().key.id(), student_id = studentID, badge_id = badgeID, course_id = courseID, status = status)
+    self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class requestBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
@@ -180,7 +223,7 @@ class newCheckpoint(MainHandler):
     if valid_user():
       course = existing_course(courseID = courseID, user = valid_user())
       if course:
-        self.render('edit_checkpoint.html', course = course, new_checkpoint = True)
+        self.render('edit_checkpoint.html', course = course, new_checkpoint = True, courseID = int(courseID))
 
   def post(self, courseID):
     if valid_user():
@@ -192,11 +235,51 @@ class newCheckpoint(MainHandler):
 
     self.redirect('/course/%s' % courseID)
 
+class editCheckpoint(MainHandler):
+  def get(self, courseID, checkpointID):
+    if valid_user():
+      course = existing_course(courseID = courseID, user = valid_user())
+      if course:
+        self.render('edit_checkpoint.html', 
+          course = course, 
+          courseID = int(courseID),
+          new_checkpoint = False, 
+          checkpoint = get_single_checkpoint(course, checkpointID))
+
+  def post(self, courseID, checkpointID):
+    if valid_user():
+      course = existing_course(courseID = courseID, user = valid_user())
+      if course:        
+        name = self.request.get('checkpoint_name')
+        description = self.request.get('description')
+        update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course)
+
+    self.redirect('/course/%s' % courseID)
+
 class singleBadge(MainHandler):
   def get(self, badgeID):
     if valid_user():
-      self.render('single_badge.html', badge = get_badge(valid_user(),badgeID), achievement_status = achievement_status, teacher=valid_user())
+      self.render('single_badge.html', 
+        badge = get_badge(valid_user(),badgeID), 
+        achievement_status = achievement_status, 
+        teacher=valid_user(),
+        badges_active = 'active'
+        )
 
+class singleCheckpoint(MainHandler):
+  def get(self, courseID, checkpointID):
+    if valid_user():
+      course = existing_course(courseID, valid_user())
+      checkpoint = get_single_checkpoint(course, checkpointID)
+      self.render('single_checkpoint.html', 
+        badges = get_all_badges(valid_user()), 
+        checkpoint=checkpoint, 
+        course=course,
+        courseID = int(courseID), 
+        badge_in_checkpoint = badge_in_checkpoint,
+        badge_achieved = badge_achieved,
+        get_checkpoint_percent_completion = get_checkpoint_percent_completion
+        )
 
 
 
@@ -205,6 +288,9 @@ app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
   ('/badge_creator/(\w+)', badgeCreator),
   ('/student_profile/(\w+)/(\w+)', studentProfile),
+  ('/student_profile/(\w+)/(\w+)/teacher_view', teacherViewStudentProfile),
+  ('/student_badge/(\w+)/(\w+)/(\w+)/teacher_view', teacherViewStudentBadge),
+  ('/student_badge/(\w+)/(\w+)/(\w+)/teacher_view/award/(\w+)', teacherViewAwardBadge),
   #('/student_course/(\w+)', studentCourse),
   ('/complete_registration/(\w+)/(\w+)/(\w+)', completeRegistration),
   ('/link', link),
@@ -212,12 +298,14 @@ app = webapp2.WSGIApplication([
   ('/profile', profile),
   ('/badges', listBadges),
   ('/badge/(\w+)', singleBadge),
+  ('/course/(\w+)/checkpoint/(\w+)', singleCheckpoint),
   ('/student_badge/(\w+)/(\w+)/(\w+)', studentBadge),
   ('/request_badge/(\w+)/(\w+)/(\w+)', requestBadge),
   ('/edit_course', editCourse),
   ('/edit_course/(\w+)', editCourse),
   ('/achievementHandler', achievementHandler),
   ('/course/(\w+)/new_checkpoint', newCheckpoint),
+  ('/course/(\w+)/edit_checkpoint/(\w+)', editCheckpoint),
   ('/course/(\w+)', course),
   ('/(\w+)', simplePages),
   ('.*', home)

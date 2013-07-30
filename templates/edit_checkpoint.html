@@ -7,9 +7,12 @@
     <div>
       {% if new_checkpoint %}
         <h1>New Checkpoint</h1>
-        <p>This checkpoint will belong to the course <span class="label">{{course.course_name}}</span>. You will be able to assign badges to this checkpoint after it has been created</p>
+        <p>This checkpoint will belong to the course <span class="label">{{course.course_name}}</span></p>
+        <p>You will be able to assign badges to this checkpoint after it has been created</p>
       {% else %}
         <h1>Edit Checkpoint</h1>
+        <p>This checkpoint belongs to the course <span class="label">{{course.course_name}}</span></p>
+        <p>You can add badges to this checkpoint from the badge creator for each individual badge. </p>
       {% endif %}
       <hr class="soften">
     </div>
@@ -17,11 +20,15 @@
       <form method="post" class="col-lg-6">   
 
         <h4>Checkpoint Name</h4>
-        <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" />
+        {% if new_checkpoint %}
+          <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" />
+        {% else %}
+          <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" value = "{{checkpoint.name}}"/>
+        {% endif %}
 
         <h4>Checkpoint Description</h4>
         <p>Provide a simple explanation of this checkpoint here. You may want to include a note about the target completion date, or if this checkpoint is optional or required.</p>
-        <textarea rows="5" id="description" class="form-control" name="description"></textarea>
+        <textarea rows="5" id="description" class="form-control" name="description">{% if not new_checkpoint %}{{checkpoint.description}}{% endif %}</textarea>
         <br>
         <button class="btn btn-primary" type="submit">Save Checkpoint</button>
       </form>

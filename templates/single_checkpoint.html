@@ -1,0 +1,54 @@
+{% extends 'user_base.html' %}
+
+
+{% block body %}
+<div>
+  <div class="row">
+    <h1>{{checkpoint.name}}</h1>
+    <p class="text-muted">Checkpoint for the course <a href="/course/{{course.key.id()}}">{{course.course_name}}</a></p>
+    <p class="lead">{{checkpoint.description}}</p>
+    <p><a class="btn btn-info btn-small" href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">Edit Checkpoint</a></p>
+    <hr>
+  </div>
+  <table class="table table-hover row">
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Badge Progress</th>
+        <th>Percent Completion</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in get_enrolled_students(course) %}
+      <tr>
+        <td><a href="/student_profile/{{student.key.id()}}/{{course.key.id()}}/teacher_view">{{student.formalName}}</a></td>
+        <td>
+          {% for badge in badges %}
+            {% if badge_in_checkpoint(badge, checkpoint) %}
+              <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                {% if badge_achieved(badge, course, student) %}
+                  <div class="tiny-badge pull-left">
+                    <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                      <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="tiny-badge pull-left">
+                    <div class="badge-grey badge-new">
+                      <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                    </div>
+                  </div>
+                {% endif %}
+              </a>
+            {% endif %}
+
+          {% endfor %}
+
+        </td>
+        <td>{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

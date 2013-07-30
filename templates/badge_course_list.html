@@ -30,7 +30,11 @@
           {% for student in get_enrolled_students(course) %}
           {% set current_achievement_status = achievement_status(student.key.id(), badge.key.id(), teacher.key.id(), course.key.id()) %}
             <tr>
-              <td>{{student.formalName}}</td>
+              <td>
+                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                  {{student.formalName}}
+                </a>
+              </td>
               <td>
                 {% if 'awarded' in current_achievement_status %}
                   <span class="text-success"><i class="icon-certificate"></i> awarded</span>

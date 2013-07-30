@@ -39,8 +39,8 @@
       </ul>
       {% if courses and local_user.teacher %}
         <ul class="side-list">          
-        {% for course in courses %}
-          <li class="{% if courseID == course.key.id() and not student_profile and not student_badge %}active{% endif %}"><a href="/course/{{course.key.id()}}"><i class="icon-group"></i> {{course.course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+        {% for each_course in courses %}
+          <li class="{% if courseID == each_course.key.id() and not (student_profile or student_badge) %}active{% endif %}"><a href="/course/{{each_course.key.id()}}"><i class="icon-group"></i> {{each_course.course_name}}<i class="icon-chevron-sign-right"></i></a></li>
         {% endfor %}
         </ul>
       {% endif %}
@@ -48,7 +48,7 @@
       <ul class="side-list"> 
         {% for entry in enrollments %}
           {% if entry['status'] == 'approved' %}
-            <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and student_profile %}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"><i class="icon-pencil"></i> {{entry["course"].course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+            <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"><i class="icon-pencil"></i> {{entry["course"].course_name}}<i class="icon-chevron-sign-right"></i></a></li>
           {% endif %}
         {% endfor %}
       </ul>
@@ -59,6 +59,12 @@
         {% block body %}{% endblock %}  
       </div>
     </div>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("[rel=tooltip]").tooltip();
+      })
+    </script>
       
 
 
