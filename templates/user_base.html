@@ -17,15 +17,46 @@
   
   <body> 
     <div class="navbar navbar-fixed-top navbar-inverse">
-      <span class="pull-left"><a class="navbar-brand">the_badge_project</a></span>
+      <span class="pull-left hidden-sm"><a class="navbar-brand">the_badge_project</a></span>
       <div class="container">
-        <ul class="nav navbar-nav pull-right">
+      <!-- navbar for large screens -->
+        <ul class="nav navbar-nav pull-right visible-lg">
           <li><a href="/profile">{{local_user.formalName}}</a></li>
           <li><a href="{{google_user_api.create_logout_url('/')}}"><i class='icon-signout'></i> Log out</a></li>
         </ul>
+      <!-- -->
+
+      <!-- navbar for medium (tablet?) screens -->
+        <ul class="nav navbar-nav pull-right visible-md">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              {{local_user.formalName}} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              {% include 'user_links.html' %}
+            </ul>
+          </li>
+        </ul>
+
+      <!-- -->
+
+      <!-- navbar for tiny screens -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand visible-sm">the_badge_project</a>
+
+        <div class="nav-collapse collapse navbar-responsive-collapse">
+          <ul class="nav navbar-nav visible-sm">
+            {% include 'user_links.html' %}
+          </ul>
+        </div>
+      <!-- end navbars -->
       </div>
     </div>
-    <div class="left-panel">
+    <div class="left-panel visible-lg">
       <div class="container">
               
       </div>
@@ -69,8 +100,7 @@
 
 
     <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>    
-    <script src="/bootstrap/js/bootstrap.js"></script>
-    <script src="/javascript/bootstrap-fileupload.min.js"></script>  
+    <script src="/bootstrap/js/bootstrap.js"></script> 
     <script src="/javascript/bootstrap-typeahead.js"></script>     
   </body>
 </html>

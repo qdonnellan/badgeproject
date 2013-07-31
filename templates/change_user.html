@@ -1,0 +1,29 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+    <div>
+      <h1>Your Information</h1>
+      <hr class="soften">
+    </div>
+    <div class="col-lg-6">
+      <form method="post">   
+        {% if error %}
+        <div class="alert alert-danger">
+          <strong>Woops!</strong> {{error}}
+        </div>
+        {% endif %}
+        <h3>Name</h3>
+        <p>Please use your full name</p>    
+        <input type="text" id="formalName" class="form-control" name="formalName" value="{{local_user.formalName}}" />
+        <br>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+</div>  
+
+
+{% endblock %}

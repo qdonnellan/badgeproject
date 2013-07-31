@@ -1,11 +1,31 @@
 {% if checkpoints %}
   {% for checkpoint in checkpoints %}
-    <div class="panel col-lg-12">
-      <div class="col-lg-4">
-        <h3>{{checkpoint.name}} <small><a href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">[edit]</a></small></h3>
+    <div class="row callout-checkpoint callout">
+      <div class="col-lg-10 col-sm-9">
+        <h3>{{checkpoint.name}} 
+          {% if not (student_profile or teacher_view_student_profile) %}
+            <small><a href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">[edit]</a></small>
+          {% endif %}
+        </h3>
+         
         <p>{{checkpoint.description}}</p>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-2 col-sm-3">
+          
+          {% if student_profile or teacher_view_student_profile %}
+            <p class="percent-complete">{{get_checkpoint_percent_completion(course = course, badges = badges, student = student, checkpoint = checkpoint)}}%</p>
+
+          {% else %}
+              <p class="checkpoint-teacher-right">
+                <i class="icon-bar-chart"></i>
+                <br>
+                <a class="btn btn-info btn-small" href ="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}">
+                  Class Progress
+                </a>
+              </p>
+          {% endif %}
+      </div>
+      <div class="col-lg-12 col-sm-12">
         {% if badges %}
           {% for badge in badges %}
             {% if badge.checkpoints %}
@@ -19,7 +39,7 @@
                     {% else %}
                       <a href="/badge/{{badge.key.id()}}" >
                     {% endif %}
-                      {% if (student_profile or teacher_view_student_profile) and achievement_status(student_id = student.key.id(), teacher_id = teacherID, course_id = courseID, badge_id = badge.key.id())== 'awarded' %}
+                      {% if (student_profile or teacher_view_student_profile) and achievement_status(student, badge, teacher, course)== 'awarded' %}
                         <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
                           <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
                         </div>
@@ -40,16 +60,7 @@
           {% endfor %}
         {% endif %}
       </div>
-      <div class="col-lg-2">
-      <h1>
-        {% if student_profile or teacher_view_student_profile %}
-          {{get_checkpoint_percent_completion(course = course, badges = badges, student = student, checkpoint = checkpoint)}}%
-
-        {% else %}
-          <p><a class="btn btn-info" href ="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}"><i class="icon-bar-chart"></i> Class Progress</a></p>
-        {% endif %}
-      </h1>
-      </div>
+      
     </div>
   {% endfor %}
 {% endif %}

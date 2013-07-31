@@ -53,6 +53,11 @@ def new_user(google_user, formalName):
     new_user_object = User(google_id = str(google_user.user_id()), formalName = formalName, email = google_user.email())
     new_user_object.put()
 
+def edit_user(user, formalName):
+  if user:
+    user.formalName = formalName
+    user.put()
+
 def existing_course(courseID, user):
   if courseID:
     theKey = ndb.Key(Course, int(courseID), parent = user.key)
@@ -103,6 +108,18 @@ def edit_registration(courseID, teacher, studentID, action):
 def get_registrations(course):
   return Registrations.query(ancestor = course.key)
 
+def get_number_of_pending_registrations(course):
+  total_registrations = get_registrations(course)
+  total = 0
+  if total_registrations:
+    for item in total_registrations:
+      if item.status == 'pending':
+        total += 1
+  if total == 0:
+    return None
+  else:
+    return total
+
 
 def get_student_course(courseID, student, teacherID):
   teacher = ndb.Key(User, int(teacherID)).get()
@@ -135,6 +152,9 @@ def get_enrolled_courses(student):
 
 def get_student(studentID):
   return ndb.Key(User, int(studentID)).get()
+
+def get_teacher(teacherID):
+  return ndb.Key(User, int(teacherID)).get()
 
 
 def edit_badge(teacher, icon, icon_color, border_color, background, name, requirement, value, checkpoints, badgeID = None):
@@ -217,42 +237,41 @@ def get_single_checkpoint(course, checkpointID):
   the_checkpoint = ndb.Key(Checkpoint, int(checkpointID), parent = course.key).get()
   return the_checkpoint
 
-def new_achievement(student_id, teacher_id, badge_id, course_id, status):
-  the_achievement = fetch_achievement(student_id, badge_id, teacher_id, course_id)
+def new_achievement(student, teacher, badge, course, status):
+  the_achievement = fetch_achievement(student, badge, teacher, course)
   if the_achievement:
     the_achievement.populate(status = status)
   else:
-    student = get_student(student_id)
     if student:
       the_achievement = Achievement(
-        teacher_id = str(teacher_id), 
-        badge_id = str(badge_id),
-        course_id = str(course_id),
+        teacher_id = str(teacher.key.id()), 
+        badge_id = str(badge.key.id()),
+        course_id = str(course.key.id()),
         status = status,
         parent = student.key
         )
   the_achievement.put()
 
-def fetch_achievement(student_id, badge_id, teacher_id, course_id):
+def fetch_achievement(student, badge, teacher, course):
   the_achievement = Achievement.query(
-    Achievement.teacher_id == str(teacher_id), 
-    Achievement.course_id == str(course_id),
-    Achievement.badge_id == str(badge_id),
-    ancestor = get_student(student_id).key)
+    Achievement.teacher_id == str(teacher.key.id()), 
+    Achievement.course_id == str(course.key.id()),
+    Achievement.badge_id == str(badge.key.id()),
+    ancestor = student.key)
   return the_achievement.get()
 
-def edit_achievement(student_id, badge_id, teacher_id, course_id):
-  the_achievement = fetch_achievement(student_id, badge_id, teacher_id, course_id)
+def edit_achievement(student, badge, teacher, course):
+  the_achievement = fetch_achievement(student, badge, teacher, course)
   if the_achievement:
     if the_achievement.status != 'awarded':
       the_achievement.status = 'requested'
       the_achievement.put()
   else:
-    new_achievement(student_id, teacher_id, badge_id, course_id, "requested")
+    new_achievement(student, teacher, badge, course, "requested")
 
 
-def achievement_status(student_id, badge_id, teacher_id, course_id):
-  the_achievement = fetch_achievement(student_id, badge_id, teacher_id, course_id)
+def achievement_status(student, badge, teacher, course):
+  the_achievement = fetch_achievement(student, badge, teacher, course)
   if the_achievement:
     return the_achievement.status
   else:
@@ -260,11 +279,44 @@ def achievement_status(student_id, badge_id, teacher_id, course_id):
 
 def badge_achieved(badge, course, student):
   teacher = course.key.parent().get()
-  the_achievement = fetch_achievement(student.key.id(), badge.key.id(), teacher.key.id(), course.key.id())
+  the_achievement = fetch_achievement(student, badge, teacher, course)
   if the_achievement and the_achievement.status == 'awarded':
     return True
   else:
     return False
+
+def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
+  if course:
+    teacher = course.key.parent().get()
+    badges = get_all_badges(teacher)
+    students = get_enrolled_students(course)
+    total = 0
+    for badge in badges:
+      if indiv_student:
+        possible_achievement = achievement_status(indiv_student, badge, teacher, course)
+        if possible_achievement == 'requested':
+          total += 1
+        if denied_on and possible_achievement == 'denied':
+          total += 1
+      else:
+        for student in students:
+          possible_achievement = achievement_status(student, badge, teacher, course)
+          if possible_achievement == 'requested':
+            total += 1
+    if total == 0:
+      return None
+    else:
+      return total
+
+def get_badge_requests(course, indiv_student=None, denied_on = False):
+  if course:
+    teacher = course.key.parent().get()
+    badges = get_all_badges(teacher)
+    students = get_enrolled_students(course)
+    total = 0
+    for badge in badges:
+      if indiv_student:
+        possible_achievement = fetch_achievement(student, badge, teacher, course)
 
 def user_is_teacher(course, user):
   if user.teacher:
@@ -282,7 +334,7 @@ def get_checkpoint_percent_completion(course, student, badges, checkpoint):
     checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
     if badge.checkpoints and (checkpoint_key in badge.checkpoints):
       total_possible_points += badge.value
-      if achievement_status(student.key.id(), badge.key.id(), course.key.parent().get().key.id(), course.key.id()) == 'awarded':
+      if achievement_status(student, badge, course.key.parent().get(), course) == 'awarded':
         student_points += badge.value
 
   if total_possible_points == 0:

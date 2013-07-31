@@ -121,8 +121,16 @@
 
 .content-div {
   margin-top: 50px;
-  padding-left: 250px;
-  width: 90%;
+  padding:30px;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .content-div {
+    margin-top: 50px;
+    padding-left: 250px;
+    width: 90%;
+  }
 }
 
 .no-sidebar-div {
@@ -136,4 +144,34 @@
 
 .marketing {
   text-align: center;
+}
+
+.achievement-form {
+  margin-left:2px;
+}
+
+.callout {
+  margin: 20px 0;
+  padding: 15px 30px 15px 15px;
+  border-left: 5px solid #eee;
+}
+
+.callout-danger {
+  background-color: #fcf2f2;
+  border-color: #dFb5b4;
+}
+
+.percent-complete {
+  font-size: 3em;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.checkpoint-teacher-right {
+  text-align: center;
+}
+
+.checkpoint-teacher-right i {
+  font-size: 5em;
+  color:#f6f6f6;
 }

@@ -4,19 +4,18 @@
 
 <div>
   <div class="row">
-    <h1>{{course.course_name}} 
-      {% if teacher_view_student_profile %}
-        <a href="/course/{{course.key.id()}}" class="btn btn-default pull-right">Teacher View</a>
-      {% endif %}
-    </h1>
+    <h1>{{course.course_name}}</h1>
     {% if teacher_view_student_profile %}
-      <h3 class="text-muted">Viewing Student: <strong class="text-success">{{student.formalName}}</strong></h3>
+      <div class="callout callout-danger">
+        <a href="/course/{{course.key.id()}}" class="btn btn-default pull-right btn-small">Back to Teacher View</a>
+        <h4><span class="text-muted">Student:</span> {{student.formalName}}</h4>
+        <p>You are currently viewing this student's course profile. This page will appear to you as it does to the student. Clicking on badges will take you to the student's view of those badges. If you would like to go back to the teacher view of this page, just click <a href="/course/{{course.key.id()}}">back to teacher view</a></p>
+      </div>
     {% endif %}
     {% if student_profile %}
       <p class="text-muted">Instructor: {{course.key.parent().get().formalName}}</p>
-    {% else %}
-      <p class="text-muted">You are the instructor for this course</p>
     {% endif %}
+    
   </div>
 
   <div class="row">
@@ -27,6 +26,9 @@
         <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
 
       {% endif %}  
+      {% if student_profile or teacher_view_student_profile %}
+        <li {% if active_tab == 'requests' %}class="active"{% endif %}><a href="#requests" data-toggle="tab">Pending Requests</a></li>
+      {% endif %}
       
     </ul>
 
@@ -54,14 +56,29 @@
                       {{get_student(registration.student_id).formalName}}
                     </a>
                   </td>
-                  <td>{{registration.status}}</td>
-                  <td>...</td>
+                  <td>
+                    {% set reg_status = registration.status %}
+                    {% if reg_status == 'approved' %}
+                      <span class="text-success">enrolled</span>
+                    {% elif reg_status == 'revoked' %}
+                      <span class="text-danger">enrollment revoked</span>
+                    {% else %}
+                      <span class="text-muted">not enrolled</span>
+                    {% endif %}
+                    
+                  </td>
+                  <td>
+                    {% set requests = get_number_of_badge_requests(course, student) %}
+                    {% if requests %}
+                      {{requests}} badge request{% if requests > 1 %}s{%endif%}
+                    {% endif %}
+                  </td>
                   <td>
                   {% if registration.status == "pending"%}
                     <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
                     <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a>
                   {% elif registration.status == "approved" %}
-                    <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">revoke</a>
+                    <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">un-enroll</a>
                   {% elif registration.status == "denied" %}
                     <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.studen_id}}/approved">approve</a> 
                   {% elif registration.status == "revoked" %}
@@ -90,6 +107,30 @@
         <br>
           {% include 'checkpoint_list.html' %}
       </div>
+      {% if student_profile or teacher_view_student_profile %}
+      <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
+        <br>
+        {% set requests = get_number_of_badge_requests(course, student, denied_on = True) %}
+        {% if requests %}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Badge Name</th>
+                <th>Request Status</th>
+                <th>Last Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>...</td>
+              </tr>
+            </tbody>
+          </table>
+        {% else %}
+          <h3 class='text-muted'>No active badge requests</h3>
+        {% endif %}
+      </div>
+      {% endif %}
       <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
         
         <div class="row">

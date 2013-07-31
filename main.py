@@ -34,6 +34,17 @@ class front(MainHandler):
   def get(self):
     self.render('front.html')
 
+class changeUser(MainHandler):
+  def get(self):
+    if valid_user():
+      self.render('change_user.html', profile_active = 'active')
+
+  def post(self):
+    if valid_user():
+      formalName = self.request.get('formalName')
+      edit_user(valid_user(), formalName = formalName)
+    self.redirect('/profile')
+
 class link(MainHandler):
   def get(self):    
     current_google_user = users.get_current_user()
@@ -138,14 +149,16 @@ class studentProfile(MainHandler):
     if valid_user():
       course = get_student_course(courseID = courseID, student = valid_user(), teacherID = teacherID)
       if course:
+        teacher = course.key.parent().get()
         self.render('course.html', 
           course = course, 
           teacherID=int(teacherID), 
           courseID = int(courseID),
           checkpoints = get_course_checkpoints(course),
-          badges = get_all_badges(course.key.parent().get()),
+          badges = get_all_badges(teacher),
           student_profile = True,
           student = valid_user(),
+          teacher = teacher,
           achievement_status = achievement_status,
           get_checkpoint_percent_completion = get_checkpoint_percent_completion,
           )
@@ -164,6 +177,7 @@ class teacherViewStudentProfile(MainHandler):
           checkpoints = get_course_checkpoints(course),
           badges = get_all_badges(valid_user()),
           teacher_view_student_profile = True,
+          teacher = valid_user(),
           student = get_student(studentID),
           achievement_status = achievement_status,
           get_checkpoint_percent_completion = get_checkpoint_percent_completion,
@@ -173,13 +187,17 @@ class studentBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
     if valid_user():
       course = get_student_course(courseID = courseID, student = valid_user(), teacherID = teacherID)
-      this_badge_status = achievement_status(student_id = valid_user().key.id(), course_id = courseID, badge_id = badgeID, teacher_id = teacherID)
+      teacher = get_teacher(teacherID)
+      student = valid_user()
+      badge = get_badge(teacher, badgeID)
+      this_badge_status = achievement_status(student = student, course = course, badge = badge, teacher = teacher)
       self.render('single_badge.html', 
-        badge = get_badge(course.key.parent().get(), badgeID),
+        badge = badge,
         achievement_status = this_badge_status,
         student_badge = True,
         courseID = course.key.id(),
         course = course, 
+        teacher = teacher,
         teacherID = int(teacherID)
         )
 
@@ -188,29 +206,42 @@ class teacherViewStudentBadge(MainHandler):
     if valid_user():
       course = get_user_courses(valid_user(), courseID)
       if course:
-        this_badge_status = achievement_status(student_id = studentID, course_id = courseID, badge_id = badgeID, teacher_id = valid_user().key.id())
+        student = get_student(studentID)
+        teacher = valid_user()
+        badge = get_badge(valid_user(), badgeID)
+        this_badge_status = achievement_status(student = student, course = course, badge = badge, teacher = teacher)
         self.render('single_badge.html',
-          badge = get_badge(valid_user(), badgeID),
+          badge = badge,
           achievement_status = this_badge_status,
           teacher_view_student_badge = True,
-          student = get_student(studentID),
+          student = student,
           course = course, 
           courseID = course.key.id(),
-          teacher = valid_user(),
-          teacherID = int(valid_user().key.id())
+          teacher = teacher,
+          teacherID = int(teacher.key.id())
           )
 
 class teacherViewAwardBadge(MainHandler):
   def get(self, studentID, courseID, badgeID, status):
     if valid_user():
-      if status in ['awarded', 'revoked']:
-        new_achievement(teacher_id = valid_user().key.id(), student_id = studentID, badge_id = badgeID, course_id = courseID, status = status)
+      if status in ['awarded', 'revoked', 'denied']:
+        new_achievement(
+          teacher = valid_user(), 
+          student = get_student(studentID), 
+          badge = get_badge(valid_user(),badgeID), 
+          course = existing_course(courseID, valid_user()), 
+          status = status
+          )
     self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class requestBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
     if valid_user():
-      edit_achievement(valid_user().key.id(), badgeID, teacherID, courseID)
+      teacher = get_teacher(teacherID)
+      student = valid_user()
+      badge = get_badge(teacher, badgeID)
+      course = existing_course(courseID, teacher)
+      edit_achievement(student, badge, teacher, course)
       self.redirect('/student_badge/%s/%s/%s' % (teacherID, courseID, badgeID))
 
 
@@ -299,6 +330,7 @@ app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
   ('/request_teacher_access', teacherAccessRequest),
   ('/badge_creator/(\w+)', badgeCreator),
+  ('/edit_profile', changeUser),
   ('/student_profile/(\w+)/(\w+)', studentProfile),
   ('/student_profile/(\w+)/(\w+)/teacher_view', teacherViewStudentProfile),
   ('/student_badge/(\w+)/(\w+)/(\w+)/teacher_view', teacherViewStudentBadge),

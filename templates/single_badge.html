@@ -41,6 +41,17 @@
         <p>
           <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
         </p>
+      {% elif teacher_view_student_badge and achievement_status == 'requested' %}
+        <p class="text-warning"><i class="icon-exclamation-sign"></i>{{student.formalName}} has requested this badge</p>
+        <p>
+          <a class="btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny this Request</a> 
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
+      {% elif teacher_view_student_badge and achievement_status == 'denied' %}
+        <p class="text-danger"><i class="icon-exclamation-sign"></i> You have denied {{student.formalName}}'s request for this badge</p>
+        <p>
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
       {% elif teacher_view_student_badge %}
         <p class="text-muted">{{student.formalName}} has not yet been awarded this badge</p> 
         <p>

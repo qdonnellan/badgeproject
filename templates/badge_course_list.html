@@ -28,7 +28,7 @@
         </thead>
         <tbody>
           {% for student in get_enrolled_students(course) %}
-          {% set current_achievement_status = achievement_status(student.key.id(), badge.key.id(), teacher.key.id(), course.key.id()) %}
+          {% set current_achievement_status = achievement_status(student, badge, teacher, course) %}
             <tr>
               <td>
                 <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
@@ -41,7 +41,9 @@
                 {% elif 'revoked' in current_achievement_status %}
                   <span class="text-danger"><i class="icon-exclamation-sign"></i> you revoked this badge</span>
                 {% elif 'requested' in current_achievement_status %}
-                  <span class="text-info"><i class="icon-question-sign"></i> student has requested badge</span>
+                  <span class="text-warning"><i class="icon-exclamation-sign"></i> student has requested badge</span>
+                {% elif 'denied' in current_achievement_status %}
+                  <span class="text-danger"><i class="icon-exclamation-sign"></i> you denied student request</span>
                 {% else %}
                   <span class="text-muted">not yet obtained</span>
                 {% endif %}
@@ -49,12 +51,20 @@
               <td>
                 
                 {% if current_achievement_status != 'awarded' %}
-                  <form action="/achievementHandler?status=awarded" method = "post" class="achievement-form">
+                  <form action="/achievementHandler?status=awarded" method = "post" class="achievement-form pull-left">
                     <input type="hidden" name="student_id" value = "{{student.key.id()}}">
                     <input type="hidden" name="course_id" value = "{{course.key.id()}}">
                     <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
-                    <button class="btn btn-success btn-small" type="submit">award badge</button>
-                  </form>
+                    <button class="btn btn-success btn-small" type="submit">award badge</button> 
+                  </form> 
+                  {% if current_achievement_status == 'requested' %}
+                    <form action="/achievementHandler?status=denied" method = "post" class="achievement-form pull-left">
+                      <input type="hidden" name="student_id" value = "{{student.key.id()}}">
+                      <input type="hidden" name="course_id" value = "{{course.key.id()}}">
+                      <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
+                       <button class="btn btn-small btn-warning" type="submit">deny badge</button>
+                    </form>
+                  {% endif %}
                 {% else %}
                   <form action="/achievementHandler?status=revoked" method = "post" class="achievement-form">
                     <input type="hidden" name="student_id" value = "{{student.key.id()}}">

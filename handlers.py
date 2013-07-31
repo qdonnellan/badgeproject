@@ -29,6 +29,8 @@ class MainHandler(webapp2.RequestHandler):
       get_course_checkpoints = get_course_checkpoints, 
       get_enrolled_students = get_enrolled_students,
       user_is_teacher = user_is_teacher,
+      get_number_of_badge_requests = get_number_of_badge_requests,
+      get_number_of_pending_registrations = get_number_of_pending_registrations,
       **kw))
 
 

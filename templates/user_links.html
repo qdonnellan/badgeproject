@@ -1,0 +1,21 @@
+<li class="{{profile_active}}"><a href="/profile"><i class="icon-user"></i> Profile</a></li>
+{% if local_user.teacher %}
+  <li class="{{badges_active}}">
+    <a href="/badges"><i class="icon-certificate"></i> Badge Vault</a>
+  </li>
+{% endif %}
+{% if courses and local_user.teacher %}          
+  {% for each_course in courses %}
+    <li class="{% if courseID == each_course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
+      <a href="/course/{{each_course.key.id()}}"><i class="icon-group"></i> {{each_course.course_name}}</a>
+    </li>
+  {% endfor %}
+{% endif %}
+{% if enrollments %}
+  {% for entry in enrollments %}
+    {% if entry['status'] == 'approved' %}
+      <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"><i class="icon-pencil"></i> {{entry["course"].course_name}}</a></li>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+<li><a href="{{google_user_api.create_logout_url('/')}}"><i class='icon-signout'></i> Log out</a></li>
