@@ -4,6 +4,41 @@
 
 <div>
   <div class="row">
+  {% if teacher_view_student_badge %}
+    <div class="callout callout-danger">
+      <a href="/badge/{{badge.key.id()}}" class="btn btn-default pull-right btn-small">Back to Teacher View</a>
+      <h4><span class="text-muted">Student:</span> {{student.formalName}}</h4>
+      <p>You are currently viewing this student's course profile. This page will appear to you as it does to the student. Clicking on badges will take you to the student's view of those badges. If you would like to go back to the teacher view of this page, just click <a href="/course/{{course.key.id()}}">back to teacher view</a></p>
+      {% if achievement_status == 'awarded' %}
+        <p class="text-success"><i class="icon-ok-sign"></i> {{student.formalName}} has been awarded this badge</p>
+        <p>
+          <a class="btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke This Badge</a>
+        </p>
+      {% elif achievement_status == 'revoked' %}
+        <p class="text-danger"><i class="icon-exclamation-sign"></i>You have revoked this badge from {{student.formalName}}</p>
+        <p>
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
+      {% elif achievement_status == 'requested' %}
+        <p class="text-warning"><i class="icon-warning-sign"></i> {{student.formalName}} has requested this badge</p>
+        <p>
+          <a class="btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny this Request</a> 
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
+      {% elif achievement_status == 'denied' %}
+        <p class="text-danger"><i class="icon-exclamation-sign"></i> You have denied {{student.formalName}}'s request for this badge</p>
+        <p>
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
+      {% else %}
+        <p class="text-muted">{{student.formalName}} has not yet been awarded this badge</p> 
+        <p>
+          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
+        </p>
+      {% endif %}
+    </div>
+      
+  {% endif %}
     <h4 class="pull-left">
       <div class="badge-div pull-left">
         <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
@@ -11,52 +46,21 @@
         </div>
       </div>
     </h4>
+
     <div class="single-badge-description">
       <h1>
         {{badge.name}}
         {% if not (student_badge or teacher_view_student_badge) %} 
-          <small><a href="/badge_creator/{{badge.key.id()}}">[Edit Badge]</a></small>
+          <small><a href="/badge_creator/{{badge.key.id()}}">[edit]</a></small>
         {% endif %}
-        {% if teacher_view_student_badge %}
-          <a href="/badge/{{badge.key.id()}}" class="btn btn-default pull-right">Teacher View</a>
-        {% endif %}
+        
         {% if student_badge %}
           <a href="/student_profile/{{teacherID}}/{{courseID}}" class="btn btn-default pull-right">{{course.course_name}}</a>
         {% endif %}
       </h1>
-      {% if teacher_view_student_badge %}
-        <h4 class="text-muted">Viewing Student: 
-          <a href="/student_profile/{{student.key.id()}}/{{course.key.id()}}/teacher_view">{{student.formalName}}</a>
-        </h4>
-      {% endif %}
       {% if student_badge and achievement_status == 'awarded' %}
         <p class="text-success"><i class="icon-ok-sign"></i>You have been awarded this badge</p>
-      {% elif teacher_view_student_badge and achievement_status == 'awarded' %}
-        <p class="text-success"><i class="icon-ok-sign"></i> {{student.formalName}} has been awarded this badge</p>
-        <p>
-          <a class="btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke This Badge</a>
-        </p>
-      {% elif teacher_view_student_badge and achievement_status == 'revoked' %}
-        <p class="text-danger"><i class="icon-exclamation-sign"></i>You have revoked this badge from {{student.formalName}}</p>
-        <p>
-          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </p>
-      {% elif teacher_view_student_badge and achievement_status == 'requested' %}
-        <p class="text-warning"><i class="icon-exclamation-sign"></i>{{student.formalName}} has requested this badge</p>
-        <p>
-          <a class="btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny this Request</a> 
-          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </p>
-      {% elif teacher_view_student_badge and achievement_status == 'denied' %}
-        <p class="text-danger"><i class="icon-exclamation-sign"></i> You have denied {{student.formalName}}'s request for this badge</p>
-        <p>
-          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </p>
-      {% elif teacher_view_student_badge %}
-        <p class="text-muted">{{student.formalName}} has not yet been awarded this badge</p> 
-        <p>
-          <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </p>
+      
 
       {% elif student_badge and achievement_status == 'revoked' %}
         <p class="text-danger"><i class="icon-exclamation-sign"></i> This badge has been revoked by your teacher</p>

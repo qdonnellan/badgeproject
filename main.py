@@ -13,7 +13,19 @@ class badgeCreator(MainHandler):
     if valid_user() and valid_user().teacher:
       badge = get_badge(valid_user(),badgeID)
       logging.info(badge.checkpoints)
-      self.render('badge_creator.html', badge = get_badge(valid_user(),badgeID), icon_array = the_list, badges_active = "active")
+      checkpointID = self.request.get('checkpointID')
+      courseID = self.request.get('courseID')
+      badges_active = 'active'
+      if checkpointID.isdigit() and courseID.isdigit():
+        checkpointID = int(checkpointID)
+        courseID = int(courseID)
+        badges_active = ""
+      self.render('badge_creator.html', 
+        badge = get_badge(valid_user(),badgeID), 
+        icon_array = the_list, 
+        badges_active = badges_active,
+        checkpointID = checkpointID,
+        courseID = courseID)
   def post(self, badgeID=None):
     if valid_user() and valid_user().teacher:
       badgeID = edit_badge(
@@ -28,11 +40,19 @@ class badgeCreator(MainHandler):
         teacher = valid_user(),
         checkpoints = self.request.get_all("checkpoint_options")
         )
-      self.redirect('/badge/%s' % badgeID)
+      checkpointID = self.request.get('checkpointID')
+      courseID = self.request.get('courseID')
+      if checkpointID and courseID:
+        self.redirect('/course/%s#%s' % (courseID, checkpointID))
+      else:
+        self.redirect('/badge/%s' % badgeID)
 
 class front(MainHandler):
   def get(self):
-    self.render('front.html')
+    if valid_user():
+      self.redirect('/profile')
+    else:
+      self.render('front.html')
 
 class changeUser(MainHandler):
   def get(self):
@@ -46,12 +66,8 @@ class changeUser(MainHandler):
     self.redirect('/profile')
 
 class link(MainHandler):
-  def get(self):    
-    current_google_user = users.get_current_user()
-    if not existing_user(current_google_user):
-      self.render('link.html')
-    else:
-      self.redirect('/profile')
+  def get(self):   
+    self.render('link.html')
 
   def post(self):
     current_google_user = users.get_current_user()
@@ -179,6 +195,7 @@ class teacherViewStudentProfile(MainHandler):
           teacher_view_student_profile = True,
           teacher = valid_user(),
           student = get_student(studentID),
+          active_tab = self.request.get('active_tab'),
           achievement_status = achievement_status,
           get_checkpoint_percent_completion = get_checkpoint_percent_completion,
           )

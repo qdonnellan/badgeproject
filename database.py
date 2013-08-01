@@ -42,11 +42,9 @@ def existing_user(google_user):
     if user_object:
       return user_object
     else:
-      logging.info('user not found in local database')
-      return False
+      return None
   else:
-    logging.info('google user not found')
-    return False
+    return None
 
 def new_user(google_user, formalName):
   if not existing_user(google_user):
@@ -115,10 +113,7 @@ def get_number_of_pending_registrations(course):
     for item in total_registrations:
       if item.status == 'pending':
         total += 1
-  if total == 0:
-    return None
-  else:
-    return total
+  return total
 
 
 def get_student_course(courseID, student, teacherID):
@@ -289,7 +284,6 @@ def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
   if course:
     teacher = course.key.parent().get()
     badges = get_all_badges(teacher)
-    students = get_enrolled_students(course)
     total = 0
     for badge in badges:
       if indiv_student:
@@ -299,24 +293,35 @@ def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
         if denied_on and possible_achievement == 'denied':
           total += 1
       else:
+        students = get_enrolled_students(course)
         for student in students:
           possible_achievement = achievement_status(student, badge, teacher, course)
           if possible_achievement == 'requested':
             total += 1
-    if total == 0:
-      return None
-    else:
-      return total
+    return total
 
 def get_badge_requests(course, indiv_student=None, denied_on = False):
   if course:
     teacher = course.key.parent().get()
     badges = get_all_badges(teacher)
-    students = get_enrolled_students(course)
-    total = 0
+    all_requests = []
     for badge in badges:
       if indiv_student:
-        possible_achievement = fetch_achievement(student, badge, teacher, course)
+        possible_achievement = fetch_achievement(indiv_student, badge, teacher, course)
+        if possible_achievement and (possible_achievement.status == 'requested' or (denied_on and possible_achievement.status == 'denied')):
+          all_requests.append(possible_achievement)
+      else:
+        students = get_enrolled_students(course)
+        for student in students:
+          possible_achievement = fetch_achievement(student, badge, teacher, course)
+          if possible_achievement and (possible_achievement.status == 'requested' or (denied_on and possible_achievement.status == 'denied')):
+            all_requests.append(possible_achievement)
+
+    if all_requests == []:
+      return None
+    else:
+      return all_requests
+
 
 def user_is_teacher(course, user):
   if user.teacher:
@@ -352,6 +357,9 @@ def badge_in_checkpoint(badge, checkpoint):
     return True
   else:
     return False
+
+def get_total_number_notifications(course):
+  return  get_number_of_badge_requests(course) + get_number_of_pending_registrations(course)
 
 
 

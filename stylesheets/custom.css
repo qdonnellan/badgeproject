@@ -113,6 +113,10 @@
   color: #f6f6f6;
 }
 
+.badge-notification {
+  background-color: #ff0505 !important
+}
+
 .side-list > .active > a:hover {
   background-color: #28b8c8 !important;
   color: #ffffff !important;
@@ -167,11 +171,3 @@
   margin-top: 20px;
 }
 
-.checkpoint-teacher-right {
-  text-align: center;
-}
-
-.checkpoint-teacher-right i {
-  font-size: 5em;
-  color:#f6f6f6;
-}

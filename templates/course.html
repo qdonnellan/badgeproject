@@ -21,14 +21,34 @@
   <div class="row">
     <ul class="nav nav-tabs">
       <li {% if active_tab == 'checkpoints' or not active_tab%}class="active"{% endif %}><a href="#checkpoints" data-toggle="tab">Checkpoints</a></li>
+      {% if student_profile or teacher_view_student_profile %}
+        <li {% if active_tab == 'requests' %}class="active"{% endif %}><a href="#requests" data-toggle="tab">Pending Requests</a></li>
+      {% else %}
+        <li {% if active_tab == 'requests' %}class="active"{% endif %}>
+          <a href="#requests" data-toggle="tab">
+            {% set requests = get_number_of_badge_requests(course) %}
+            {% if requests > 0 %}
+              <span class="badge badge-notification">{{requests}} </span>
+            {% endif %}
+            Badge Requests
+          </a>
+        </li>
+      {% endif %}
       {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile)%}
-        <li {% if active_tab == 'students' %}class = "active"{% endif %}><a href="#students" data-toggle="tab">Students</a></li>
+        <li {% if active_tab == 'students' %}class = "active"{% endif %}>
+          <a href="#students" data-toggle="tab">
+            {% set pending_regs = get_number_of_pending_registrations(course) %}
+            {% if pending_regs > 0 %}
+              <span class="badge badge-notification">{{pending_regs}} </span>
+            {% endif %}
+            Enrolled Students
+            
+          </a>
+        </li>
         <li {% if active_tab == 'settings' %}class = "active"{% endif %}><a href="#settings" data-toggle="tab">Settings</a></li>
 
       {% endif %}  
-      {% if student_profile or teacher_view_student_profile %}
-        <li {% if active_tab == 'requests' %}class="active"{% endif %}><a href="#requests" data-toggle="tab">Pending Requests</a></li>
-      {% endif %}
+      
       
     </ul>
 
@@ -44,7 +64,6 @@
                 <tr>
                   <th>Student Name</th>
                   <th>Registration Status</th>
-                  <th>Notifications</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -68,15 +87,9 @@
                     
                   </td>
                   <td>
-                    {% set requests = get_number_of_badge_requests(course, student) %}
-                    {% if requests %}
-                      {{requests}} badge request{% if requests > 1 %}s{%endif%}
-                    {% endif %}
-                  </td>
-                  <td>
                   {% if registration.status == "pending"%}
                     <a class="btn btn-small btn-success" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/approved">approve</a> 
-                    <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a>
+                    <a class="btn btn-small btn-danger" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/denied}}">deny</a>
                   {% elif registration.status == "approved" %}
                     <a class="btn btn-small btn-warning" href="/complete_registration/{{course.key.id()}}/{{registration.student_id}}/revoked">un-enroll</a>
                   {% elif registration.status == "denied" %}
@@ -110,20 +123,81 @@
       {% if student_profile or teacher_view_student_profile %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
         <br>
-        {% set requests = get_number_of_badge_requests(course, student, denied_on = True) %}
+        {% set requests = get_badge_requests(course, indiv_student = student, denied_on = True) %}
         {% if requests %}
           <table class="table">
             <thead>
               <tr>
-                <th>Badge Name</th>
+                <th>Badge</th>
                 <th>Request Status</th>
                 <th>Last Update</th>
               </tr>
             </thead>
             <tbody>
+              {% for request in requests %}
               <tr>
+                <td>
+                  {% if teacher_view_student_profile %}
+                  <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{request.badge_id}}/teacher_view">
+                  {% else %}
+                  <a href="/student_badge/{{teacherID}}/{{course.key.id()}}/{{request.badge_id}}">
+                  {% endif %}
+                    {% set badge = get_badge(teacher, request.badge_id) %}
+                    <div class="tiny-badge pull-left">
+                      <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                        <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                      </div>
+                    </div> {{badge.name}}
+                  </a>  
+                </td>
+                <td>{{request.status}}</td>
                 <td>...</td>
               </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <h3 class='text-muted'>No active badge requests</h3>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
+        <br>
+        {% set requests = get_badge_requests(course) %}
+        {% if requests %}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Badge</th>
+                <th>Request Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for request in requests %}
+                {% set student = get_student(request.key.parent().get().key.id()) %}
+                <tr>
+                  <td>{{student.formalName}}</td>
+                  <td>
+                    <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{request.badge_id}}/teacher_view">
+                      {% set badge = get_badge(local_user, request.badge_id) %}
+                      <div class="tiny-badge pull-left">
+                        <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                        </div>
+                      </div> {{badge.name}}
+                    </a>
+                  </td>
+                  <td>{{request.status}}</td>
+                  <td>
+                    <a class="btn btn-info btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{request.badge_id}}/teacher_view">View Evidence</a> 
+                    <a class="btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
+                    <a class="btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
+
+                  </td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         {% else %}

@@ -31,6 +31,9 @@ class MainHandler(webapp2.RequestHandler):
       user_is_teacher = user_is_teacher,
       get_number_of_badge_requests = get_number_of_badge_requests,
       get_number_of_pending_registrations = get_number_of_pending_registrations,
+      get_total_number_notifications = get_total_number_notifications,
+      get_badge_requests = get_badge_requests,
+      get_badge = get_badge,
       **kw))
 
 
