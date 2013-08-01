@@ -27,6 +27,14 @@
   font-size: 0.3em;
 }
 
+.tiny-badge-mobile {
+  font-size: 0.3em;
+}
+
+.mobile-request-list h3 {
+  margin-top: 5px !important;
+}
+
 .badge-icon-container {
 
   padding-top: 0.5em;
@@ -160,14 +168,40 @@
   border-left: 5px solid #eee;
 }
 
+.callout-checkpoint {
+  background-color: #fcfcfc
+}
+
 .callout-danger {
   background-color: #fcf2f2;
   border-color: #dFb5b4;
 }
 
-.percent-complete {
-  font-size: 3em;
-  text-align: center;
-  margin-top: 20px;
+.callout-warning {
+  background-color: #fefbed;
+  border-color: #f1e7bc;
 }
 
+.callout-info {
+  background-color: #f0f7fd;
+  border-color: #d0e3f0;
+}
+
+.percent-complete {
+  margin-top: 0px;
+}
+.percent-complete-progress-bar {
+  margin-top:10px;
+}
+
+.small-reg-status {
+  margin-right:5px;
+}
+
+.small-reg-status i {
+  font-size: 1.2em
+}
+
+.marketing-div {
+  text-align: center
+}

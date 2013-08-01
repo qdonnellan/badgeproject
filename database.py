@@ -226,7 +226,13 @@ def update_checkpoint(name, description, course, checkpointID):
 
 def get_course_checkpoints(course):
   checkpoints = Checkpoint.query(ancestor = course.key)
-  return checkpoints
+  total = 0
+  for checkpoint in checkpoints:
+    total+=1
+  if total == 0:
+    return None
+  else:
+    return checkpoints
 
 def get_single_checkpoint(course, checkpointID):
   the_checkpoint = ndb.Key(Checkpoint, int(checkpointID), parent = course.key).get()

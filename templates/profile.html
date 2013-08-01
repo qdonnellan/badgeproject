@@ -45,7 +45,6 @@
           <thead>
             <tr>
               <th>Course</th>
-              <th>Registered Students</th>
               <th>Notifications</th>
               <th>Action</th>
             </tr>
@@ -54,12 +53,14 @@
             {% for course in courses %}
             <tr>
               <td>{{course.course_name}}</td>
-              <td>...</td>
               <td>
                 {% set requests = get_number_of_badge_requests(course) %}
-                {% if requests > 0 %}{{requests}} badge request(s) {% endif %}
+                {% if requests > 0 %}
+                  <p><span class="badge badge-notification">{{requests}}</span> 
+                  <a href="/course/{{course.key.id()}}?active_tab=requests">badge request{% if requests >1 %}s{% endif %}</a></p>
+                {% endif %}
                 {% set registrations = get_number_of_pending_registrations(course) %}
-                {% if registrations > 0 %}{{registrations}} pending enrollment(s) {% endif %}
+                {% if registrations > 0 %}<p><span class="badge badge-notification">{{registrations}}</span> pending enrollment</p>{% if registrations > 1 %}s{% endif %}{% endif %}
               </td>
               <td><a class="btn btn-small btn-primary" href="/course/{{course.key.id()}}">View Course</a> <a class="btn btn-small btn-info" href="/course/{{course.key.id()}}?active_tab=settings">Settings</a></td>
 
