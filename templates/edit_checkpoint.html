@@ -6,15 +6,20 @@
   <div class="row">
     <div>
       {% if new_checkpoint %}
-        <div class="callout callout-warning row">
+        <div>
           <h3>Create a new checkpoint</h3>
           <h5><span class="text-muted">This checkpoint will belong to the course:</span> {{course.course_name}}</h5>
-          <p>From here you'll be able to give your new checkpoint a name and description. Once created, you'll be able to assign badges to the checkpoint and monitor your student's progress.</p>
         </div>
       {% else %}
-        <h1>Edit Checkpoint</h1>
-        <p>This checkpoint belongs to the course <span class="label">{{course.course_name}}</span></p>
-        <p>You can add badges to this checkpoint from the badge creator for each individual badge. </p>
+        <div>
+          <h3>Edit existing checkpoint</h3>
+          <h5><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</h5>
+        </div>
+      {% endif %}
+      {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
+      <div class="callout callout-info row">
+        <p><strong>Checkpoints</strong> are a useful way of grouping similar badges! When a student is awarded a badge, they automatically complete a percentage of the checkpoint (if that badge is assigned to a checkpoint). You determine how much each badge is worth when you create the badge. Once created, you'll be able to assign badges to the checkpoint and monitor your student's progress.</p>
+      </div>
       {% endif %}
     </div>
     <div class="row">

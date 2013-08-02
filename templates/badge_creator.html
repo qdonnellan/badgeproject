@@ -18,96 +18,125 @@
 
 {% block body %}
 <div>
-<form id="badge-form" method="post" >
-  <div>
-    <div class="row">
-      <div class="col-lg-5">
-        <div class="row">
-          <div class="col-lg-12">
-            
-            <div class="badge-creator-div">          
-              <h3><div class="badge-new">
-                <div class="badge-icon-container"><i id="the-badge" class="icon-{{badge.icon}}"></i></div>
-              </div></h3>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <h3>Icon Style</h3>
-            <input type="text" id="icon_name" name="icon" class="typeahead form-control" style="margin: 0 auto;" data-provide="typeahead" data-items="4" value="{{badge.icon}}">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <h3>Icon Color</h3>
-            <input type="text" id="icon_color" name="icon_color" class="form-control" value="{{badge.icon_color}}" />
-            <div id="icon_colorpicker"></div>
-          </div>
-          <div class="col-lg-6">
-            <h3>Background</h3>
-            <input type="text" id="background" name="background"  class="form-control" value="{{badge.background}}" />
-            <div id="background_colorpicker"></div>
-          </div> 
-        </div>
+<h2>The Badge Creator</h2>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#badge_details" data-toggle="tab">Description</a></li>
+    <li><a href="#badge_design" data-toggle="tab">Design</a></li>
+    <li><a href="#badge_checkpoints" data-toggle="tab">Assign Checkpoints</a></li>
+  </ul>
+  <form id="badge-form" method="post" >
+  <div class="tab-content">
+    
+    <div class="tab-pane fade in active" id="badge_details">
+      <div class="callout callout-danger">
+        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
+        <p>Don't forget to set the <strong class="text-danger">badge design</strong> and <strong class="text-danger">assign checkpoints</strong> before saving</p>
       </div>
-
-      <div class="col-lg-7">        
+      
+      <div class="row">
         <div class="col-lg-6">
           <h3>Badge Name</h3>
           <p class="text-muted">Badges are best with descriptive names</p>
           <input type="text" class="form-control" name="badge_name" {% if badge.name %}value ="{{badge.name}}"{% endif %}>
         </div>
+      </div>
+      <div class="row">
         <div class="col-lg-6">
           <h3>Badge Value</h3>
           <p class="text-muted">Assign an integer value to this badge. Default is 1</p>
           <input type="text" class="form-control" name="badge_value"{% if badge.value%}value="{{badge.value}}"{% endif %}>
-        </div>        
-        <div class="col-lg-12">
+        </div> 
+        <div class="col-lg-6 callout callout-info">
+          <p><strong>Badge Value</strong> is your way of giving some badges more weight than others. When you assign a badge to a checkpoint, that badge will count as a <strong class="text-info">percentage</strong> of the total checkpoint based on the values of each badge in that checkpoint</p>
+        </div> 
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
           <h3>Badge Requirements</h3>
           <p class="text-muted">Describe what must be done to unlock this badge</p>
-          <textarea rows="5" class="form-control" name="requirement" class="span12">{% if badge.requirement %}{{badge.requirement}}{% endif %}</textarea>
+          <textarea rows="10" class="form-control" name="requirement" class="span12">{% if badge.requirement %}{{badge.requirement}}{% endif %}</textarea>
         </div>
-        <div class="col-lg-12">
-        <br>
-        <button type="submit" class="btn btn-primary btn-large pull-right">Save Badge</button>
-          <h3>Assign Checkpoints</h3>
-          <p class="text-muted">Assign this badge to specific checkpoints in your courses</p>
-          {% if courses %}
-            <ul class="nav nav-tabs">
-              {% for course in courses %}
-              <li {% if loop.first %}class="active"{% endif%}><a href="#checkpoint_course_{{course.key.id()}}" data-toggle="tab">{{course.course_name}}</a></li>
-              {% endfor %}
-            </ul>
-            <div class="tab-content">
-              {% for course in courses %}
-                <div class="tab-pane fade {% if loop.first %}in active {% endif %}" id="checkpoint_course_{{course.key.id()}}">
-                {% if get_course_checkpoints(course) %}
-                  {% for checkpoint in get_course_checkpoints(course) %}
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" 
-                          {% if (badge.checkpoints and course.key.id() ~ '_' ~ checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.key.id() and courseID == course.key.id()) %}
-                            checked
-                          {% endif %} value="{{course.key.id()}}_{{checkpoint.key.id()}}" name="checkpoint_options">
-                          {{checkpoint.name}}
-                      </label>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  There are no checkpoints for this course yet
-                {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>      
+        <div class="col-lg-6 callout callout-info">
+          <p><strong>Badge requirements</strong> is your rubric for this badge. Tell your students exactly what they must complete before you will award them this badge. For example: </p>
+          <p class="text-info"><em>
+           You must complete all problems in problem set #1. Each problem must be written out entirely in your notebook and there should be no mistakes in your answers. I will only award this badge when your answers are all accurate
+          </em></p>
+          <p><strong>Remember</strong>, none of your badges will be awarded automatically, you will have to assign each badge manually; in the end <strong class="text-info">you</strong> decide if your student has done enough to earn the badge. </p>
+        </div> 
+      </div>
     </div>
-    
+    <div class="tab-pane fade" id="badge_design">
+      <div class="callout callout-danger">
+        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
+        <p>Don't forget to <strong class="text-danger">assign checkpoints</strong> before saving</p>
+      </div>
+      <div class="col-lg-12">
+        <div class="badge-creator-div">          
+          <h3><div class="badge-new">
+            <div class="badge-icon-container"><i id="the-badge" class="icon-{{badge.icon}}"></i></div>
+          </div></h3>
+        </div>
+      </div>
+        
+      <div class="col-lg-12">
+        <div class="col-lg-4">
+          <h3>Image</h3>
+          <input type="text" id="icon_name" name="icon" class="typeahead form-control" style="margin: 0 auto;" data-provide="typeahead" data-items="4" value="{{badge.icon}}">
+        </div>
+        <div class="col-lg-4">
+          <h3>Image Color</h3>
+          <input type="text" id="icon_color" name="icon_color" class="form-control" value="{{badge.icon_color}}" />
+          <div id="icon_colorpicker"></div>
+        </div>
+        <div class="col-lg-4">
+          <h3>Background</h3>
+          <input type="text" id="background" name="background"  class="form-control" value="{{badge.background}}" />
+          <div id="background_colorpicker"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="badge_checkpoints">
+      <div class="callout callout-danger">
+        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
+        <p>If you are satisfied with the description, design, and assinged checkpoints, go ahead and save!</p>
+      </div>
+      <div class="col-lg-6">
+        {% for course in courses %}
+          <h3>{{course.course_name}}</h3>
+          <div id="checkpoint_course_{{course.key.id()}}">
+          {% if get_course_checkpoints(course) %}
+            {% for checkpoint in get_course_checkpoints(course) %}
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" 
+                    {% if (badge.checkpoints and course.key.id() ~ '_' ~ checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.key.id() and courseID == course.key.id()) %}
+                      checked
+                    {% endif %} value="{{course.key.id()}}_{{checkpoint.key.id()}}" name="checkpoint_options">
+                    {{checkpoint.name}}
+                </label>
+              </div>
+            {% endfor %}
+          {% else %}
+            There are no checkpoints for this course yet
+          {% endif %}
+          </div>
+          <hr>
+        {% endfor %}      
+      </div>
+      <div class="col-lg-6 callout callout-info">
+        <p><strong>Checkpoints</strong> are our way of grouping your badges. When you award a student a badge, that badge counts toward the completion of the checkpoint based on the badge value you've set for each badge (see the description tab above). </p>
+        <p class="text-info"><strong>For example</strong>: let's say you've assigned 4 badges to a checkpoint and you've made each one worth 1 point. When a student is awarded one of those badges, they will have completed <strong>25%</strong> of the checkpoint</p>
+        <p class="text-info"><strong>Another example</strong>: you assign 3 badges to a checkpoint. One badge has a value of 2 points, and the other two have a value of 1 point each. When a student is awarded the first badge, he will have completed <strong>50%</strong> of the checkpoint. </p>
+        <p><strong>Checkpoints will appear here</strong> when you create them from the course page of each of your courses</p>
+        <p>You can assign more than one checkpont if you'd like. However, when a student completes this badge, it will count for all checkpoints assigned to that badge</p>
+        <p class="text-danger">You don't have to assign badges to any checkpoints if you don't want to</p>
+      </div> 
+
+    </div>
+   
   </div>
-</form>
-</div>
+   </form>
+<div>
 
 <script type="text/javascript">
 $(document).ready(function(){

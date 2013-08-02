@@ -5,27 +5,52 @@
 <div>
   <div class="row">
     <h1>Your Badge Vault</h1>
-    <a class="btn btn-primary" href="/badge_creator">Create a New Badge</a>
-  </div>  
-  <hr>
-  <div class="row">
-    {% for badge in badges %}
-    <div class="col-sm-4">
-      <div class="badge-div pull-left">
-      <a href="/badge/{{badge.key.id()}}">
-        <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-        </div>
-        </a>
-      </div>
-      <div class="badge-new-description">
-        <h3>{{badge.name}}</h3>
-        <p>{{badge.requirement}}</p>
-        <p><a href="/badge_creator/{{badge.key.id()}}">Edit Badge</a></p>
-      </div>
+    <div class="callout callout-info row">
+      <p>Here is a list of all the badges you have created.</p>
+      <p><a class="btn btn-info btn-small" href="/badge_creator">Create a New Badge</a></p>
     </div>
-    {% if loop.index is divisibleby 3 %}</div><hr><div class="row">{% endif %} 
-    {% endfor %}
+  </div> 
+  <div class="row">
+    <table class="table table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>Badge</th>
+          <th>Name</th>
+          <th>Associated Checkpoints</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for badge in badges %}
+          <tr>
+            <td>
+              <div class="badge-div tiny-badge pull-left">
+                <a href="/badge/{{badge.key.id()}}">
+                <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                  <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                </div>
+                </a>
+              </div>
+            </td>
+            <td>{{badge.name}}</td>
+            <td>
+              {% set badge_checkpoints = get_checkpoints_for_badge(badge=badge, user=local_user) %}
+              {% if badge_checkpoints %}
+                {% for each_checkpoint in badge_checkpoints %}
+                {% set course = each_checkpoint.key.parent().get() %}
+                  <p><span class="text-muted">{{course.course_name}}</span>, 
+                    <a href="/course/{{course.key.id()}}/checkpoint/{{each_checkpoint.key.id()}}">{{each_checkpoint.name}}</a>
+                  </p>
+                
+                {% endfor %}
+              {% endif %}
+            </td>
+            <td><a class = "btn btn-info btn-small" href="/badge_creator/{{badge.key.id()}}">Edit</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
   </div>
 </div>
 

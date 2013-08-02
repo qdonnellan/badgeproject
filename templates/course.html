@@ -144,13 +144,7 @@
 
       <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
         <br>
-        {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
-        <div class="callout callout-info row">
-          <h4>Checkpoints</h4>
-          <p>A useful way of grouping similar badges! When a student is awarded a badge, they automatically complete a percentage of the checkpoint (if that badge is assigned to a checkpoint). You determine how much each badge is worth when you create the badge. When you need to put something into your school's gradebook, just use the completion percentage for each checkpoint!</p>
-          <p><a class="btn btn-info btn-small" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a></p>
-        </div>
-        {% endif %}
+        <p><a class="btn btn-info btn-small" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a></p>
           {% include 'checkpoint_list.html' %}
       </div>
       {% if student_profile or teacher_view_student_profile %}

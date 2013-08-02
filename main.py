@@ -130,7 +130,10 @@ class home(MainHandler):
 class listBadges(MainHandler):
   def get(self):
     if valid_user():
-      self.render('badges.html', badges = get_all_badges(valid_user()), badges_active = "active")
+      self.render('badges.html', 
+        badges = get_all_badges(valid_user()), 
+        badges_active = "active",
+        get_checkpoints_for_badge = get_checkpoints_for_badge)
 
 class register(MainHandler):
   def get(self):

@@ -5,13 +5,23 @@
 <div class="container">
   <div class="row">
     <h1>{{local_user.formalName}} <small><a href="/edit_profile">[edit]</a></small></h1>
-    <p>{{google_user_api.get_current_user().email()}}</p>
-    {% if local_user.teacher %}
-      <a href="/edit_course" class="btn btn-info">Create New Course</a>
+    {% if not local_user.teacher %}
+      <div class="callout callout-info">
+        <a href="/request_teacher_access" class="btn btn-info pull-right btn-small">Request Teacher Access</a>
+        <h4>Student Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></h4>
+        <p>You are currently accessing the_badge_project with a student account. With this account you'll be able to request access to your teachers' courses and keep track of your own progress. If you are a teacher and would like to create your own course, you must first request teacher access. </p>
+        <p><a href="/register" class="btn btn-primary btn-small">Register for Course</a></p>
+      </div>
     {% else %}
-      <a href="/request_teacher_access" class="btn btn-info">Request Teacher Access</a>
+      <div class="callout callout-info">
+        <h4>Teacher Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></h4>
+        <p>You have successfully created a teacher account for the_badge_project. You may still register for classes as a student, but you may now also create your own classes, checkpoints, and badges! The courses you teach and the courses you sign up for as a student will appear below</p>
+        <p>
+          <a href="/edit_course" class="btn btn-info btn-small">Create New Course</a> 
+          <a href="/register" class="btn btn-primary btn-small">Register for Course</a>
+        </p>
+      </div>
     {% endif %}
-    <a href="/register" class="btn btn-primary">Register for Course</a>
   </div>
   {% if enrollments %}
     <div class="row">
@@ -38,22 +48,28 @@
       </table>
     </div>  {% endif %}
   {% if local_user.teacher %}
-    {% if courses or courses in [none, []] %}
+    {% if courses %}
       <div class="row">
         <h3>Courses you are teaching</h3>
-        <table class="table">
+        <table class="table table-hover">
           <thead>
             <tr>
               <th>Course</th>
-              <th>Notifications</th>
+              <th class="hidden-sm">Notifications</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {% for course in courses %}
             <tr>
-              <td>{{course.course_name}}</td>
               <td>
+
+                {% set notifications = get_total_number_notifications(course) %}
+                {% if notifications > 0 %}<span class="badge badge-notification visible-sm pull-left mobile-notification">{{notifications}}</span> {% endif %}
+                {{course.course_name}}
+                
+              </td>
+              <td class="hidden-sm">
                 {% set requests = get_number_of_badge_requests(course) %}
                 {% if requests > 0 %}
                   <p><span class="badge badge-notification">{{requests}}</span> 
@@ -62,13 +78,19 @@
                 {% set registrations = get_number_of_pending_registrations(course) %}
                 {% if registrations > 0 %}<p><span class="badge badge-notification">{{registrations}}</span> pending enrollment</p>{% if registrations > 1 %}s{% endif %}{% endif %}
               </td>
-              <td><a class="btn btn-small btn-primary" href="/course/{{course.key.id()}}">View Course</a> <a class="btn btn-small btn-info" href="/course/{{course.key.id()}}?active_tab=settings">Settings</a></td>
+              <td><a class="btn btn-small btn-primary" href="/course/{{course.key.id()}}">View Course</a></td>
 
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+    {% else %}
+    <div class="marketing-div">
+    <h1>No courses</h1>
+    <p class="lead">Hey, you haven't created any courses yet!</p>
+    <p><a class = "btn btn-info" href="/edit_course">Create Your First Course</a></p>
+    </div>
     {% endif %}
   {% endif %}
   

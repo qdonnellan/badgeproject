@@ -1,5 +1,7 @@
 from google.appengine.ext import ndb
 import logging
+from operator import attrgetter
+import re
 
 class User(ndb.Model):
   google_id = ndb.StringProperty(required = True)
@@ -78,7 +80,14 @@ def get_user_courses(user, courseID = None):
     if courseID:
       return existing_course(courseID, user)
     else:
-      return Course.query(ancestor = user.key)
+      courses = Course.query(ancestor = user.key)
+      total = 0
+      for course in courses:
+        total+=1
+      if total == 0:
+        return None
+      else:
+        return courses
   else:
     return None
 
@@ -232,7 +241,7 @@ def get_course_checkpoints(course):
   if total == 0:
     return None
   else:
-    return checkpoints
+    return sort_by_name(checkpoints)
 
 def get_single_checkpoint(course, checkpointID):
   the_checkpoint = ndb.Key(Checkpoint, int(checkpointID), parent = course.key).get()
@@ -366,6 +375,31 @@ def badge_in_checkpoint(badge, checkpoint):
 
 def get_total_number_notifications(course):
   return  get_number_of_badge_requests(course) + get_number_of_pending_registrations(course)
+
+def get_checkpoints_for_badge(badge, user):
+  if badge:
+    all_checkpoints = []
+    for checkpoint_key in badge.checkpoints:
+      if '_' in checkpoint_key:
+        courseID, checkpointID = checkpoint_key.split('_')
+        course = existing_course(courseID = courseID, user = user)
+        the_checkpoint = get_single_checkpoint(course, checkpointID)
+        all_checkpoints.append(the_checkpoint)
+    return all_checkpoints
+
+def natural_sort_key(key): 
+    convert = lambda text: int(text) if text.isdigit() else text 
+    return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
+
+def sort_by_name(query_object):
+  alist = []
+  for indiv_object in query_object:
+    alist.append(indiv_object)
+  if alist != []:
+    return sorted(alist, key=natural_sort_key(attrgetter('name')))
+  else:
+    return alist
+
 
 
 
