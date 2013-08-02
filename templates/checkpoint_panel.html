@@ -1,0 +1,70 @@
+<div class="col-12">
+  {% if checkpoint.featured %}
+    <h2><i class="icon-star text-featured"></i> {{checkpoint.name}}</h2>
+    <p class="lead">{{checkpoint.description}}</p>
+  {% else %}
+    <h3>{{checkpoint.name}}</h3>
+    <p>{{checkpoint.description}}</p>
+
+  {% endif %}
+  
+  
+
+ 
+</div>
+{% if student_profile or teacher_view_student_profile %}
+{% set percent_complete = get_checkpoint_percent_completion(course = course, badges = badges, student = student, checkpoint = checkpoint) %}
+  <div class="percent-complete-progress-bar col-9">
+    <div class="progress progress-striped active">
+      <div class="progress-bar {% if percent_complete == 100 %}progress-bar-success{% endif %}" style="width: {{percent_complete}}%"></div>
+    </div>
+    
+  </div>
+  <h1 class="percent-complete col-3">{{percent_complete}}%</h1>
+{% endif %}
+<div class="col-12">
+  {% if badges %}
+    {% for badge in badges %}
+      {% if badge.checkpoints %}
+        {% if course.key.id() ~ "_" ~ checkpoint.key.id() in badge.checkpoints %}
+          <div class="badge-div pull-left">
+            <div class="small-badge"  rel="tooltip" title="{{badge.name}} ({{badge.value}} points)" data-placement="top">
+              {% if student_profile %}
+                <a href="/student_badge/{{teacherID}}/{{course.key.id()}}/{{badge.key.id()}}">
+              {% elif teacher_view_student_profile %}
+                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+              {% else %}
+                <a href="/badge/{{badge.key.id()}}" >
+              {% endif %}
+                {% if (student_profile or teacher_view_student_profile) and achievement_status(student, badge, teacher, course)== 'awarded' %}
+                  <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  </div>
+                {% elif not (student_profile or teacher_view_student_profile) and user_is_teacher(course, local_user) %}
+                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  </div>
+                {% else %}
+                  <div class="badge-new badge-grey">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  </div>
+                {% endif %}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+</div>
+{% if not (student_profile or teacher_view_student_profile) %}
+  <p class="col-12">
+    
+    <div class="btn-group">
+      <a type="button" class="btn btn-link btn-small" href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">Edit Checkpoint</a>
+      <a type="button" class="btn btn-link btn-small" href="/badge_creator?checkpointID={{checkpoint.key.id()}}&courseID={{course.key.id()}}">New Badge</a>
+      <a type="button" class="btn btn-link btn-small" href ="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}">Class Progress</a>
+    </div>
+   
+  </p>
+{% endif %}

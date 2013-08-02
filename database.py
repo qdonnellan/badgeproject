@@ -16,6 +16,7 @@ class Course(ndb.Model):
 class Checkpoint(ndb.Model):
   name = ndb.StringProperty(required = False)
   description = ndb.TextProperty(required = False)
+  featured = ndb.BooleanProperty(default = False)
 
 class Registrations(ndb.Model):
   student_id = ndb.StringProperty(required = True)
@@ -222,26 +223,32 @@ class default_badge():
 def get_all_badges(teacher):
   return Badge.query(ancestor = teacher.key)
 
-def create_new_checkpoint(name, description, course):
-  new_checkpoint = Checkpoint(name= name, description = description, parent = course.key)
+def create_new_checkpoint(name, description, course, featured):
+  if featured == 'true':
+    featured = True
+  else:
+    featured = False
+  new_checkpoint = Checkpoint(name= name, description = description, featured = featured, parent = course.key)
   new_checkpoint.put()
 
-def update_checkpoint(name, description, course, checkpointID):
+def update_checkpoint(name, description, course, checkpointID, featured):
+  if featured == 'true':
+    featured = True
+  else:
+    featured = False
   the_checkpoint = get_single_checkpoint(course, checkpointID)
   if the_checkpoint:
     the_checkpoint.name = name
+    the_checkpoint.featured = featured
     the_checkpoint.description = description
     the_checkpoint.put()
 
 def get_course_checkpoints(course):
   checkpoints = Checkpoint.query(ancestor = course.key)
-  total = 0
-  for checkpoint in checkpoints:
-    total+=1
-  if total == 0:
-    return None
-  else:
+  if checkpoints:
     return sort_by_name(checkpoints)
+  else:
+    return None
 
 def get_single_checkpoint(course, checkpointID):
   the_checkpoint = ndb.Key(Checkpoint, int(checkpointID), parent = course.key).get()

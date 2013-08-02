@@ -14,15 +14,41 @@
     <thead>
       <tr>
         <th>Student Name</th>
-        <th>Badge Progress</th>
-        <th>Percent Completion</th>
+        <th class="hidden-sm">Badge Progress</th>
+        <th class="hidden-sm">Percent Completion</th>
       </tr>
     </thead>
     <tbody>
       {% for student in get_enrolled_students(course) %}
       <tr>
-        <td><a href="/student_profile/{{student.key.id()}}/{{course.key.id()}}/teacher_view">{{student.formalName}}</a></td>
         <td>
+          <a href="/student_profile/{{student.key.id()}}/{{course.key.id()}}/teacher_view">{{student.formalName}}</a> 
+          <h4 class="pull-right visible-sm">{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</h4>
+          <div class="visible-sm">
+            {% for badge in badges %}
+              {% if badge_in_checkpoint(badge, checkpoint) %}
+                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                  {% if badge_achieved(badge, course, student) %}
+                    <div class="tiny-badge pull-left">
+                      <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                        <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <div class="tiny-badge pull-left">
+                      <div class="badge-grey badge-new">
+                        <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </a>
+              {% endif %}
+
+            {% endfor %}
+          </div>
+        </td>
+
+        <td class="hidden-sm">
           {% for badge in badges %}
             {% if badge_in_checkpoint(badge, checkpoint) %}
               <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
@@ -45,8 +71,10 @@
           {% endfor %}
 
         </td>
-        <td>{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</td>
+        <td class="hidden-sm"><h4>{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</h4></td>
+
       </tr>
+      
       {% endfor %}
     </tbody>
   </table>

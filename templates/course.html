@@ -145,7 +145,20 @@
       <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
         <br>
         <p><a class="btn btn-info btn-small" href="/course/{{course.key.id()}}/new_checkpoint">New Checkpoint</a></p>
-          {% include 'checkpoint_list.html' %}
+          {% for checkpoint in checkpoints %}
+          {% if checkpoint.featured %}
+            <div class="row callout-checkpoint checkpoint-featured callout">
+              {% include 'checkpoint_panel.html' %}
+            </div>
+          {% endif %}
+          {% endfor %}
+          {% for checkpoint in checkpoints %}
+          {% if not checkpoint.featured %}
+            <div class="row callout-checkpoint callout">
+              {% include 'checkpoint_panel.html' %}
+            </div>
+          {% endif %}
+          {% endfor %}
       </div>
       {% if student_profile or teacher_view_student_profile %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">

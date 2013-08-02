@@ -172,6 +172,16 @@
   background-color: #fcfcfc
 }
 
+.checkpoint-featured {
+  background-color: #ebfff6 !important;
+  border-color: #00c76f !important;
+}
+
+
+.text-featured {
+  color: #00c76f
+}
+
 .callout-danger {
   background-color: #fcf2f2;
   border-color: #dFb5b4;

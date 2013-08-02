@@ -17,26 +17,46 @@
         </div>
       {% endif %}
       {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
-      <div class="callout callout-info row">
+      <div class="callout callout-warning row">
         <p><strong>Checkpoints</strong> are a useful way of grouping similar badges! When a student is awarded a badge, they automatically complete a percentage of the checkpoint (if that badge is assigned to a checkpoint). You determine how much each badge is worth when you create the badge. Once created, you'll be able to assign badges to the checkpoint and monitor your student's progress.</p>
       </div>
       {% endif %}
     </div>
     <div class="row">
-      <form method="post" class="col-lg-12">   
+      <form method="post" class="col-lg-12"> 
+        <div class="row">  
+          <div class="col-lg-6">
+            <h4>Checkpoint Name</h4>
+            {% if new_checkpoint %}
+              <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" />
+            {% else %}
+              <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" value = "{{checkpoint.name}}"/>
+            {% endif %}
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" 
+                  {% if checkpoint and checkpoint.featured %}
+                    checked
+                  {% endif %} value="true" name="featured_checkpoint">
+                  This is a featured checkpoint
+              </label>
+            </div>
+          </div>
 
-        <h3>Checkpoint Name</h3>
-        {% if new_checkpoint %}
-          <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" />
-        {% else %}
-          <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" value = "{{checkpoint.name}}"/>
-        {% endif %}
-
-        <h3>Checkpoint Description</h3>
-        
-        <textarea rows="5" id="description" class="form-control" name="description">{% if not new_checkpoint %}{{checkpoint.description}}{% endif %}</textarea>
-        <div class="callout callout-info row">
-          <p><strong class="muted">Description Tip: </strong>You may want to include when this checkpoint is due. For example: <em>"Complete all of these badges before the third week of school. At that time I'll be using your checkpoint completion percentage as a major grade"</em></p>
+          <div class="callout callout-info col-lg-6">
+            <p><strong>We order your checkpoints</strong> alphanumerically according to their name, unless they are marked as featured.</p>
+            <p><strong>Featured checkpoints</strong> are locked at the top of your course page. You may wish to use these to show your students which badges they should currently be working on </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <h4>Checkpoint Description</h4>
+            
+            <textarea rows="5" id="description" class="form-control" name="description">{% if not new_checkpoint %}{{checkpoint.description}}{% endif %}</textarea>
+          </div>
+          <div class="callout callout-info col-lg-6">
+            <p><strong class="muted">Description Tip: </strong>You may want to include when this checkpoint is due. For example: <em>"Complete all of these badges before the third week of school. At that time I'll be using your checkpoint completion percentage as a major grade"</em></p>
+          </div>
         </div>
         <br>
         <button class="btn btn-primary" type="submit">Save Checkpoint</button>

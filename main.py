@@ -278,7 +278,8 @@ class newCheckpoint(MainHandler):
       if course:        
         name = self.request.get('checkpoint_name')
         description = self.request.get('description')
-        create_new_checkpoint(name = name, description = description, course = course)
+        featured = self.request.get('featured_checkpoint')
+        create_new_checkpoint(name = name, description = description, course = course, featured = featured)
 
     self.redirect('/course/%s' % courseID)
 
@@ -299,7 +300,8 @@ class editCheckpoint(MainHandler):
       if course:        
         name = self.request.get('checkpoint_name')
         description = self.request.get('description')
-        update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course)
+        featured = self.request.get('featured_checkpoint')
+        update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course, featured = featured)
 
     self.redirect('/course/%s' % courseID)
 

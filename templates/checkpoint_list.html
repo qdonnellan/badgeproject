@@ -1,11 +1,8 @@
 {% if checkpoints %}
   {% for checkpoint in checkpoints %}
     <div class="row callout-checkpoint callout">
-      <div class="col-lg-12 col-sm-12">
-        <h3>{{checkpoint.name}}
-        </h3>
-        
-         
+      <div class="col-12">
+        <h3>{% if checkpoint.featured %}<i class="icon-star text-featured"></i> {% endif %}{{checkpoint.name}}</h3>
         <p>{{checkpoint.description}}</p>
       </div>
       {% if student_profile or teacher_view_student_profile %}

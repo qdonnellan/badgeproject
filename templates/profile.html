@@ -17,7 +17,7 @@
         <h4>Teacher Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></h4>
         <p>You have successfully created a teacher account for the_badge_project. You may still register for classes as a student, but you may now also create your own classes, checkpoints, and badges! The courses you teach and the courses you sign up for as a student will appear below</p>
         <p>
-          <a href="/edit_course" class="btn btn-info btn-small">Create New Course</a> 
+          <a href="/edit_course" class="btn btn-info btn-small">New Course</a> 
           <a href="/register" class="btn btn-primary btn-small">Register for Course</a>
         </p>
       </div>
@@ -31,7 +31,6 @@
           <tr>
             <th>Course</th>
             <th>Registration Status</th>
-            <th>Notifications</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -40,7 +39,6 @@
           <tr>
             <td>{{entry["course"].course_name}} 
             <td>{{entry["status"]}}</td>
-            <td> </td>
             <td>{% if entry["status"]=='approved' %}<a class="btn btn-small btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View Course</a>{% endif %}</td>
           </tr>
           {% endfor %}
@@ -76,7 +74,9 @@
                   <a href="/course/{{course.key.id()}}?active_tab=requests">badge request{% if requests >1 %}s{% endif %}</a></p>
                 {% endif %}
                 {% set registrations = get_number_of_pending_registrations(course) %}
-                {% if registrations > 0 %}<p><span class="badge badge-notification">{{registrations}}</span> pending enrollment</p>{% if registrations > 1 %}s{% endif %}{% endif %}
+                {% if registrations > 0 %}<p><span class="badge badge-notification">{{registrations}}</span> 
+                  <a href="/course/{{course.key.id()}}?active_tab=students">pending enrollment{% if registrations > 1 %}s{% endif %}</a></p>
+                {% endif %}
               </td>
               <td><a class="btn btn-small btn-primary" href="/course/{{course.key.id()}}">View Course</a></td>
 
