@@ -109,7 +109,7 @@
               <div class="checkbox">
                 <label>
                   <input type="checkbox" 
-                    {% if (badge.checkpoints and course.key.id() ~ '_' ~ checkpoint.checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.checkpoint.key.id() and courseID == course.course.key.id()) %}
+                    {% if (badge.checkpoints and course.course.key.id() ~ '_' ~ checkpoint.checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.checkpoint.key.id() and courseID == course.course.key.id()) %}
                       checked
                     {% endif %} value="{{course.course.key.id()}}_{{checkpoint.checkpoint.key.id()}}" name="checkpoint_options">
                     {{checkpoint.name}}

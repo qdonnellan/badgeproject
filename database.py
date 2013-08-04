@@ -384,6 +384,7 @@ def get_checkpoint_percent_completion(course, student, badges, checkpoint):
 
 def badge_in_checkpoint(badge, checkpoint):
   course = checkpoint.key.parent().get()
+  logging.info(badge.checkpoints)
   checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
   if badge.checkpoints and (checkpoint_key in badge.checkpoints):
     return True

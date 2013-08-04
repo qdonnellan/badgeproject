@@ -6,13 +6,12 @@ from google.appengine.api import users
 from database import *
 from ajax import *
 from useful import valid_user
-from cached_objects import get_cached_course
+from cached_objects import get_cached_course, get_cached_checkpoint
 
 class badgeCreator(MainHandler):
   def get(self, badgeID=None):
     if valid_user() and valid_user().teacher:
       badge = get_badge(valid_user(),badgeID)
-      logging.info(badge.checkpoints)
       checkpointID = self.request.get('checkpointID')
       courseID = self.request.get('courseID')
       badges_active = 'active'
@@ -44,6 +43,8 @@ class badgeCreator(MainHandler):
       courseID = self.request.get('courseID')
       if checkpointID and courseID:
         course = existing_course(courseID = courseID, user = valid_user())
+        checkpoint = get_single_checkpoint(course, checkpointID)
+        get_cached_checkpoint(checkpoint, refresh = True)
         get_cached_course(course, refresh = True)
         self.redirect('/course/%s#%s' % (courseID, checkpointID))
       else:
@@ -242,14 +243,17 @@ class teacherViewAwardBadge(MainHandler):
     if valid_user():
       if status in ['awarded', 'revoked', 'denied']:
         course = existing_course(courseID, valid_user())
+        badge = get_badge(valid_user(),badgeID)
         new_achievement(
           teacher = valid_user(), 
           student = get_student(studentID), 
-          badge = get_badge(valid_user(),badgeID), 
+          badge = badge, 
           course = course,
           status = status
           )
-        get_cached_course(course, refresh = True)
+        for checkpoint in get_checkpoints_for_badge(badge, valid_user()):
+          get_cached_checkpoint(checkpoint, refresh = True)
+        get_cached_course(course, studentID = studentID, refresh = True)
     self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class requestBadge(MainHandler):
@@ -301,7 +305,8 @@ class editCheckpoint(MainHandler):
         description = self.request.get('description')
         featured = self.request.get('featured_checkpoint')
         update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course, featured = featured)
-        get_cached_course(course, refresh = True)
+        checkpoint = get_single_checkpoint(course, checkpointID)
+        get_cached_checkpoint(checkpoint, refresh = True)
     self.redirect('/course/%s' % courseID)
 
 class singleBadge(MainHandler):
@@ -319,13 +324,14 @@ class singleCheckpoint(MainHandler):
     if valid_user():
       course = existing_course(courseID, valid_user())
       course = get_cached_course(course)
+      checkpoint = get_single_checkpoint(course.course, checkpointID)
       self.render('single_checkpoint.html',  
-        checkpoint = course.get_checkpoint(checkpointID), 
+        checkpoint = get_cached_checkpoint(checkpoint), 
         course= course,
         courseID = int(courseID), 
         checkpointID = int(checkpointID),
         badge_achieved = badge_achieved,
-        get_student_course = get_cached_course
+        get_cached_checkpoint = get_cached_checkpoint
         )
 
 class teacherAccessRequest(MainHandler):
