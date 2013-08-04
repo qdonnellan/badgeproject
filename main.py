@@ -307,6 +307,7 @@ class editCheckpoint(MainHandler):
         update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course, featured = featured)
         checkpoint = get_single_checkpoint(course, checkpointID)
         get_cached_checkpoint(checkpoint, refresh = True)
+        get_cached_course(course, refresh = True)
     self.redirect('/course/%s' % courseID)
 
 class singleBadge(MainHandler):
