@@ -16,7 +16,7 @@
           <h5><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</h5>
         </div>
       {% endif %}
-      {% if user_is_teacher(course, local_user) and not (student_profile or teacher_view_student_profile) %}
+      {% if not (student_profile or teacher_view_student_profile) %}
       <div class="callout callout-warning row">
         <p><strong>Checkpoints</strong> are a useful way of grouping similar badges! When a student is awarded a badge, they automatically complete a percentage of the checkpoint (if that badge is assigned to a checkpoint). You determine how much each badge is worth when you create the badge. Once created, you'll be able to assign badges to the checkpoint and monitor your student's progress.</p>
       </div>

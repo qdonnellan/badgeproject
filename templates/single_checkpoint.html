@@ -5,9 +5,9 @@
 <div>
   <div class="row">
     <h1>{{checkpoint.name}}</h1>
-    <p class="text-muted">Checkpoint for the course <a href="/course/{{course.key.id()}}">{{course.course_name}}</a></p>
+    <p class="text-muted">Checkpoint for the course <a href="/course/{{courseID}}">{{course.course_name}}</a></p>
     <p class="lead">{{checkpoint.description}}</p>
-    <p><a class="btn btn-info btn-small" href="/course/{{course.key.id()}}/edit_checkpoint/{{checkpoint.key.id()}}">Edit Checkpoint</a></p>
+    <p><a class="btn btn-info btn-small" href="/course/{{courseID}}/edit_checkpoint/{{checkpoint.checkpoint.key.id()}}">Edit Checkpoint</a></p>
     <hr>
   </div>
   <table class="table table-hover row">
@@ -19,16 +19,18 @@
       </tr>
     </thead>
     <tbody>
-      {% for student in get_enrolled_students(course) %}
+      {% for student in course.enrolled_students %}
+        {% set student_course = get_student_course(course.course, studentID = student.key.id()) %}
+        {% set student_checkpoint = student_course.get_checkpoint(checkpointID) %}
       <tr>
         <td>
-          <a href="/student_profile/{{student.key.id()}}/{{course.key.id()}}/teacher_view">{{student.formalName}}</a> 
-          <h4 class="pull-right visible-sm">{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</h4>
+          <a href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">{{student.formalName}}</a> 
+          <h4 class="pull-right visible-sm">{{student_checkpoint.percent_complete}}%</h4>
           <div class="visible-sm">
-            {% for badge in badges %}
-              {% if badge_in_checkpoint(badge, checkpoint) %}
-                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
-                  {% if badge_achieved(badge, course, student) %}
+            {% for badge in student_checkpoint.badges %}
+            sdfsdf
+                <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
+                  {% if badge.status == 'awarded' %}
                     <div class="tiny-badge pull-left">
                       <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
                         <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
@@ -42,36 +44,30 @@
                     </div>
                   {% endif %}
                 </a>
-              {% endif %}
-
             {% endfor %}
           </div>
         </td>
 
         <td class="hidden-sm">
-          {% for badge in badges %}
-            {% if badge_in_checkpoint(badge, checkpoint) %}
-              <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
-                {% if badge_achieved(badge, course, student) %}
-                  <div class="tiny-badge pull-left">
-                    <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                      <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                    </div>
+          {% for badge in student_checkpoint.badges %}
+            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
+              {% if badge.status == 'awarded' %}
+                <div class="tiny-badge pull-left">
+                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
                   </div>
-                {% else %}
-                  <div class="tiny-badge pull-left">
-                    <div class="badge-grey badge-new">
-                      <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                    </div>
+                </div>
+              {% else %}
+                <div class="tiny-badge pull-left">
+                  <div class="badge-grey badge-new">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
                   </div>
-                {% endif %}
-              </a>
-            {% endif %}
-
+                </div>
+              {% endif %}
+            </a>
           {% endfor %}
-
         </td>
-        <td class="hidden-sm"><h4>{{get_checkpoint_percent_completion(course, student, badges, checkpoint)}}%</h4></td>
+        <td class="hidden-sm"><h4>{{student_checkpoint.percent_complete}}%</h4></td>
 
       </tr>
       

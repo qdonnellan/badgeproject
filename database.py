@@ -8,6 +8,7 @@ class User(ndb.Model):
   email = ndb.StringProperty(required = True)
   formalName = ndb.StringProperty(required = False)
   teacher = ndb.BooleanProperty(default = False)
+  formalName_lower = ndb.ComputedProperty(lambda self: self.formalName.lower())
 
 class Course(ndb.Model):
   course_name = ndb.StringProperty(required = True)
@@ -76,6 +77,8 @@ def edit_course(course_name, course_code, courseID, user):
     course_object = Course(course_name = course_name, course_code = course_code, parent = user.key)
     course_object.put()
 
+  return course_object
+
 def get_user_courses(user, courseID = None):
   if user:
     if courseID:
@@ -98,11 +101,18 @@ def get_user_by_email(email):
 def register_for_course(student, teacher, course_code):
   the_course = Course.query(Course.course_code == course_code, ancestor = teacher.key).get()
   if the_course:
-    new_registration = Registrations(student_id = str(student.key.id()), status = "pending", parent = the_course.key)
-    new_registration.put()
-    return True
+    existing_registration = Registrations.query(Registrations.student_id == str(student.key.id()), ancestor = the_course.key).get()
+    if not existing_registration:
+      new_registration = Registrations(student_id = str(student.key.id()), status = "pending", parent = the_course.key)
+      new_registration.put()
+      return True
+    else:
+      return False
   else:
     return False
+
+def get_course_by_code(teacher, course_code):
+  return Course.query(Course.course_code == course_code, ancestor = teacher.key).get()
 
 def edit_registration(courseID, teacher, studentID, action):
   course = existing_course(courseID, teacher)
@@ -322,7 +332,7 @@ def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
             total += 1
     return total
 
-def get_badge_requests(course, indiv_student=None, denied_on = False):
+def get_badge_requests(course, indiv_student=None):
   if course:
     teacher = course.key.parent().get()
     badges = get_all_badges(teacher)
@@ -330,13 +340,13 @@ def get_badge_requests(course, indiv_student=None, denied_on = False):
     for badge in badges:
       if indiv_student:
         possible_achievement = fetch_achievement(indiv_student, badge, teacher, course)
-        if possible_achievement and (possible_achievement.status == 'requested' or (denied_on and possible_achievement.status == 'denied')):
+        if possible_achievement:
           all_requests.append(possible_achievement)
       else:
         students = get_enrolled_students(course)
         for student in students:
           possible_achievement = fetch_achievement(student, badge, teacher, course)
-          if possible_achievement and (possible_achievement.status == 'requested' or (denied_on and possible_achievement.status == 'denied')):
+          if possible_achievement:
             all_requests.append(possible_achievement)
 
     if all_requests == []:

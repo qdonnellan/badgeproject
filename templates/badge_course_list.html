@@ -2,22 +2,23 @@
   <ul class="nav nav-tabs">
     {% for course in courses %}
     <li 
-      {% if active_course ==  '' ~ course.key.id() %} class="active"
+      {% if active_course ==  '' ~ course.course.key.id() %} class="active"
       {% elif not active_course and loop.first %} class="active"
       {% endif%}
       >
-      <a href="#badge_course_{{course.key.id()}}" data-toggle="tab">{{course.course_name}}</a>
+      <a href="#badge_course_{{course.course.key.id()}}" data-toggle="tab">{{course.name}}</a>
     </li>
     {% endfor %}
   </ul>
   <div class="tab-content">
     {% for course in courses %}
       <div class="tab-pane fade 
-        {% if active_course == '' ~ course.key.id() %}in active 
+        {% if active_course == '' ~ course.course.key.id() %}in active 
         {% elif not active_course and loop.first %}in active
-        {% endif %}" id="badge_course_{{course.key.id()}}">
+        {% endif %}" id="badge_course_{{course.course.key.id()}}">
         
-      {% if get_enrolled_students(course) %}
+      {% set enrolled_students = course.enrolled_students %}
+      {% if enrolled_students %}
       <table class="table table-condensed table-hover">
         <thead>
           <tr>
@@ -27,11 +28,11 @@
           </tr>
         </thead>
         <tbody>
-          {% for student in get_enrolled_students(course) %}
-          {% set current_achievement_status = achievement_status(student, badge, teacher, course) %}
+          {% for student in enrolled_students%}
+          {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
             <tr>
               <td>
-                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                <a href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view">
                   {{student.formalName}}
                 </a>
               </td>
@@ -53,24 +54,24 @@
                 {% if current_achievement_status != 'awarded' %}
                   <form action="/achievementHandler?status=awarded" method = "post" class="achievement-form pull-left">
                     <input type="hidden" name="student_id" value = "{{student.key.id()}}">
-                    <input type="hidden" name="course_id" value = "{{course.key.id()}}">
+                    <input type="hidden" name="course_id" value = "{{course.course.key.id()}}">
                     <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
-                    <button class="btn btn-success btn-small" type="submit">award badge</button> 
+                    <button class=" btn btn-success btn-small" type="submit">award badge</button> 
                   </form> 
                   {% if current_achievement_status == 'requested' %}
                     <form action="/achievementHandler?status=denied" method = "post" class="achievement-form pull-left">
                       <input type="hidden" name="student_id" value = "{{student.key.id()}}">
-                      <input type="hidden" name="course_id" value = "{{course.key.id()}}">
+                      <input type="hidden" name="course_id" value = "{{course.course.key.id()}}">
                       <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
-                       <button class="btn btn-small btn-warning" type="submit">deny badge</button>
+                       <button class=" btn btn-small btn-warning" type="submit">deny badge</button>
                     </form>
                   {% endif %}
                 {% else %}
                   <form action="/achievementHandler?status=revoked" method = "post" class="achievement-form">
                     <input type="hidden" name="student_id" value = "{{student.key.id()}}">
-                    <input type="hidden" name="course_id" value = "{{course.key.id()}}">
+                    <input type="hidden" name="course_id" value = "{{course.course.key.id()}}">
                     <input type="hidden" name="badge_id" value = "{{badge.key.id()}}">
-                    <button class="btn btn-small btn-warning" type="submit">revoke badge</button>
+                    <button class=" btn btn-small btn-warning" type="submit">revoke badge</button>
                   </form>
 
 

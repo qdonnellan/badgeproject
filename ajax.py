@@ -1,6 +1,7 @@
 from database import *
 from handlers import MainHandler
 from useful import valid_user
+from cached_objects import get_cached_course, get_cached_user_courses
 
 class achievementHandler(MainHandler):
   def post(self):
@@ -10,14 +11,14 @@ class achievementHandler(MainHandler):
     badge_id = self.request.get('badge_id')
     status = self.request.get('status')
     student = get_student(student_id)
-    course = existing_course(teacher, course_id)
+    course = existing_course(user = teacher, courseID = course_id)
+    get_cached_course(course, refresh = True)
     badge = get_badge(teacher, badge_id)
     new_achievement(teacher = teacher, student =student, badge = badge, course = course, status = status)
     courses = get_user_courses(teacher)
     html = self.render_str('badge_course_list.html', 
-      courses = courses, 
+      courses = get_cached_user_courses(teacher),  
       badge = badge, 
-      get_enrolled_students = get_enrolled_students,
       active_course = course_id,
       teacher = teacher, 
       achievement_status = achievement_status)

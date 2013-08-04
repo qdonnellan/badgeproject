@@ -69,17 +69,15 @@
       </ul>
       {% if courses and local_user.teacher %}
         <ul class="side-list">          
-        {% for each_course in courses %}
-          {% set notifications = get_total_number_notifications(each_course) %}
-
-          <li class="{% if courseID == each_course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
-            <a href="/course/{{each_course.key.id()}}">
+        {% for course in courses %}
+          {% set notifications = course.number_of_notifications %}
+          <li class="{% if courseID == course.course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
+            <a href="/course/{{course.course.key.id()}}">
               {% if notifications > 0 %}<span class="badge badge-notification">{{notifications}}</span> {% else %} {% endif %}
-              {{each_course.course_name}}
+              {{course.name}}
               <i class="icon-chevron-sign-right"></i>
             </a>
           </li>
-          
         {% endfor %}
         </ul>
       {% endif %}
@@ -105,7 +103,12 @@
       })
     </script>
       
-
+    <script type="text/javascript">
+     $('.btn-loading').click(function(){
+         $('.btn-loading').attr('disabled','disabled');
+         $(this).html('<i class="icon-spinner icon-spin icon-large"></i> Please wait...')
+     });
+    </script>
 
 
     <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>    

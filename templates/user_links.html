@@ -5,9 +5,9 @@
   </li>
 {% endif %}
 {% if courses and local_user.teacher %}          
-  {% for each_course in courses %}
-    <li class="{% if courseID == each_course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
-      <a href="/course/{{each_course.key.id()}}"><i class="icon-group"></i> {{each_course.course_name}}</a>
+  {% for course in courses %}
+    <li class="{% if courseID == course.course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
+      <a href="/course/{{course.course.key.id()}}"><i class="icon-group"></i> {{course.name}}</a>
     </li>
   {% endfor %}
 {% endif %}
