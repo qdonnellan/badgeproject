@@ -11,14 +11,16 @@
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.css" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> 
     <script type="text/javascript" src="/javascript/farbtastic.js"></script>
+
     {% block extra_js %}{% endblock %}
     
   </head>   
   
   <body> 
     <div class="navbar navbar-fixed-top navbar-inverse">
-      <span class="pull-left hidden-sm"><a class="navbar-brand">the_badge_project</a></span>
+      <p class="navbar-text hidden-sm pull-left"><i class="icon-stop text-info"></i> the_badge_project</p>
       <div class="container">
+
       <!-- navbar for large screens -->
         <ul class="nav navbar-nav pull-right visible-lg">
           <li><a href="/profile">{{local_user.formalName}}</a></li>
@@ -105,8 +107,8 @@
       
     <script type="text/javascript">
      $('.btn-loading').click(function(){
-         $('.btn-loading').attr('disabled','disabled');
-         $(this).html('<i class="icon-spinner icon-spin icon-large"></i> Please wait...')
+       $('.btn-loading').attr('disabled','disabled');
+       $(this).html('<i class="icon-spinner icon-spin icon-large"></i> Please wait...')
      });
     </script>
 

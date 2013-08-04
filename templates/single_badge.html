@@ -40,6 +40,7 @@
         </p>
       {% endif %}
     </div>
+
       
   {% endif %}
     <h4 class="pull-left">
@@ -74,6 +75,17 @@
       <p class="lead">{{badge.requirement}}</p>
       
     </div>
+  </div>
+  <div class="row">
+  {% set badge_checkpoints = get_checkpoints_for_badge(badge=badge, user=teacher) %}
+    {% if badge_checkpoints %}
+    <div class="callout callout-info">
+      <p>This badge is associated with the following checkpoints:</p>
+      {% for checkpoint in badge_checkpoints %}
+        <p><a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().course_name}}, {{checkpoint.name}}</a></p>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
   {% if not (student_badge or teacher_view_student_badge) %}
   <div class="row" id ="badge-course-list">

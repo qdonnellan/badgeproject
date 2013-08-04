@@ -39,13 +39,15 @@ class badgeCreator(MainHandler):
         teacher = valid_user(),
         checkpoints = self.request.get_all("checkpoint_options")
         )
+
+      for checkpoint in get_checkpoints_for_badge(get_badge(valid_user(), badgeID), valid_user()):
+        get_cached_checkpoint(checkpoint, refresh = True)
+        get_cached_course(checkpoint.key.parent().get(), refresh = True)
+
+      
       checkpointID = self.request.get('checkpointID')
       courseID = self.request.get('courseID')
       if checkpointID and courseID:
-        course = existing_course(courseID = courseID, user = valid_user())
-        checkpoint = get_single_checkpoint(course, checkpointID)
-        get_cached_checkpoint(checkpoint, refresh = True)
-        get_cached_course(course, refresh = True)
         self.redirect('/course/%s#%s' % (courseID, checkpointID))
       else:
         self.redirect('/badge/%s' % badgeID)
@@ -215,7 +217,8 @@ class studentBadge(MainHandler):
         courseID = course.key.id(),
         course = course, 
         teacher = teacher,
-        teacherID = int(teacherID)
+        teacherID = int(teacherID),
+        get_checkpoints_for_badge = get_checkpoints_for_badge
         )
 
 class teacherViewStudentBadge(MainHandler):
@@ -235,7 +238,8 @@ class teacherViewStudentBadge(MainHandler):
           course = course, 
           courseID = course.key.id(),
           teacher = teacher,
-          teacherID = int(teacher.key.id())
+          teacherID = int(teacher.key.id()),
+          get_checkpoints_for_badge = get_checkpoints_for_badge
           )
 
 class teacherViewAwardBadge(MainHandler):
@@ -317,7 +321,8 @@ class singleBadge(MainHandler):
         badge = get_badge(valid_user(),badgeID), 
         achievement_status = achievement_status, 
         teacher=valid_user(),
-        badges_active = 'active'
+        badges_active = 'active',
+        get_checkpoints_for_badge = get_checkpoints_for_badge
         )
 
 class singleCheckpoint(MainHandler):
