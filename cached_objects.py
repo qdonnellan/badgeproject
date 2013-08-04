@@ -54,6 +54,8 @@ class checkpoint_class():
 
 class request_class():
   def __init__(self, request, teacher):
+    self.request = request
+    self.student = request.key.parent().get()
     self.status = request.status
     self.badge_id = request.badge_id
     self.badge = get_badge(teacher, request.badge_id)

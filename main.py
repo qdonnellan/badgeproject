@@ -44,7 +44,7 @@ class badgeCreator(MainHandler):
         get_cached_checkpoint(checkpoint, refresh = True)
         get_cached_course(checkpoint.key.parent().get(), refresh = True)
 
-      
+
       checkpointID = self.request.get('checkpointID')
       courseID = self.request.get('courseID')
       if checkpointID and courseID:
@@ -96,9 +96,12 @@ class editCourse(MainHandler):
     if valid_user():
       course_name = self.request.get('course_name')
       course_code = self.request.get('course_code')
-      course = edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
-      get_cached_course(course, refresh = True)
-    self.redirect('/profile')
+      if verify_unique_course_code(course_code,valid_user(), courseID = courseID):
+        course = edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
+        get_cached_course(course, refresh = True)
+        self.redirect('/profile')
+      else:
+        self.redirect('/edit_course?error=you are already using that course code in another course')
 
 class profile(MainHandler):
   def get(self):
@@ -122,9 +125,12 @@ class course(MainHandler):
     if valid_user():
       course_name = self.request.get('course_name')
       course_code = self.request.get('course_code')
-      course = edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
-      get_cached_course(course, refresh = True)
-    self.redirect('/course/%s?active_tab=settings' % courseID)
+      if verify_unique_course_code(course_code,valid_user(), courseID = courseID):
+        course = edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
+        get_cached_course(course, refresh = True)
+        self.redirect('/course/%s?active_tab=settings' % courseID)
+      else:
+        self.redirect('/course/%s?active_tab=settings&error=you are already using that course code in another course' % courseID)
 
 
 class home(MainHandler):

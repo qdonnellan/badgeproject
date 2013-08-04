@@ -139,6 +139,11 @@
               </tbody>
             </table>
           </div>
+        {% else %}
+        <div class="marketing-div">
+          <br><br><br>
+          <h2 class="text-muted">No students registered</h2>
+        </div>
         {% endif %}
 
       </div>
@@ -166,7 +171,7 @@
       </div>
       {% if student_profile or teacher_view_student_profile %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
-        <br>
+        
         {% set requests = course.requests %}
         {% if requests %}
           <table class="table">
@@ -179,24 +184,26 @@
             </thead>
             <tbody>
               {% for request in requests %}
-              <tr>
-                <td>
-                  {% if teacher_view_student_profile %}
-                  <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
-                  {% else %}
-                  <a href="/student_badge/{{teacherID}}/{{courseID}}/{{request.badge_id}}">
-                  {% endif %}
-                    {% set badge = request.badge %}
-                    <div class="tiny-badge pull-left">
-                      <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                        <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                      </div>
-                    </div> {{badge.name}}
-                  </a>  
-                </td>
-                <td>{{request.status}}</td>
-                <td>...</td>
-              </tr>
+                {% if request.status in ['revoked', 'denied', 'requested'] %}
+                  <tr>
+                    <td>
+                      {% if teacher_view_student_profile %}
+                      <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
+                      {% else %}
+                      <a href="/student_badge/{{teacherID}}/{{courseID}}/{{request.badge_id}}">
+                      {% endif %}
+                        {% set badge = request.badge %}
+                        <div class="tiny-badge pull-left">
+                          <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                            <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                          </div>
+                        </div> {{badge.name}}
+                      </a>  
+                    </td>
+                    <td>{{request.status}}</td>
+                    <td>...</td>
+                  </tr>
+                {% endif %}
               {% endfor %}
             </tbody>
           </table>
@@ -206,8 +213,8 @@
       </div>
       {% else %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
-        <br>
-        {% set requests = course.badge_requests %}
+        
+        {% set requests = course.requests %}
         {% if requests %}
           <div class="hidden-sm">
             <table class="table">
@@ -220,12 +227,12 @@
               </thead>
               <tbody>
                 {% for request in requests %}
-                  {% set student = get_student(request.key.parent().get().key.id()) %}
+                {% if request.status == 'requested' %}
                   <tr>
-                    <td>{{course.student.formalName}}</td>
+                    <td>{{request.student.formalName}}</td>
                     <td>
-                      <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
-                        {% set badge = get_badge(local_user, request.badge_id) %}
+                      <a href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
+                        {% set badge = request.badge %}
                         <div class="tiny-badge pull-left">
                           <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
                             <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
@@ -235,30 +242,29 @@
                     </td>
                     <td>
                       <div class="btn-group">
-                        <a type = "button" class="btn btn-info btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
-                        <a type = "button" class="btn btn-danger btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
-                        <a type = "button" class="btn btn-success btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
+                        <a type = "button" class="btn btn-info btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
+                        <a type = "button" class="btn btn-danger btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
+                        <a type = "button" class="btn btn-success btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
                       </div>
 
                     </td>
                     
                   </tr>
-                  
+                  {% endif %}
                 {% endfor %}
               </tbody>
             </table>
           </div>
           <div class="visible-sm col-sm-12 mobile-request-list">
             {% for request in requests %}
-              {% set student = get_student(request.key.parent().get().key.id()) %}
               <div class="row">
                 <div class ="col-sm-4 pull-left">
-                  <h4>{{course.student.formalName}} </h4>
+                  <h4>{{request.student.formalName}} </h4>
                 </div>
                 <div class="col-sm-4 pull-left">
-                  <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
+                  <a href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
 
-                    {% set badge = get_badge(local_user, request.badge_id) %}
+                    {% set badge = request.badge %}
 
                     <div class="tiny-badge-mobile pull-left">
                       <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
@@ -273,31 +279,51 @@
               <br>
               <div class="row">
                 <div class="btn-group btn-group-justified visible-sm">
-                  <a type = "button" class="btn btn-info btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
-                  <a type = "button" class="btn btn-danger btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
-                  <a type = "button" class="btn btn-success btn-small" href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
+                  <a type = "button" class="btn btn-info btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
+                  <a type = "button" class="btn btn-danger btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
+                  <a type = "button" class="btn btn-success btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
                 </div>
               </div>
               <hr class="row">
             {% endfor %}
           </div>
         {% else %}
-          <h3 class='text-muted'>No active badge requests</h3>
+          <div class="marketing-div">
+            <br><br><br>
+            <h2 class="text-muted">No active badge requests</h2>
+        </div>
         {% endif %}
       </div>
       {% endif %}
       <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings">
-        
+        {% if error %}
+          <br>
+          <div class="alert alert-danger">
+            <strong>Woops!</strong> {{error}}
+          </div>
+        {% endif %}
         <div class="row">
           <div>
-            <form method="post" class="col-lg-6">   
-              <h3>Course Name</h3>
-                <p class="text-muted">Change your course name</p>
-                <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.name}}"/>
-              <h3>Course Code</h3>
-              <p class="text-muted">Your students will need your google email address and this code to register for your course</p>
-                <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.code}}"/>
-              <br>
+            <form method="post">   
+              <div class="row">
+                <div class="col-lg-6">
+                <h3>Course Name</h3>
+                  <p class="text-muted">Change your course name</p>
+                  <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.name}}"/>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6">
+                <h3>Course Code</h3>
+                <p class="text-muted">Your students will need your google email address and this code to register for your course</p>
+                  <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.code}}"/>
+                </div>
+                <div class="col-lg-6">
+                  <div class="callout callout-warning">
+                  <p><strong>The course code</strong> is what you will give to your students before they register for your course. They will be prompted to type your email address and this course code before their registration requests shows up in your profile. </p>
+                  </div>
+                </div>
+              </div>
               <button class="btn btn-primary" type="submit">Save Course</button>
             </form>
           </div>

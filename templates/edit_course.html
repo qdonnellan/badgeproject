@@ -3,37 +3,53 @@
 {% block body %}
 
 <div class="container">
-  <div>
-    <div class="row">
-      {% if course %}
-        <h1>Edit Course</h1>
-      {% else %}
-        <h1>Create New Course</h1>
+  <div class="row">
+
+    {% if course %}
+      <h1>Edit Course</h1>
+    {% else %}
+      <h1>Create New Course</h1>
+    {% endif %}
+    <hr class="soften">
+  </div>
+  {% if error %}
+        <div class="alert alert-danger">
+          <strong>Woops!</strong> {{error}}
+        </div>
       {% endif %}
-      <hr class="soften">
-    </div>
-    <div class="col-lg-6">
-      <form method="post">   
+  <form method="post"> 
+    <div class="row">
+      <div class="col-lg-6">
+        
         <h3>Course Name</h3>
         {% if course %}
           <p>Change your course name</p>
           <input type="text" id="course_name" name="course_name" value="{{course.course_name}}"/>
         {% else %}
-          <p>All we need from you is a course name that accurately describes the class you are teaching. </p>    
+          <p>All we need from you is a course name that accurately describes the class you are teaching. You can change the name of your course at any time. </p>    
           <input type="text" id="course_name" class = "form-control"name="course_name" placeholder="Type course name here" />
         {% endif %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
         <h3>Course Code</h3>
-        <p>Your students will need your google email address and this code to register for your course</p>
+        <p>Something short and simple that your students won't have a hard time remembering. </p>
         {% if course and course.course_code %}
           <input type="text" id="course_code" class= "form-control" name="course_code" value="{{course.course_code}}"/>
         {% else %}
           <input type="text" id="course_code" class= "form-control" name="course_code" placeholder='eg. "CAL101"' />
         {% endif %}
-        <br>
-        <button class="btn btn-primary" type="submit">Save Course</button>
-      </form>
+      </div>
+      <div class="col-lg-6">
+        <div class="callout callout-warning">
+          <p><strong>The course code</strong> is what you will give to your students before they register for your course. They will be prompted to type your email address and this course code before their registration requests shows up in your profile. </p>
+        </div>
+      </div>
     </div>
-  </div>
+    <button class="btn btn-primary" type="submit">Save Course</button>
+  </form>
+  </div>  
 </div>  
 
 

@@ -67,6 +67,18 @@ def existing_course(courseID, user):
   else:
     return None
 
+def verify_unique_course_code(course_code, user, courseID=None):
+  verification = True
+  user_courses = get_user_courses(user)
+  if user_courses:
+    for course in user_courses:
+      if course_code == course.course_code:
+        if not courseID:
+          verification = False
+        elif str(courseID) != str(course.key.id()):
+          verification = False
+  return verification
+
 def edit_course(course_name, course_code, courseID, user):
   course_object = existing_course(courseID, user)
   if course_object:
@@ -124,7 +136,11 @@ def edit_registration(courseID, teacher, studentID, action):
 
 
 def get_registrations(course):
-  return Registrations.query(ancestor = course.key)
+  total_registrations = Registrations.query(ancestor = course.key)
+  if total_registrations.count() > 0:
+    return total_registrations
+  else:
+    return None
 
 def get_number_of_pending_registrations(course):
   total_registrations = get_registrations(course)
