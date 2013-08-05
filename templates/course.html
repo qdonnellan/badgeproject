@@ -4,7 +4,13 @@
 
 <div>
   <div class="row">
-    <h1>{{course.course.course_name}}</h1>
+    <div class="page-header">
+    {% if not (student_profile or tracher_view_student_profile) %}
+        <a class="btn btn-add btn-large pull-right" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
+        {% endif %}
+      <h1>{{course.course.course_name}}</h1>
+    </div>
+    
     {% if teacher_view_student_profile %}
       <div class="callout callout-danger">
         <a href="/course/{{courseID}}" class="btn btn-default pull-right btn-small">Back to Teacher View</a>
@@ -151,9 +157,7 @@
 
       <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
         <br>
-        {% if not (student_profile or tracher_view_student_profile) %}
-        <p><a class="btn btn-info btn-small" href="/course/{{courseID}}/new_checkpoint">New Checkpoint</a></p>
-        {% endif %}
+        
           {% for checkpoint in course.checkpoints %}
             {% if checkpoint.featured %}
               <div class="row callout-checkpoint checkpoint-featured callout">

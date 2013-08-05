@@ -6,14 +6,14 @@
   <div class="row">
     <div>
       {% if new_checkpoint %}
-        <div>
-          <h3>Create a new checkpoint</h3>
-          <h5><span class="text-muted">This checkpoint will belong to the course:</span> {{course.course_name}}</h5>
+        <div class="page-header">
+          <h1>Create a new checkpoint</h1>
+          <p><span class="text-muted">This checkpoint will belong to the course:</span> {{course.course_name}}</p>
         </div>
       {% else %}
-        <div>
-          <h3>Edit existing checkpoint</h3>
-          <h5><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</h5>
+        <div class="page-header">
+          <h1>Edit existing checkpoint</h1>
+          <p><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</p>
         </div>
       {% endif %}
       {% if not (student_profile or teacher_view_student_profile) %}
@@ -26,7 +26,7 @@
       <form method="post" class="col-lg-12"> 
         <div class="row">  
           <div class="col-lg-6">
-            <h4>Checkpoint Name</h4>
+            <h3>Checkpoint Name</h3>
             {% if new_checkpoint %}
               <input type="text" id="checkpoint_name" class="form-control" name="checkpoint_name" />
             {% else %}
@@ -50,7 +50,7 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <h4>Checkpoint Description</h4>
+            <h3>Checkpoint Description</h3>
             
             <textarea rows="5" id="description" class="form-control" name="description">{% if not new_checkpoint %}{{checkpoint.description}}{% endif %}</textarea>
           </div>

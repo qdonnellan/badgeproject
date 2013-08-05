@@ -1,3 +1,16 @@
+h1, h2, h3, h4, h5 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300
+}
+
+.page-header h1 {
+  font-size: 3em;
+}
+
+.page-header h1 small {
+  font-weight: 300
+}
+
 
 .badge-new {
   text-align: center;
@@ -64,14 +77,33 @@
   margin:0px;
   padding:0px !important;
   width: 160px;
-  background: #383838;
-  color: #8c8c8c;
-  font-weight: 400;
+  background: #474949;
+  color: #f6f6f6;
+}
+
+.the-brand {
+  color:#fff !important;
+  font-weight: 300;
+  font-size: 1.9em;
+  margin: 5px 0 0 0 ;
   font-family: 'Roboto', sans-serif;
 }
 
+
+.icon-brand, .text-theme {
+  color: #ab42ff;
+}
+
 .navbar-fixed-top {
-  background: #383838 !important;
+  background: #474949 !important;
+}
+
+.navbar-fixed-top a {
+  color: #ccc !important
+}
+
+.navbar-fixed-top a:hover {
+  color:#ffffff !important;
 }
 
 .left-panel .side-list {
@@ -94,7 +126,7 @@
   margin: 0 0 -1px;
   padding: 15px 0px;
   padding-left: 10px;
-  color: #8c8c8c;  
+  color: #ccc;
   font-size: 1em
 }
 
@@ -111,22 +143,30 @@
 }
 
 .side-list > .active > a {
-  background-color: #5bc0de;
+  background-color: #ab42ff;
   color: #ffffff;
 }
 
+.side-list .badge-notification, .badge-notification {
+  background-color: #ab42ff !important;
+  color: #fff;
+}
+
+.side-list .active .badge-notification {
+  background-color: #fff !important;
+  color: #ab42ff;
+}
+
 .side-list > li > a:hover {
-  background-color: #243f42;
+  background-color: #383838;
   text-decoration: none;
   color: #f6f6f6;
 }
 
-.badge-notification {
-  background-color: #ff0505 !important
-}
+
 
 .side-list > .active > a:hover {
-  background-color: #28b8c8 !important;
+  background-color: #a029ff !important;
   color: #ffffff !important;
   text-decoration: none;
 }
@@ -218,4 +258,14 @@
 
 .mobile-notification {
   margin-right:5px;
+}
+
+.btn-add {
+  color: #ab42ff;
+}
+
+
+.btn-add:hover {
+  background-color: #a029ff;
+  color:#ffffff;
 }

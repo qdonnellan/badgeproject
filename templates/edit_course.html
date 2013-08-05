@@ -3,14 +3,13 @@
 {% block body %}
 
 <div class="container">
-  <div class="row">
+  <div class="page-header">
 
     {% if course %}
       <h1>Edit Course</h1>
     {% else %}
       <h1>Create New Course</h1>
     {% endif %}
-    <hr class="soften">
   </div>
   {% if error %}
         <div class="alert alert-danger">

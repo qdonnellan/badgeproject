@@ -11,6 +11,8 @@
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.css" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> 
     <script type="text/javascript" src="/javascript/farbtastic.js"></script>
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+
 
     {% block extra_js %}{% endblock %}
     
@@ -18,7 +20,7 @@
   
   <body> 
     <div class="navbar navbar-fixed-top navbar-inverse">
-      <p class="navbar-text hidden-sm pull-left"><i class="icon-stop text-info"></i> the_badge_project</p>
+      <span class="navbar-text hidden-sm pull-left the-brand"><i class="icon-sign-blank icon-large icon-brand"></i> the<span class="text-theme">badge</span>project</span>
       <div class="container">
 
       <!-- navbar for large screens -->
@@ -64,9 +66,9 @@
       </div>
       <ul class="side-list">    
         <br>      
-        <li class="{{profile_active}}"><a href="/profile" ><i class="icon-user"></i> Your Profile<i class="icon-chevron-sign-right"></i></a></li>
+        <li class="{{profile_active}}"><a href="/profile" ><i class="icon-user icon-large"></i> Your Profile<i class="icon-chevron-sign-right"></i></a></li>
         {% if local_user.teacher %}
-        <li class="{{badges_active}}"><a href="/badges"><i class="icon-certificate"></i> Badge Vault<i class="icon-chevron-sign-right"></i></a></li>
+        <li class="{{badges_active}}"><a href="/badges"><i class="icon-certificate icon-large"></i> Badge Vault<i class="icon-chevron-sign-right"></i></a></li>
         {% endif %}
       </ul>
       {% if courses and local_user.teacher %}

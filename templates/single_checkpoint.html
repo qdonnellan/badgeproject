@@ -4,8 +4,11 @@
 {% block body %}
 <div>
   <div class="row">
+    <div class="page-header">
     <h1>{{checkpoint.name}}</h1>
     <p class="text-muted">Checkpoint for the course <a href="/course/{{courseID}}">{{course.name}}</a></p>
+    </div>
+    
     <p class="lead">{{checkpoint.description}}</p>
     <p><a class="btn btn-info btn-small" href="/course/{{courseID}}/edit_checkpoint/{{checkpoint.checkpoint.key.id()}}">Edit Checkpoint</a></p>
     <hr>
