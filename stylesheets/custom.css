@@ -213,13 +213,13 @@ h1, h2, h3, h4, h5 {
 }
 
 .checkpoint-featured {
-  background-color: #ebfff6 !important;
-  border-color: #00c76f !important;
+  border-color: #ab42ff !important;
+  background-color: #fff
 }
 
 
 .text-featured {
-  color: #00c76f
+  color: #ab42ff;
 }
 
 .callout-danger {
