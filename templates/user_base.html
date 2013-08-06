@@ -68,7 +68,8 @@
         <br>      
         <li class="{{profile_active}}"><a href="/profile" ><i class="icon-user icon-large"></i> Your Profile<i class="icon-chevron-sign-right"></i></a></li>
         {% if local_user.teacher %}
-        <li class="{{badges_active}}"><a href="/badges"><i class="icon-certificate icon-large"></i> Badge Vault<i class="icon-chevron-sign-right"></i></a></li>
+        <li class="{{badges_active}}"><a href="/badges"><i class="icon-list-ul icon-large"></i> Your Badges<i class="icon-chevron-sign-right"></i></a></li>
+        <li class="{{badge_creator_active}}"><a href="/badge_creator"><i class="icon-edit icon-large"></i> Create a Badge<i class="icon-chevron-sign-right"></i></a></li>
         {% endif %}
       </ul>
       {% if courses and local_user.teacher %}

@@ -6,7 +6,7 @@
   <div class="row">
     <div class="page-header">
     {% if not (student_profile or tracher_view_student_profile) %}
-        <a class="btn btn-add btn-large pull-right" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
+        <a class="btn btn-success pull-right" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
         {% endif %}
       <h1>{{course.course.course_name}}</h1>
     </div>
@@ -205,7 +205,7 @@
                       </a>  
                     </td>
                     <td>{{request.status}}</td>
-                    <td>...</td>
+                    <td>{{request.last_modified}}</td>
                   </tr>
                 {% endif %}
               {% endfor %}
@@ -219,7 +219,7 @@
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
         
         {% set requests = course.requests %}
-        {% if requests %}
+        {% if course.number_of_badge_requests > 0 %}
           <div class="hidden-sm">
             <table class="table">
               <thead>
@@ -245,11 +245,9 @@
                       </a>
                     </td>
                     <td>
-                      <div class="btn-group">
-                        <a type = "button" class="btn btn-info btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
-                        <a type = "button" class="btn btn-danger btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied">Deny</a> 
-                        <a type = "button" class="btn btn-success btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded">Award Badge</a>
-                      </div>
+                        <a class="btn btn-info btn-small" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">Evidence</a> 
+                        <a class="btn btn-danger btn-small btn-loading" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/denied?back_to_course=true">Deny Request</a> 
+                        <a class="btn btn-success btn-small btn-loading" href="/student_badge/{{request.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view/award/awarded?back_to_course=true">Award Badge</a>
 
                     </td>
                     

@@ -38,6 +38,7 @@ class Achievement(ndb.Model):
   course_id = ndb.StringProperty(required = True)
   badge_id = ndb.StringProperty(required = True)
   status = ndb.StringProperty(required = True)
+  last_modified = ndb.DateTimeProperty(required = True, auto_now = True)
 
 
 def existing_user(google_user):
@@ -247,7 +248,7 @@ class default_badge():
   checkpoints = []
 
 def get_all_badges(teacher):
-  return Badge.query(ancestor = teacher.key)
+  return Badge.query(ancestor = teacher.key).order(Badge.name)
 
 def create_new_checkpoint(name, description, course, featured):
   if featured == 'true':

@@ -14,15 +14,15 @@ class badgeCreator(MainHandler):
       badge = get_badge(valid_user(),badgeID)
       checkpointID = self.request.get('checkpointID')
       courseID = self.request.get('courseID')
-      badges_active = 'active'
+      badge_creator_active = 'active'
       if checkpointID.isdigit() and courseID.isdigit():
         checkpointID = int(checkpointID)
         courseID = int(courseID)
-        badges_active = ""
+        badge_creator_active = ""
       self.render('badge_creator.html', 
         badge = get_badge(valid_user(),badgeID), 
         icon_array = the_list, 
-        badges_active = badges_active,
+        badge_creator_active = badge_creator_active,
         checkpointID = checkpointID,
         courseID = courseID)
   def post(self, badgeID=None):
@@ -87,7 +87,6 @@ class link(MainHandler):
 class editCourse(MainHandler):
   def get(self, courseID = None):
     if valid_user():
-      logging.info(courseID)
       self.render('edit_course.html', course = existing_course(courseID, valid_user()))
     else:
       self.redirect('/link')
@@ -264,7 +263,11 @@ class teacherViewAwardBadge(MainHandler):
         for checkpoint in get_checkpoints_for_badge(badge, valid_user()):
           get_cached_checkpoint(checkpoint, refresh = True)
         get_cached_course(course, studentID = studentID, refresh = True)
-    self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
+        get_cached_course(course, refresh=True)
+      if self.request.get('back_to_course') == 'true':
+        self.redirect('/course/%s?active_tab=requests' % courseID)
+      else:
+        self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class requestBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
@@ -275,6 +278,7 @@ class requestBadge(MainHandler):
       course = existing_course(courseID, teacher)
       edit_achievement(student, badge, teacher, course)
       get_cached_course(course, refresh = True)
+      get_cached_course(course, studentID = valid_user().key.id(), refresh = True)
       self.redirect('/student_badge/%s/%s/%s' % (teacherID, courseID, badgeID))
 
 

@@ -11,7 +11,6 @@ h1, h2, h3, h4, h5 {
   font-weight: 300
 }
 
-
 .badge-new {
   text-align: center;
   display: block;
@@ -91,7 +90,7 @@ h1, h2, h3, h4, h5 {
 
 
 .icon-brand, .text-theme {
-  color: #ab42ff;
+  color: #33B5E5
 }
 
 .navbar-fixed-top {
@@ -142,20 +141,6 @@ h1, h2, h3, h4, h5 {
   display: block !important
 }
 
-.side-list > .active > a {
-  background-color: #ab42ff;
-  color: #ffffff;
-}
-
-.side-list .badge-notification, .badge-notification {
-  background-color: #ab42ff !important;
-  color: #fff;
-}
-
-.side-list .active .badge-notification {
-  background-color: #fff !important;
-  color: #ab42ff;
-}
 
 .side-list > li > a:hover {
   background-color: #383838;
@@ -163,13 +148,145 @@ h1, h2, h3, h4, h5 {
   color: #f6f6f6;
 }
 
-
+.side-list > .active > a {
+  background-color: #0099CC;
+  color: #ffffff;
+}
 
 .side-list > .active > a:hover {
-  background-color: #a029ff !important;
-  color: #ffffff !important;
-  text-decoration: none;
+  background-color: #0099CC !important;
+  color: #ffffff;
 }
+
+.side-list > li > a > .badge-notification, .badge-notification {
+  background-color: #FF8800  !important;
+  color: #fff !important;
+}
+
+
+a {
+  color: #0099CC
+}
+
+.btn-default {
+  background-color: #474949 !important;
+  border-color: #474949 !important;
+}
+
+.btn-default:hover {
+  background-color: #383838 !important;
+  border-color: #383838 !important
+}
+
+.btn-info {
+  background-color: #33B5E5;
+  border-color: #33B5E5 !important;
+}
+
+.btn-info:hover {
+  background-color: #0099CC !important;
+  border-color: #0099CC !important;
+}
+
+.btn-primary {
+  background-color: #AA66CC;
+  border-color: #AA66CC !important;
+}
+
+.btn-primary:hover {
+  background-color: #9933CC !important;
+  border-color: #9933CC !important;
+}
+
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+  background-color: #C494DB !important;
+  border-color: #C494DB !important
+}
+
+.btn-danger {
+  background-color: #FF4444 !important;
+  border-color:  #FF4444 !important;
+}
+
+.btn-danger:hover {
+  background-color: #CC0000 !important;
+  border-color: #CC0000 !important
+}
+
+.btn-warning {
+  background-color: #FFBB33 !important;
+  border-color: #FFBB33 !important;
+}
+
+.btn-warning:hover {
+  background-color: #FF8800 !important;
+  border-color: #FF8800 !important;
+}
+
+.btn-success {
+  background-color: #99CC00 !important;
+  border-color: #99CC00 !important;
+}
+
+.btn-success:hover {
+  background-color: #669900 !important;
+  border-color: #669900 !important;
+}
+
+.btn-success .disabled {
+  background-color: #CCE680 !important
+}
+
+.callout-info {
+  background-color: #EBF8FC !important;
+  border-color: #33B5E5 !important;
+}
+
+.callout-warning {
+  background-color: #FFF8EB !important;
+  border-color: #FFBB33 !important;
+}
+
+.callout-danger {
+  background-color: #FFECEC !important;
+  border-color: #FF4444 !important
+}
+
+.callout-success {
+  background-color: #F5FAE6 !important;
+  border-color: #99CC00 !important
+}
+
+.text-warning {
+  color: #FF8800 !important;
+}
+
+.text-info {
+  color: #0099CC !important
+}
+
+.text-danger {
+  color: #CC0000 !important
+}
+
+.text-success {
+  color: #669900 !important
+}
+
 
 .content-div {
   margin-top: 50px;
@@ -213,13 +330,8 @@ h1, h2, h3, h4, h5 {
 }
 
 .checkpoint-featured {
-  border-color: #ab42ff !important;
-  background-color: #fff
-}
-
-
-.text-featured {
-  color: #ab42ff;
+  background-color: #EBF8FC !important;
+  border-color: #33B5E5 !important;
 }
 
 .callout-danger {
@@ -264,6 +376,11 @@ h1, h2, h3, h4, h5 {
   color: #ab42ff;
 }
 
+.badge-page-badge {
+  margin-top: 0px !important;
+  padding-top: 0px;
+  font-size: 1em
+}
 
 .btn-add:hover {
   background-color: #a029ff;

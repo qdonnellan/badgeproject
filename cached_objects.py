@@ -1,5 +1,6 @@
 from google.appengine.api import memcache
 from database import *
+from operator import attrgetter
 
 class course_class():
   def __init__(self, course, studentID = None):
@@ -21,6 +22,7 @@ class course_class():
       self.requests = []
       for request in requests:
         self.requests.append(request_class(request, self.teacher))
+      self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
     else:
       self.requests = None
     self.enrolled_students = get_enrolled_students(course)
@@ -41,9 +43,7 @@ class checkpoint_class():
     self.badges = []
     for badge in all_teacher_badges:
       if studentID:
-        logging.info('student does exist!')
         if badge_in_checkpoint(badge, checkpoint):
-          logging.info('bla bla bla')
           self.badges.append(student_badge_class(badge, checkpoint, studentID))
       else:
         if badge_in_checkpoint(badge, checkpoint):
@@ -59,6 +59,8 @@ class request_class():
     self.status = request.status
     self.badge_id = request.badge_id
     self.badge = get_badge(teacher, request.badge_id)
+    self.last_modified = request.last_modified.strftime("%d %B %Y")
+    self.last_modified_raw = request.last_modified
 
 class student_badge_class():
   def __init__(self, badge, checkpoint, studentID):
@@ -104,6 +106,7 @@ def get_cached_course(course, studentID=None, refresh=False):
     reset_all_students_cache(course)
     cached_course = course_class(course, studentID)
     memcache.set(cache_key, cached_course)
+
 
   return cached_course
 
