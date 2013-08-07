@@ -21,7 +21,8 @@ body {
   height: 7em;
   width: 7em;
   box-shadow: 0.3em 0.3em 0.8em #ccc;
-  margin: 1em 2em 1em 0;
+  margin: 1em 2em 1em 0em !important;
+
   border-radius: 0.5em
 }
 
@@ -433,7 +434,7 @@ fieldset[disabled] .btn-primary.active {
 .mobile-header {
   background-color: #474949;
   color: #fff;
-  text-align: center;
+  text-align: center !important;
   padding-bottom: 1em
 }
 
@@ -449,6 +450,11 @@ fieldset[disabled] .btn-primary.active {
 
 .mobile-table-info {
   background-color: #33B5E5;
+}
+
+.checkpoint-lead {
+  padding-top: 1em;
+  background-color: #f6f6f6
 }
 
 .mobile-checkpoint-featured .mobile-table-left {
@@ -470,13 +476,20 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .mobile-table h4 {
-  font-weight: 400
+  font-weight: 400;
+}
+
+.mobile-student-row {
+  background-color: #fefbed;
+  text-align: center;
 }
 
 .mobile-table {
   margin: 0 !important;
+  margin-top: -1px !important;
   padding-top: 0 !important;
 }
+
 .mobile-table p {
   font-size: 0.9em
 }
@@ -487,9 +500,12 @@ fieldset[disabled] .btn-primary.active {
 .mobile-break-row {
   background-color: #f6f6f6 !important;
   text-align: center;
+
 }
 
-td.mobile-break-row {
-  background-color:#f6f6f6 !important; 
+.mobile-page-badge > .badge-div > .badge-new {
+ box-shadow: 0 0 0 #ccc;
+ display: inline-block !important;
+ margin: 0 !important
 }
 

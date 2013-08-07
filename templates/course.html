@@ -301,9 +301,18 @@
   <div class="tab-content">
     <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints-mobile">
       <table class="table mobile-table">
-        <tr class="mobile-break-row">
+        {% if teacher_view_student_profile %}
+        <tr>
+          <td class="mobile-student-row " colspan="2">
+            <h4><span class="text-warning">Viewing:</span> {{course.student.formalName}}</h4>
+            <a class="btn btn-warning btn-block" href="/course/{{courseID}}">Return to Teacher view</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr >
           <td class="mobile-break-row " colspan="2"><h5>Checkpoints for this course</h5></td>
         </tr>
+        {% endif %}
       {% for checkpoint in course.checkpoints %}
         {% if checkpoint.featured %}
           <tr class="mobile-checkpoint-featured">
@@ -319,7 +328,7 @@
                 <h4>{{checkpoint.percent_complete}}%</h4>
                 <p class="text-muted">complete</p>
               {% else %}
-                <a href="#" class="btn btn-info">view</a>
+                <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info">view</a>
               {% endif %}
             </td>
           </tr>
@@ -438,9 +447,6 @@
                   {% elif registration.status == 'denied' %}
                     <p class="text-danger">denied enrollment</p>
                   {% endif %}
-
-
-
                 </td>
                 <td class="col-4 mobile-table-right">
                   {% if registration.status == "pending"%}
@@ -453,7 +459,6 @@
                     <a class="btn-loading btn col-12 btn-success" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">approve</a> 
                   {% elif registration.status == "revoked" %}
                     <a class="btn-loading btn col-12 btn-info" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">re-admit</a>
-
                   {% endif %}  
                 </td>
               </tr>

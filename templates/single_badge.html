@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<div>
+<div class="hidden-sm">
   <div class="row">
     <div class="pull-left badge-page-badge">
       <div class="badge-div pull-left">
@@ -120,6 +120,111 @@
     </div>
   
   {% endif %}
+</div>
+
+<div class="mobile-page visible-sm">
+  <div class="row mobile-row mobile-header">
+    <h1>{{badge.name}}</h1>
+    <h3>
+      <div class="mobile-page-badge">
+        <div class="badge-div">
+          <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+            <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+          </div>
+        </div>
+      </div>
+    </h3>
+    {% if not (student_badge or teacher_view_student_badge) %}
+      <div class="col-12">
+        <a class="btn btn-default btn-block">Edit Badge</a>
+        {% for course in courses %}
+          <a class="btn btn-default btn-block" data-toggle="tab" href="#mobile_badge_course_{{course.course.key.id()}}">Students in {{course.name}}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if teacher_view_student_badge %}
+      <div class="col-12">
+        <a class="btn btn-default btn-block">Edit Badge</a>
+        <a class="btn btn-default btn-block" href="/course/{{course.key.id()}}">Return to {{course.course_name}}</a>
+        <a class="btn btn-default btn-block" href="/badge/{{badge.key.id()}}?active_course={{course.key.id()}}">See progress of all students</a>
+      </div>
+
+      <div class="col-12">
+        <h3>{{student.formalName}}</h3>
+        {% if achievement_status =='requested' %}
+          <p class="lead">Student has requested this badge</p>
+        {% elif achievement_status =='denied' %}
+          <p class="lead">You denied student's badge request</p>
+        {% elif achievement_status =='revoked' %}
+          <p class="lead">You revoked student's badge award</p>
+        {% elif achievement_status =='awarded' %}
+          <p class="lead">You awarded student this badge</p>
+        {% else %}
+          <p class="lead">Student has not yet recieved this badge</p>
+        {% endif %}
+        {% if achievement_status != 'awarded' %}
+          <a class="btn btn-success btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award Badge</a>
+        {% else %}
+          <a class="btn btn-danger btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke Badge</a>
+        {% endif %}
+        {% if achievement_status == 'requests' %}
+          <a class="btn btn-danger btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny Request</a>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if student_badge %}
+      <div class="col-12">
+        <a class="btn btn-default btn-block" href="/student_profile/{{teacher.key.id}}/{{course.key.id()}}">Return to {{course.course_name}}</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="col-12 checkpoint-lead">
+    <p class="lead"><strong>Requirements:</strong> {{badge.requirement}}</p>
+  </div>
+  {% if not (student_badge or teacher_view_student_badge) %}
+  <div class="tab-content">
+    {% for course in courses %}
+    <div class="tab-pane fade 
+        {% if active_course == '' ~ course.course.key.id() %}in active 
+        {% elif not active_course and loop.first %}in active
+        {% endif %}" id="mobile_badge_course_{{course.course.key.id()}}">
+
+        {% set enrolled_students = course.enrolled_students %}
+        <table class="table mobile-table">
+          <tr>
+            <td class="mobile-table-right" colspan="2">
+              <h4>{{course.name}}</h4>
+              <p>Badge status for each student enrolled in this course</p>
+              <a class="btn btn-info btn-block" href="/course/{{course.course.key.id()}}">Course Home</a>
+            </td>
+          </tr>
+        {% if enrolled_students %}
+          {% for student in enrolled_students %}
+          {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
+            <tr>
+              <td class="col-8 mobile-table-left">
+                <h4>{{student.formalName}}</h4>
+                <p class="text-muted">Badge Status: {{current_achievement_status }} </p>
+              </td>
+              <td class="col-4 mobile-table-right">
+                {% if current_achievement_status != 'awarded' %}
+                  <a class="btn-loading btn btn-success btn-block" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded?single_badge=true">award</a>
+                  {% if current_achievement_status == 'requested' %}
+                    <a class="btn-loading btn btn-danger btn-block" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied?single_badge=true">deny</a>
+                  {% endif %}
+                {% else %}
+                  <a class="btn-loading btn btn-warning btn-block" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true">revoke</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+        </table>  
+    </div>
+  {% endfor %}
+  </div>
+  {% endif %}
+
 </div>
 
 {% if not (student_badge or teacher_view_student_badge) %}
