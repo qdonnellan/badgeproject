@@ -1,0 +1,25 @@
+<div class="badge-div pull-left">
+  <div class="small-badge-mobile" data-placement="top">
+    {% if student_profile %}
+      <a href="/student_badge/{{teacherID}}/{{courseID}}/{{badge.badge.key.id()}}">
+    {% elif teacher_view_student_profile %}
+      <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
+    {% else %}
+      <a href="/badge/{{badge.key.id()}}" >
+    {% endif %}
+      {% if (student_profile or teacher_view_student_profile) and badge.status == 'awarded' %}
+        <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+        </div>
+      {% elif (student_profile or teacher_view_student_profile) %}
+        <div class="badge-new badge-grey">
+          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+        </div>
+      {% else %}
+        <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+        </div>
+      {% endif %}
+    </a>
+  </div>
+</div>

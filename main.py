@@ -266,6 +266,8 @@ class teacherViewAwardBadge(MainHandler):
         get_cached_course(course, refresh=True)
       if self.request.get('back_to_course') == 'true':
         self.redirect('/course/%s?active_tab=requests' % courseID)
+      elif self.request.get('single_badge') == 'true':
+        self.redirect('/badge/%s?active_course=%s' % (badgeID, courseID))
       else:
         self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
@@ -327,12 +329,14 @@ class editCheckpoint(MainHandler):
 class singleBadge(MainHandler):
   def get(self, badgeID):
     if valid_user():
+
       self.render('single_badge.html', 
         badge = get_badge(valid_user(),badgeID), 
         achievement_status = achievement_status, 
         teacher=valid_user(),
         badges_active = 'active',
-        get_checkpoints_for_badge = get_checkpoints_for_badge
+        get_checkpoints_for_badge = get_checkpoints_for_badge,
+        active_course = self.request.get('active_course')
         )
 
 class singleCheckpoint(MainHandler):

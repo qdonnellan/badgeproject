@@ -18,7 +18,7 @@
   </div>
   <h1 class="percent-complete col-3">{{percent_complete}}%</h1>
 {% endif %}
-<div class="col-12">
+<div class="col-12 badge-bank">
     {% for badge in checkpoint.badges %}
       <div class="badge-div pull-left">
         <div class="small-badge"  rel="tooltip" title="{{badge.name}} ({{badge.value}} points)" data-placement="top">
@@ -50,7 +50,7 @@
 {% if not (student_profile or teacher_view_student_profile) %}
   <p class="col-12">
     
-    <div class="btn-group">
+    <div class="btn-group hidden-sm">
       <a type="button" class="btn btn-link btn-small" href="/course/{{courseID}}/edit_checkpoint/{{checkpoint.checkpoint.key.id()}}">Edit Checkpoint</a>
       <a type="button" class="btn btn-link btn-small" href="/badge_creator?checkpointID={{checkpoint.checkpoint.key.id()}}&courseID={{courseID}}">New Badge</a>
       <a type="button" class="btn btn-link btn-small" href ="/course/{{courseID}}/checkpoint/{{checkpoint.checkpoint.key.id()}}">Class Progress</a>

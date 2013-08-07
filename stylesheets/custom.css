@@ -3,6 +3,10 @@ h1, h2, h3, h4, h5 {
   font-weight: 300
 }
 
+body {
+  padding-bottom: 50px
+}
+
 .page-header h1 {
   font-size: 3em;
 }
@@ -87,6 +91,15 @@ h1, h2, h3, h4, h5 {
   margin: 5px 0 0 0 ;
   font-family: 'Roboto', sans-serif;
 }
+
+.the-brand-mobile {
+  color:#fff !important;
+  font-weight: 300;
+  font-size: 1.3em;
+  font-family: 'Roboto', sans-serif;
+}
+
+
 
 
 .icon-brand, .text-theme {
@@ -177,6 +190,13 @@ a {
   background-color: #383838 !important;
   border-color: #383838 !important
 }
+
+.btn-muted {
+  background-color: #e6e6e6 !important;
+  border-color: #999 !important;
+  color: #555 !important
+}
+
 
 .btn-info {
   background-color: #33B5E5;
@@ -290,7 +310,6 @@ fieldset[disabled] .btn-primary.active {
 
 .content-div {
   margin-top: 50px;
-  padding:30px;
   width: 100%;
 }
 
@@ -301,6 +320,10 @@ fieldset[disabled] .btn-primary.active {
     width: 90%;
   }
 }
+
+/* Important!!!! 
+  Had to go into the bootstrap.css file and change @media min-width to 992 for collapsable navbar!!!!
+*/
 
 .no-sidebar-div {
   margin-top: 50px;
@@ -386,3 +409,87 @@ fieldset[disabled] .btn-primary.active {
   background-color: #a029ff;
   color:#ffffff;
 }
+
+.mobile-callout {
+  border-left: 0px solid #fff !important
+}
+
+.mobile-page {
+  width: 100%
+}
+
+.col-primary {
+  background-color: #AA66CC;
+}
+
+.col-info {
+  background-color: #33B5E5;
+}
+
+.mobile-row {
+  border-bottom: 1px solid #f6f6f6;
+}
+
+.mobile-header {
+  background-color: #474949;
+  color: #fff;
+  text-align: center;
+  padding-bottom: 1em
+}
+
+.mobile-header .btn-default {
+  border: 1px solid #666 !important
+}
+
+.mobile-right {
+  display: block;
+  height: 100%;
+  text-align: center;
+}
+
+.mobile-table-info {
+  background-color: #33B5E5;
+}
+
+.mobile-checkpoint-featured .mobile-table-left {
+  background-color: #EBF8FC !important;
+}
+
+.mobile-checkpoint-featured .mobile-table-right {
+  background-color: #EBF8FC !important;
+}
+
+.mobile-table-right {
+  text-align: center;
+  vertical-align: middle !important;
+  background-color: #f6f6f6
+}
+
+.mobile-badge-table {
+  background-color: #fff !important
+}
+
+.mobile-table h4 {
+  font-weight: 400
+}
+
+.mobile-table {
+  margin: 0 !important;
+  padding-top: 0 !important;
+}
+.mobile-table p {
+  font-size: 0.9em
+}
+
+.small-badge-mobile {
+  font-size: 0.4em
+}
+.mobile-break-row {
+  background-color: #f6f6f6 !important;
+  text-align: center;
+}
+
+td.mobile-break-row {
+  background-color:#f6f6f6 !important; 
+}
+

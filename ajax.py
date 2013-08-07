@@ -12,7 +12,6 @@ class achievementHandler(MainHandler):
     status = self.request.get('status')
     student = get_student(student_id)
     course = existing_course(user = teacher, courseID = course_id)
-    get_cached_course(course, refresh = True)
     badge = get_badge(teacher, badge_id)
     new_achievement(teacher = teacher, student =student, badge = badge, course = course, status = status)
     courses = get_user_courses(teacher)
@@ -22,4 +21,6 @@ class achievementHandler(MainHandler):
       active_course = course_id,
       teacher = teacher, 
       achievement_status = achievement_status)
+    get_cached_course(course, refresh = True)
+    get_cached_course(course, studentID = student_id, refresh = True)
     self.response.out.write(html)

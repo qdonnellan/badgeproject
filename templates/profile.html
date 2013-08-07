@@ -2,20 +2,23 @@
 
 {% block body %}
 
-<div class="container">
+<div class="container hidden-sm">
   <div class="row">
-    <div class="page-header">
-    <h1>{{local_user.formalName}} <small>your profile <a href="/edit_profile">[edit]</a></small></h1>
+    <div class="row">
+      <div class="page-header col-12">
+      <h1>{{local_user.formalName}} <small>your profile <a href="/edit_profile">[edit]</a></small></h1>
+      </div>
     </div>
+    <div class="row">
     {% if not local_user.teacher %}
-      <div class="callout callout-info">
+      <div class="callout callout-info hidden-sm">
         <a href="/request_teacher_access" class="btn btn-info pull-right btn-small">Request Teacher Access</a>
         <h4>Student Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></h4>
         <p>You are currently accessing the_badge_project with a student account. With this account you'll be able to request access to your teachers' courses and keep track of your own progress. If you are a teacher and would like to create your own course, you must first request teacher access. </p>
         <p><a href="/register" class="btn btn-primary btn-small">Register for Course</a></p>
       </div>
     {% else %}
-      <div class="callout callout-info">
+      <div class="callout callout-info hidden-sm">
         <h4>Teacher Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></h4>
         <p>You have successfully created a teacher account for the_badge_project. You may still register for classes as a student, but you may now also create your own classes, checkpoints, and badges! The courses you teach and the courses you sign up for as a student will appear below</p>
         <p>
@@ -24,11 +27,12 @@
         </p>
       </div>
     {% endif %}
+    </div>
   </div>
   {% if enrollments %}
     <div class="row">
       <h3>Courses you are registered for</h3>
-      <table class="table">
+      <table class="table table-hover row">
         <thead>
           <tr>
             <th>Course</th>
@@ -46,12 +50,13 @@
           {% endfor %}
         </tbody>
       </table>
-    </div>  {% endif %}
+    </div>  
+  {% endif %}
   {% if local_user.teacher %}
     {% if courses %}
       <div class="row">
         <h3>Courses you are teaching</h3>
-        <table class="table table-hover">
+        <table class="table table-hover row">
           <thead>
             <tr>
               <th>Course</th>
@@ -63,13 +68,9 @@
             {% for course in courses %}
             <tr>
               <td>
-
-                {% set notifications = course.number_of_notifications %}
-                {% if notifications > 0 %}<span class="badge badge-notification visible-sm pull-left mobile-notification">{{notifications}}</span> {% endif %}
                 {{course.name}}
-                
               </td>
-              <td class="hidden-sm">
+              <td>
                 {% set requests = course.number_of_badge_requests %}
                 {% if requests > 0 %}
                   <p><span class="badge badge-notification">{{requests}}</span> 
@@ -97,5 +98,75 @@
   {% endif %}
   
 </div>  
+
+<div class="mobile-page visible-sm">
+  <div class="row mobile-row mobile-header">
+    <h1>{{local_user.formalName}}</h1>
+    <p class="text-muted">Student Account</p>
+    <div class="col-12">
+      <a href="/edit_profile" class="btn btn-default btn-block">Edit Profile</a>
+      <a href="/register" class="btn btn-default btn-block">Register for Course</a>
+      {% if local_user.teacher %}
+        <a href="/edit_course" class="btn btn-default btn-block">New Course</a> 
+      {% else %}
+        <a href="/request_teacher_access" class="btn btn-default btn-block">Request Teacher Access</a>
+      {% endif %}
+
+    </div>
+  </div>
+  {% if local_user.teacher %}
+    {% if courses %}
+    <table class="table mobile-table">
+    <tr class="mobile-break-row">
+      <td class="mobile-break-row " colspan="2"><h5>Your teacher courses</h5></td>
+    </tr>
+      {% for course in courses %}
+      <tr>
+        <td class="col-9 mobile-table-left">
+          <h4>{{course.name}}</h4>
+          {% set notifications = course.number_of_notifications %}
+          {% if notifications > 0 %}
+            <p class="text-muted"><span class="badge badge-notification">{{notifications}}</span> Pending Notifications</p>
+          {% endif %}
+        </td>
+        <td class="col-3 mobile-table-info mobile-table-right">
+          <a class="btn btn-primary" href="/course/{{course.course.key.id()}}">View</a>
+        </td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  {% if enrollments %}
+  
+  <table class="table mobile-table">
+    <tr>
+      <td class="mobile-break-row " colspan="2"><h5>Your student courses</h5></td>
+    </tr>
+    {% for entry in enrollments %}
+      <tr>
+        <td class="col-9 mobile-table-left">
+          <h4>{{entry["course"].course_name}}</h4>
+          {% set status = entry["status"] %}
+          {% if status == 'approved' %}
+            <p class="text-success">currently enrolled</p>
+          {% elif status == 'pending' %}
+            <p class="text-warning">enrollment pending</p>
+          {% elif status == 'denied' %}
+            <p class="text-danger">request denied</p>
+          {% elif status == 'revoked' %}
+            <p class="text-danger">enrollment revoked</p>
+          {% endif %}
+        </td>
+        <td class="col-3 mobile-table-info mobile-table-right">
+          {% if status == 'approved' %}
+          <a class="btn btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+</div>
 
 {% endblock %}
