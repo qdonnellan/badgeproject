@@ -23,7 +23,7 @@
     </thead>
     <tbody>
       {% for student in course.enrolled_students %}
-        {% set student_checkpoint = get_cached_checkpoint(checkpoint.checkpoint, student.key.id()) %}
+        {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
       <tr>
         <td>
           <a href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">{{student.formalName}}</a>
@@ -69,7 +69,7 @@
   </div>
   <table class="table mobile-table">
     {% for student in course.enrolled_students %}
-      {% set student_checkpoint = get_cached_checkpoint(checkpoint.checkpoint, student.key.id()) %}
+      {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
       <tr>
         <td class="col-9 mobile-table-left">
           <h4>{{student.formalName}}</h4>

@@ -127,8 +127,9 @@
         {% for course in courses %}
           <h3>{{course.name}}</h3>
           <div id="checkpoint_course_{{course.course.key.id()}}">
-          {% if course.checkpoints %}
-            {% for checkpoint in course.checkpoints %}
+          {% set checkpoints = get_cached_checkpoints(course.course.key.id(), local_user.key.id())%}
+          {% if checkpoints %}
+            {% for checkpoint in checkpoints %}
               <div class="checkbox">
                 <label>
                   <input type="checkbox" 
