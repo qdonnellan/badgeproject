@@ -1,0 +1,5 @@
+syntax: glob
+.DS_Store
+ajax.pyc
+cached_objects.pyc
+useful.pyc
