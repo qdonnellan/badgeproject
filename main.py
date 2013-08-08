@@ -308,6 +308,7 @@ class newCheckpoint(MainHandler):
         description = self.request.get('description')
         featured = self.request.get('featured_checkpoint')
         create_new_checkpoint(name = name, description = description, course = course, featured = featured)
+        teacherID = valid_user().key.id()
         get_cached_course(courseID, teacherID, refresh = True)
     self.redirect('/course/%s' % courseID)
 
