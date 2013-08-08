@@ -134,9 +134,12 @@
         </div>
       </div>
     </h3>
+    <div class="col-12">
+      <p class="lead"><strong>Requirements:</strong> {{badge.requirement}}</p>
+    </div>
     {% if not (student_badge or teacher_view_student_badge) %}
       <div class="col-12">
-        <a class="btn btn-default btn-block">Edit Badge</a>
+        <a class="btn btn-default btn-block" href="/badge_creator/{{badge.key.id()}}">Edit Badge</a>
         {% for course in courses %}
           <a class="btn btn-default btn-block" data-toggle="tab" href="#mobile_badge_course_{{course.course.key.id()}}">Students in {{course.name}}</a>
         {% endfor %}
@@ -144,7 +147,7 @@
     {% endif %}
     {% if teacher_view_student_badge %}
       <div class="col-12">
-        <a class="btn btn-default btn-block">Edit Badge</a>
+        <a class="btn btn-default btn-block" href="/badge_creator/{{badge.key.id()}}">Edit Badge</a>
         <a class="btn btn-default btn-block" href="/course/{{course.key.id()}}">Return to {{course.course_name}}</a>
         <a class="btn btn-default btn-block" href="/badge/{{badge.key.id()}}?active_course={{course.key.id()}}">See progress of all students</a>
       </div>
@@ -178,9 +181,6 @@
       </div>
     {% endif %}
   </div>
-  <div class="col-12 checkpoint-lead">
-    <p class="lead"><strong>Requirements:</strong> {{badge.requirement}}</p>
-  </div>
   {% if not (student_badge or teacher_view_student_badge) %}
   <div class="tab-content">
     {% for course in courses %}
@@ -192,7 +192,7 @@
         {% set enrolled_students = course.enrolled_students %}
         <table class="table mobile-table">
           <tr>
-            <td class="mobile-table-right" colspan="2">
+            <td class="mobile-table-right mobile-break-row" colspan="2">
               <h4>{{course.name}}</h4>
               <p>Badge status for each student enrolled in this course</p>
               <a class="btn btn-info btn-block" href="/course/{{course.course.key.id()}}">Course Home</a>

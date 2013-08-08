@@ -17,23 +17,45 @@
 {% endblock%}
 
 {% block body %}
-<div class="row">
-  <div class="page-header">
-  <h1>The Badge Creator</h1>
+<div class="container">
+  <div class="hidden-sm row">
+    <div class="page-header">
+    <h1>The Badge Creator</h1>
+    </div>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#badge_details" data-toggle="tab">Description</a></li>
+      <li><a href="#badge_design" data-toggle="tab">Design</a></li>
+      <li><a href="#badge_checkpoints" data-toggle="tab">Assign Checkpoints</a></li>
+    </ul>
   </div>
-  <ul class="nav nav-tabs">
-    <li class="active"><a href="#badge_details" data-toggle="tab">Description</a></li>
-    <li><a href="#badge_design" data-toggle="tab">Design</a></li>
-    <li><a href="#badge_checkpoints" data-toggle="tab">Assign Checkpoints</a></li>
-  </ul>
-  <form id="badge-form" method="post" >
-  <div class="tab-content">
-    
-    <div class="tab-pane fade in active" id="badge_details">
-      <div class="callout callout-danger">
-        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
-        <p>Don't forget to set the <strong class="text-danger">badge design</strong> and <strong class="text-danger">assign checkpoints</strong> before saving</p>
+  <div class="visible-sm">
+    <div class="mobile-page visible-sm">
+      <div class="row mobile-row mobile-header">
+        <h1>Badge Creator</h1>
+        <div class="col-12">
+          <a href="#badge_details" class="btn btn-default btn-block" data-toggle="tab">Description</a>
+          <a href="#badge_design" class="btn btn-default btn-block"data-toggle="tab">Design</a>
+          <a href="#badge_checkpoints" class="btn btn-default btn-block"data-toggle="tab">Assign Checkpoints</a>
+
+        </div>
       </div>
+    </div>
+  </div>
+  <form id="badge-form" method="post" class="row" >
+  <div class="mobile-header top-form-button visible-sm">
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary btn-block visible-sm">Save Badge</button>
+    </div>
+  </div>
+  <div class="tab-content col-12">
+
+    <div class="tab-pane fade in active" id="badge_details">
+      <div class="callout callout-danger col-12">
+        <button type="submit" class="btn btn-danger btn-small pull-right hidden-sm">Save Badge</button>
+        <p>Don't forget to set the <strong class="text-danger">badge design</strong> and <strong class="text-danger">assign checkpoints</strong> before saving</p>
+        
+      </div>
+
       
       <div class="row">
         <div class="col-lg-6">
@@ -47,7 +69,7 @@
           <p class="text-muted">Assign an integer value to this badge. Default is 1</p>
           <input type="text" class="form-control" name="badge_value"{% if badge.value%}value="{{badge.value}}"{% endif %}>
         </div> 
-        <div class="col-lg-6 callout callout-info">
+        <div class="col-lg-6 callout callout-info hidden-sm">
           <p><strong>Badge Value</strong> is your way of giving some badges more weight than others. When you assign a badge to a checkpoint, that badge will count as a <strong class="text-info">percentage</strong> of the total checkpoint based on the values of each badge in that checkpoint</p>
         </div> 
       </div>
@@ -56,7 +78,7 @@
           <h3>Badge Requirements</h3>
           <textarea rows="10" class="form-control" name="requirement" class="span12">{% if badge.requirement %}{{badge.requirement}}{% endif %}</textarea>
         </div>
-        <div class="col-lg-6 callout callout-info">
+        <div class="col-lg-6 callout callout-info hidden-sm">
           <p><strong>Badge requirements</strong> is your rubric for this badge. Tell your students exactly what they must complete before you will award them this badge. For example: </p>
           <p class="text-info"><em>
            You must complete all problems in problem set #1. Each problem must be written out entirely in your notebook and there should be no mistakes in your answers. I will only award this badge when your answers are all accurate
@@ -65,9 +87,9 @@
         </div> 
       </div>
     </div>
-    <div class="tab-pane fade" id="badge_design">
+    <div class="tab-pane fade col-12" id="badge_design">
       <div class="callout callout-danger">
-        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
+        <button type="submit" class="btn btn-danger btn-small pull-right hidden-sm">Save Badge</button>
         <p>Don't forget to <strong class="text-danger">assign checkpoints</strong> before saving</p>
       </div>
       <div class="col-lg-12">
@@ -96,9 +118,9 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="badge_checkpoints">
+    <div class="tab-pane fade col-12" id="badge_checkpoints">
       <div class="callout callout-danger">
-        <button type="submit" class="btn btn-danger btn-small pull-right">Save Badge</button>
+        <button type="submit" class="btn btn-danger btn-small pull-right hidden-sm">Save Badge</button>
         <p>If you are satisfied with the description, design, and assinged checkpoints, go ahead and save!</p>
       </div>
       <div class="col-lg-6">
@@ -124,7 +146,7 @@
           <hr>
         {% endfor %}      
       </div>
-      <div class="col-lg-6 callout callout-info">
+      <div class="col-lg-6 callout callout-info hidden-sm">
         <p><strong>Checkpoints</strong> are our way of grouping your badges. When you award a student a badge, that badge counts toward the completion of the checkpoint based on the badge value you've set for each badge (see the description tab above). </p>
         <p class="text-info"><strong>For example</strong>: let's say you've assigned 4 badges to a checkpoint and you've made each one worth 1 point. When a student is awarded one of those badges, they will have completed <strong>25%</strong> of the checkpoint</p>
         <p class="text-info"><strong>Another example</strong>: you assign 3 badges to a checkpoint. One badge has a value of 2 points, and the other two have a value of 1 point each. When a student is awarded the first badge, he will have completed <strong>50%</strong> of the checkpoint. </p>
@@ -138,6 +160,7 @@
   </div>
   </form>
 <div>
+
 
 <script type="text/javascript">
 $(document).ready(function(){

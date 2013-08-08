@@ -2,56 +2,62 @@
 
 {% block body %}
 
-<div>
+<div class="container hidden-sm">
   <div class="row">
-    <div class="page-header">
-
-  <a class="btn btn-success pull-right" href="/badge_creator"><i class="icon-plus-sign-alt icon-large"></i> New Badge</a>
-      <h1>Your Badge Vault</h1>
+    <div class="page-header col-12">
+      <h1>Badge Vault
+      <a class="btn btn-success pull-right" href="/badge_creator"><i class="icon-plus-sign-alt icon-large"></i> New Badge</a>
+      </h1>
+      
     </div>
+  </div>
   <div class="row">
-    <table class="table table-condensed table-hover">
-      <thead>
-        <tr>
-          <th>Badge</th>
-          <th>Name</th>
-          <th>Associated Checkpoints</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for badge in badges %}
-          <tr>
-            <td>
-              <div class="badge-div tiny-badge pull-left">
-                <a href="/badge/{{badge.key.id()}}">
-                <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                  <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                </div>
-                </a>
-              </div>
-            </td>
-            <td>{{badge.name}}</td>
-            <td>
-              {% set badge_checkpoints = get_checkpoints_for_badge(badge=badge, user=local_user) %}
-              {% if badge_checkpoints %}
-                {% for each_checkpoint in badge_checkpoints %}
-                {% set course = each_checkpoint.key.parent().get() %}
-                  <p><span class="text-muted">{{course.course_name}}</span>, 
-                    <a href="/course/{{course.key.id()}}/checkpoint/{{each_checkpoint.key.id()}}">{{each_checkpoint.name}}</a>
-                  </p>
-                
-                {% endfor %}
-              {% endif %}
-            </td>
-            <td><a class = "btn btn-info btn-small" href="/badge_creator/{{badge.key.id()}}">Edit</a></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
+    <div class="col-12">
+    {% for badge in badges %}
+      <div class="col-4">
+        <div class="badge-div small-badge pull-left">
+          <a href="/badge/{{badge.key.id()}}">
+          <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+            <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+          </div>
+          </a>
+        </div>
+        <h4>{{badge.name}}</h4>
+      </div>
+    {% endfor %}
+    </div>      
   </div>
 </div>
 
+<div class="mobile-page visible-sm">
+  <div class="row mobile-row mobile-header">
+    <h1>Badge Vault</h1>
+    <div class="col-12">
+      <a href="/profile" class="btn btn-default btn-block">Back to Profile</a>
+      <a href="/badge_creator" class="btn btn-default btn-block">New Badge</a>
+    </div>
+  </div>
+  <table class="table mobile-table">
+    {% for badge in badges %}
+      <tr>
+        <td class="col-9 mobile-table-left">
+          <div class="badge-div small-badge pull-left">
+            <a href="/badge/{{badge.key.id()}}">
+            <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+              <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+            </div>
+            </a>
+          </div>
+          <h4>{{badge.name}}</h4>
+        </td>
+        <td class="col-3 mobile-table-right">
+          <a href="/badge/{{badge.key.id()}}" class="btn btn-block btn-info">view</a>
+          <a href="/badge_creator/{{badge.key.id()}}" class="btn btn-block btn-primary">edit</a>
+        </td>
+
+      </tr>
+
+    {% endfor %}
+  </table>
 
 {% endblock %}

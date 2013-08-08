@@ -3,9 +3,9 @@
 {% block body %}
 
 <div class="container hidden-sm">
-  <div class="row">
+  <div>
     <div class="row">
-      <div class="page-header col-12">
+      <div class="page-header">
       <h1>{{local_user.formalName}} <small>your profile <a href="/edit_profile">[edit]</a></small></h1>
       </div>
     </div>
@@ -129,7 +129,7 @@
             <p class="text-muted"><span class="badge badge-notification">{{notifications}}</span> Pending Notifications</p>
           {% endif %}
         </td>
-        <td class="col-3 mobile-table-info mobile-table-right">
+        <td class="col-3 mobile-table-right">
           <a class="btn btn-primary" href="/course/{{course.course.key.id()}}">View</a>
         </td>
       </tr>
@@ -157,7 +157,7 @@
             <p class="text-danger">enrollment revoked</p>
           {% endif %}
         </td>
-        <td class="col-3 mobile-table-info mobile-table-right">
+        <td class="col-3 mobile-table-right">
           {% if status == 'approved' %}
           <a class="btn btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View</a>
           {% endif %}

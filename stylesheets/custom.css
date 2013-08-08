@@ -468,7 +468,7 @@ fieldset[disabled] .btn-primary.active {
 .mobile-table-right {
   text-align: center;
   vertical-align: middle !important;
-  background-color: #f6f6f6
+  
 }
 
 .mobile-badge-table {
@@ -488,6 +488,7 @@ fieldset[disabled] .btn-primary.active {
   margin: 0 !important;
   margin-top: -1px !important;
   padding-top: 0 !important;
+  margin-bottom:1px !important;
 }
 
 .mobile-table p {
@@ -507,5 +508,10 @@ fieldset[disabled] .btn-primary.active {
  box-shadow: 0 0 0 #ccc;
  display: inline-block !important;
  margin: 0 !important
+}
+
+.top-form-button {
+  height: 3.5em;
+  margin-top: -0.5em;
 }
 

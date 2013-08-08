@@ -14,7 +14,7 @@
     {% if teacher_view_student_profile %}
       <div class="callout callout-danger">
         <a href="/course/{{courseID}}" class="btn btn-default pull-right btn-small">Back to Teacher View</a>
-        <h4><span class="text-muted">Student:</span> {{course.student.formalName}}</h4>
+        <h4><span class="text-muted">Student:</span> {{student.formalName}}</h4>
         <p>You are currently viewing this student's course profile. This page will appear to you as it does to the student. Clicking on badges will take you to the student's view of those badges. If you would like to go back to the teacher view of this page, just click <a href="/course/{{courseID}}">back to teacher view</a></p>
       </div>
     {% endif %}
@@ -122,14 +122,14 @@
       <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
         <br>
         
-          {% for checkpoint in course.checkpoints %}
+          {% for checkpoint in checkpoints %}
             {% if checkpoint.featured %}
               <div class="col-12 hidden-sm callout-checkpoint checkpoint-featured callout">
                 {% include 'checkpoint_panel.html' %}
               </div>
             {% endif %}
           {% endfor %}
-          {% for checkpoint in course.checkpoints %}
+          {% for checkpoint in checkpoints %}
             {% if not checkpoint.featured %}
               <div class="col-12 hidden-sm callout-checkpoint callout">
                 {% include 'checkpoint_panel.html' %}
@@ -156,7 +156,7 @@
                   <tr>
                     <td>
                       {% if teacher_view_student_profile %}
-                      <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
+                      <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
                       {% else %}
                       <a href="/student_badge/{{teacherID}}/{{courseID}}/{{request.badge_id}}">
                       {% endif %}
@@ -304,8 +304,8 @@
         {% if teacher_view_student_profile %}
         <tr>
           <td class="mobile-student-row " colspan="2">
-            <h4><span class="text-warning">Viewing:</span> {{course.student.formalName}}</h4>
-            <a class="btn btn-warning btn-block" href="/course/{{courseID}}">Return to Teacher view</a>
+            <h4><span class="text-warning">Viewing:</span> {{student.formalName}}</h4>
+            <a class="btn btn-warning btn-block" href="/course/{{courseID}}">Return to {{course.name}}</a>
           </td>
         </tr>
         {% else %}
@@ -313,19 +313,25 @@
           <td class="mobile-break-row " colspan="2"><h5>Checkpoints for this course</h5></td>
         </tr>
         {% endif %}
-      {% for checkpoint in course.checkpoints %}
+      {% for checkpoint in checkpoints %}
         {% if checkpoint.featured %}
           <tr class="mobile-checkpoint-featured">
             <td class="col-9 mobile-table-left">
               <h4>{{checkpoint.name}}</h4>
               <p>{{checkpoint.description}}</p>
-              {% for badge in checkpoint.badges %}
+              {% if not (student_profile or teacher_view_student_profile) %}
+                {% set badges = checkpoint.badges %}
+              {% else %}
+                {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
+                {% set badges = student_checkpoint.badges %}
+              {% endif %}
+              {% for badge in badge %}
                 {% include 'small_badge_mobile.html' %}
               {% endfor %}
             </td>
-            <td class="col-3 mobile-table-info mobile-table-right">
+            <td class="col-3 mobile-table-right">
               {% if teacher_view_student_profile or student_profile %}
-                <h4>{{checkpoint.percent_complete}}%</h4>
+                <h4>{{student_checkpoint.percent_complete}}%</h4>
                 <p class="text-muted">complete</p>
               {% else %}
                 <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info">view</a>
@@ -334,19 +340,25 @@
           </tr>
         {% endif %}
         {% endfor %}
-        {% for checkpoint in course.checkpoints %}
+        {% for checkpoint in checkpoints %}
           {% if not checkpoint.featured %}
             <tr class="mobile-checkpoint">
               <td class="col-9 mobile-table-left">
                 <h4>{{checkpoint.name}}</h4>
                 <p>{{checkpoint.description}}</p>
-                {% for badge in checkpoint.badges %}
+                {% if not (student_profile or teacher_view_student_profile) %}
+                  {% set badges = checkpoint.badges %}
+                {% else %}
+                  {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
+                  {% set badges = student_checkpoint.badges %}
+                {% endif %}
+                {% for badge in badges %}
                   {% include 'small_badge_mobile.html' %}
                 {% endfor %}
               </td>
-              <td class="col-3 mobile-table-info mobile-table-right">
+              <td class="col-3 mobile-table-right">
                 {% if teacher_view_student_profile or student_profile %}
-                  <h4>{{checkpoint.percent_complete}}%</h4>
+                  <h4>{{student_checkpoint.percent_complete}}%</h4>
                   <p class="text-muted">complete</p>
                 {% else %}
                   <a href="#" class="btn btn-info">view</a>
@@ -376,7 +388,7 @@
                   </td>
                   <td class="col-3 mobile-table-right mobile-badge-table">
                       {% if teacher_view_student_profile %}
-                      <a href="/student_badge/{{course.student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
+                      <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{request.badge_id}}/teacher_view">
                       {% else %}
                       <a href="/student_badge/{{teacherID}}/{{courseID}}/{{request.badge_id}}">
                       {% endif %}
@@ -467,7 +479,39 @@
         </table>
       </div>
       <div class="tab-pane fade {% if active_tab == 'settings' %}in active{% endif %}" id="settings-mobile">
-        sdfsd
+        {% if error %}
+          <br>
+          <div class="alert alert-danger">
+            <strong>Woops!</strong> {{error}}
+          </div>
+        {% endif %}
+        <div class="row">
+          <div class="col-12">
+            <form method="post">   
+              <div class="row">
+                <div class="col-lg-6">
+                <h3>Course Name</h3>
+                  <p class="text-muted">Change your course name</p>
+                  <input type="text" id="course_name" class="form-control" name="course_name" value="{{course.name}}"/>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6">
+                <h3>Course Code</h3>
+                <p class="text-muted">Your students will need your google email address and this code to register for your course</p>
+                  <input type="text" id="course_code" class = "form-control" name="course_code" value="{{course.code}}"/>
+                </div>
+                <div class="col-lg-6">
+                  <div class="callout callout-warning">
+                  <p><strong>The course code</strong> is what you will give to your students before they register for your course. They will be prompted to type your email address and this course code before their registration requests shows up in your profile. </p>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-block visible-sm" type="submit">Save Course</button>
+              <button class="btn btn-primary hidden-sm" type="submit">Save Course</button>
+            </form>
+          </div>
+        </div>
       </div>
     {% endif %}
   </div>

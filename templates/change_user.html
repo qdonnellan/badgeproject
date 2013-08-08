@@ -4,7 +4,7 @@
 
 <div class="container">
   <div class="row">
-    <div>
+    <div class="col-12">
       <h1>Your Information</h1>
       <hr class="soften">
     </div>
@@ -19,7 +19,8 @@
         <p>Please use your full name</p>    
         <input type="text" id="formalName" class="form-control" name="formalName" value="{{local_user.formalName}}" />
         <br>
-        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-primary btn-block visible-sm" type="submit">Save</button>
+        <button class="btn btn-primary hidden-sm" type="submit">Save</button>
       </form>
     </div>
   </div>

@@ -381,11 +381,13 @@ def user_is_teacher(course, user):
   else:
     return False
 
-def get_checkpoint_percent_completion(course, student, badges, checkpoint):
+def get_checkpoint_percent_completion(studentID, checkpoint):
   total_possible_points = 0
   student_points = 0
-  for badge in badges:
-    checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
+  course = checkpoint.checkpoint.key.parent().get()
+  student = get_student(studentID)
+  for badge in checkpoint.badges:
+    checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.checkpoint.key.id())
     if badge.checkpoints and (checkpoint_key in badge.checkpoints):
       total_possible_points += badge.value
       if achievement_status(student, badge, course.key.parent().get(), course) == 'awarded':

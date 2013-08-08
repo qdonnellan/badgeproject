@@ -1,38 +1,34 @@
 from google.appengine.api import memcache
 from database import *
 from operator import attrgetter
+from useful import valid_user
 
 class course_class():
-  def __init__(self, course, studentID = None):
+  def __init__(self, courseID, teacherID): 
+    teacher = get_teacher(teacherID)
+    course = existing_course(courseID, teacher)
     self.course = course
     self.name = course.course_name
     self.code = course.course_code
-    self.teacher = course.key.parent().get()
-    if studentID:
-      self.student = get_student(studentID)
-    self.checkpoints = []
-    for indiv_checkpoint in get_course_checkpoints(course):
-      self.checkpoints.append(get_cached_checkpoint(indiv_checkpoint, studentID))
-
-    if studentID:
-      requests = get_badge_requests(course, self.student)
-    else:
-      requests = get_badge_requests(course)
-    if requests:
-      self.requests = []
-      for request in requests:
-        self.requests.append(request_class(request, self.teacher))
-      self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
-    else:
-      self.requests = None
+    self.teacher = teacher
+    #requests = get_badge_requests(course)
+    #if requests:
+    #  self.requests = []
+    #  for request in requests:
+    #    self.requests.append(request_class(request, teacher))
+    #  self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
+    #else:
+    #  self.requests = None
     self.enrolled_students = get_enrolled_students(course)
     self.registrations = get_registrations(course)
     self.number_of_badge_requests = get_number_of_badge_requests(course)
     self.number_of_pending_registrations = get_number_of_pending_registrations(course)
     self.number_of_notifications = self.number_of_pending_registrations + self.number_of_badge_requests
 
+
+
 class checkpoint_class():
-  def __init__(self, checkpoint, studentID = None):
+  def __init__(self, checkpoint):
     self.checkpoint = checkpoint
     self.name = checkpoint.name
     self.featured = checkpoint.featured
@@ -42,16 +38,16 @@ class checkpoint_class():
     all_teacher_badges = get_all_badges(teacher)
     self.badges = []
     for badge in all_teacher_badges:
-      if studentID:
-        if badge_in_checkpoint(badge, checkpoint):
-          self.badges.append(student_badge_class(badge, checkpoint, studentID))
-      else:
-        if badge_in_checkpoint(badge, checkpoint):
-          self.badges.append(badge)
-    if studentID:
-      student = get_student(studentID)
-      self.percent_complete = get_checkpoint_percent_completion(course, student, all_teacher_badges, checkpoint)
+      if badge_in_checkpoint(badge, checkpoint):
+        self.badges.append(badge)
 
+class student_checkpoint_class():
+  def __init__(self, checkpoint, studentID):
+    self.badges = []
+    for badge in checkpoint.badges:
+      self.badges.append(student_badge_class(badge, checkpoint.checkpoint, studentID))
+    self.percent_complete = get_checkpoint_percent_completion(studentID, checkpoint)
+    
 class request_class():
   def __init__(self, request, teacher):
     self.request = request
@@ -75,39 +71,39 @@ class student_badge_class():
     student = get_student(studentID)
     self.status = achievement_status(student, badge, course.key.parent().get(), course)
 
-def get_cached_checkpoint(checkpoint, studentID = None, refresh = False):
-  course = checkpoint.key.parent().get()
-  teacher = course.key.parent().get()
-  if studentID:
-    cache_key = "checkpoint:%s_%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.key.id(), studentID)
-  else:
-    cache_key = "checkpoint:%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.key.id())
+def get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = False):
+  cache_key = "checkpoint:%s_%s_%s" % (teacherID, courseID, checkpoint.key.id())
   cached_checkpoint = memcache.get(cache_key)
   if refresh or not cached_checkpoint:
-    cached_checkpoint = checkpoint_class(checkpoint=checkpoint, studentID=studentID)
+    cached_checkpoint = checkpoint_class(checkpoint)
     memcache.set(cache_key, cached_checkpoint)
-    if not studentID:
-      for student in get_enrolled_students(course):
-        cache_key = "checkpoint:%s_%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.key.id(), student.key.id())
-        memcache.delete(cache_key)
   return cached_checkpoint
 
-
-def get_cached_course(course, studentID=None, refresh=False):
+def get_cached_student_checkpoint(checkpoint, studentID, refresh = False):
+  course = checkpoint.checkpoint.key.parent().get()
   teacher = course.key.parent().get()
-  if studentID:
-    cache_key = "course:%s_%s_%s" % (teacher.key.id(), course.key.id(), studentID)
-  else:
-    cache_key = "course:%s_%s" % (teacher.key.id(), course.key.id())
+  cache_key = "checkpoint:%s_%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.checkpoint.key.id(), studentID)
+  cached_student_checkpoint = memcache.get(cache_key)
+  if refresh or not cached_student_checkpoint:
+    cached_checkpoint = get_cached_checkpoint(checkpoint.checkpoint, course.key.id(), teacher.key.id())
+    cached_student_checkpoint = student_checkpoint_class(cached_checkpoint, studentID)
+    memcache.set(cache_key, cached_student_checkpoint)
+  return cached_student_checkpoint
 
+def get_cached_checkpoints(courseID, teacherID):
+  course = get_cached_course(courseID, teacherID)
+  course_checkpoints = get_course_checkpoints(course.course)
+  cached_checkpoints = []
+  for checkpoint in course_checkpoints:
+    cached_checkpoints.append(get_cached_checkpoint(checkpoint, courseID, teacherID))
+  return cached_checkpoints
+
+def get_cached_course(courseID, teacherID, refresh=False):
+  cache_key = "course:%s_%s" % (teacherID, courseID)
   cached_course = memcache.get(cache_key)
-
   if refresh or not cached_course:
-    reset_all_students_cache(course)
-    cached_course = course_class(course, studentID)
+    cached_course = course_class(courseID, teacherID)
     memcache.set(cache_key, cached_course)
-
-
   return cached_course
 
 def reset_all_students_cache(course):
@@ -123,8 +119,7 @@ def get_cached_user_courses(user):
     cached_courses = []
     if all_courses:
       for course in all_courses:
-        cached_courses.append(get_cached_course(course))
-
+        cached_courses.append(get_cached_course(course.key.id(), user.key.id()))
       return cached_courses
     else:
       return None
