@@ -3,3 +3,4 @@ syntax: glob
 ajax.pyc
 cached_objects.pyc
 useful.pyc
+main.pyc
