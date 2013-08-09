@@ -22,9 +22,9 @@ body {
   width: 7em;
   box-shadow: 0.3em 0.3em 0.8em #ccc;
   margin: 1em 2em 1em 0em !important;
-
   border-radius: 0.5em
 }
+
 
 .badge-grey {
   background: #f6f6f6;
@@ -401,10 +401,18 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .badge-page-badge {
-  margin-top: 0px !important;
-  padding-top: 0px;
-  font-size: 1em
+  margin-top: 10px !important;
+  padding-top: 10px;
+  text-align: center !important;
+  font-size: 1.5em;
 }
+
+.badge-page-badge .badge-new {
+  display: inline-block;
+  margin: 0 !important;
+  margin-bottom: 20px !important;
+}
+
 
 .btn-add:hover {
   background-color: #a029ff;

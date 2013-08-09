@@ -2,124 +2,114 @@
 
 {% block body %}
 
-<div class="hidden-sm">
+<div class="container hidden-sm">
   <div class="row">
-    <div class="pull-left badge-page-badge">
-      <div class="badge-div pull-left">
-        <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-          <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-        </div>
-      </div>
-    </div>
-    <div class="page-header">
-      <h1>
-        {{badge.name}} 
-        {% if not (teacher_view_student_badge or student_badge) %}
-          <small><a href="/badge_creator/{{badge.key.id()}}">[edit]</a></small>
-        {% endif %}
-      </h1>
-      {% set badge_checkpoints = get_checkpoints_for_badge(badge=badge, user=teacher) %}
-      {% if badge_checkpoints and (teacher_view_student_badge or not student_badge) %}
-        <p><span class="text-muted">Associated with the following checkpoints: </span>
-        {% for checkpoint in badge_checkpoints %}
-          <a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().course_name}}, {{checkpoint.name}} </a>
-        {% endfor %}
-        </p>
-      {% else %}
-      <br><br>
-      {% endif %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-lg-6">
-      <div>
-        <p class="lead">{{badge.requirement}}</p>
-      </div>
-    </div>
-    <div class="col-lg-6">
-    {% if teacher_view_student_badge %}
-      <div class="callout callout-info">
-        <h4><span class="text-muted">Student:</span> {{student.formalName}}</h4>
-        <p>You are currently viewing the student version of this badge page. This page will appear to you as it does to the {{student.formalName}}. </p>
-        <p><a class="btn btn-default btn-small" href="/badge/{{badge.key.id()}}">back to teacher view</a></p>
-      </div>
-      {% if achievement_status == 'awarded' %}
-        <div class="callout callout-success">
-          <h4><i class="icon-ok-sign text-success icon-large"></i> {{student.formalName}} has been awarded this badge</h4>
-          <p>
-            <a class="btn-loading btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke This Badge</a>
-          </p>
-        </div>
-      {% elif achievement_status == 'revoked' %}
-        <div class="callout callout-danger">
-          <h4><i class="icon-exclamation-sign icon-large text-danger"></i> You have revoked this badge</h4>
-          <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </div>
-        
-      {% elif achievement_status == 'requested' %}
-      <div class="callout callout-warning">
-        <h4 ><i class="icon-warning-sign tex-warning"></i> {{student.formalName}} has requested this badge</h4>
-        <p>
-          <a class="btn-loading btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny this Request</a> 
-          <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </p>
-        </div>
-      {% elif achievement_status == 'denied' %}
-        <div class="callout callout-danger">
-          <h4><i class="icon-exclamation-sign icon-large text-danger"></i> You have denied the request from {{student.formalName}}</h4>
-          <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </div>
-        
-      {% else %}
-        <div class="callout callout-info">
-          <h4>{{student.formalName}} has not yet been awarded this badge</h4>
-          <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award This Badge</a>
-        </div>
-      {% endif %}
-    {% elif student_badge %}
-      {% if achievement_status == 'awarded' %}
-        <div class="callout callout-success">
-          <h4><i class="icon-ok-sign text-success icon-large"></i> Badge Awarded</h4>
-          <p>Awesome! Your teacher has awarded you this badge</p>
-        </div>
-      {% elif achievement_status == 'denied' %}
-        <div class="callout callout-danger">
-          <h4><i class="icon-exclamation-sign text-danger icon-large"></i> Woops...</h4>
-          <p>Your teacher has denied your request to be awarded this badge</p>
-          <p><a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary">Request This Badge</a></p>
-        </div>
-      {% elif achievement_status == 'revoked' %}
-        <div class="callout callout-danger">
-          <h4><i class="icon-exclamation-sign text-danger icon-large"></i> Woops...</h4>
-          <p>Your teacher has revoked this badge</p>
-          <p><a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary">Request This Badge</a></p>
-        </div>
-      {% else %}
-        <div class="callout callout-info">
-          <p>If you feel you have done what is required to be awarded this badge, you may request that your instructor grant you the badge. Please keep in mind that you will not recieve this badge until you instructor grants the final approval</p>
-          {% if achievement_status == "requested" %}
-            <button class="disabled btn">Your request is awaiting approval</button>
-          {% else %}
-            <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary">Request This Badge</a>
+    <div class="col-8">
+      <div class="page-header">
+        <h1>
+          {{badge.name}} 
+          {% if not (teacher_view_student_badge or student_badge) %}
           {% endif %}
-        </div> 
+
+        </h1>
+        {% set badge_checkpoints = get_checkpoints_for_badge(badge=badge, user=teacher) %}
+        {% if badge_checkpoints and (teacher_view_student_badge or not student_badge) %}
+          <p><span class="text-muted">Associated with the following checkpoints: </span></p>
+          {% for checkpoint in badge_checkpoints %}
+            <p><a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().course_name}}, {{checkpoint.name}} </a></p>
+          {% endfor %}
+          
+        {% else %}
+        {% endif %}
+      </div>
+      <p class="lead">{{badge.requirement}}</p>
+      {% if teacher_view_student_badge or student_badge %}
+        <hr>
+        <h4>Comment History</h4>
+        {% if evidence %}
+          {% for item in evidence %}
+            <blockquote>
+              <p>{{item.content}}</p>
+              <small>Someone famous in <cite title="Source Title">Source Title</cite></small>
+            </blockquote>
+          {% endfor %}
+
+        {% endif %}
       {% endif %}
-
-    {% else %}
-      <div class="callout callout-info">
-          <p>Below you will see the students enrolled in each of your courses. You may award this badge to each of those students directly from this page, or you can click on the student's name and view that student's progress toward this badge</p>
-        </div> 
-
-    {% endif %}
     </div>
-  </div>
+    <div class="col-4">
+      <div class="badge-page-badge">
+        <div class="badge-div">
+          <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+            <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+          </div>
+        </div>
+      </div>
+        {% if not student_badge %}
+          <a class="btn btn-info btn-block" href="/badge_creator/{{badge.key.id()}}">Edit Badge</a>
+        {% endif %}
+        {% if teacher_view_student_badge %}
+          <a class="btn btn-info btn-block" href="/badge/{{badge.key.id()}}">Progress of all Students</a>
+          <div class="callout callout-info">
+            <h4>{{student.formalName}}</h4>
+              {% if achievement_status =='requested' %}
+                <p>Student has requested this badge</p>
+              {% elif achievement_status =='denied' %}
+                <p>You denied student's badge request</p>
+              {% elif achievement_status =='revoked' %}
+                <p>You revoked student's badge award</p>
+              {% elif achievement_status =='awarded' %}
+                <p>You awarded student this badge</p>
+              {% else %}
+                <p>Student has not yet recieved this badge</p>
+              {% endif %}
+              {% if achievement_status != 'awarded' %}
+                <a class="btn btn-success btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded">Award Badge</a>
+              {% else %}
+                <a class="btn btn-danger btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke Badge</a>
+              {% endif %}
+              {% if achievement_status == 'requests' %}
+                <a class="btn btn-danger btn-loading btn-block" href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied">Deny Request</a>
+              {% endif %}
+          {% elif student_badge %}
+            <h4>Your Progress</h4>
+            {% if achievement_status == 'awarded' %}
+              <p>Awesome! Your teacher has awarded you this badge</p>
+            {% elif achievement_status =='requested' %}
+              <p>You have requested this badge</p>
+            {% elif achievement_status =='denied' %}
+              <p>Your request has been denied</p>
+              <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+            {% elif achievement_status =='revoked' %}
+              <p>Your badge has been revoked</p>
+              <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+            {% else %}
+              <p>You have not yet been awarded this badge</p>
+              <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+            {% endif %}
+        {% endif %}
+        </div>
+        {% if teacher_view_student_badge or student_badge %}
+        <h4>Add Comment</h4>
+          {% if teacher_view_student_badge %}
+          <p class="text-muted">As the teacher, you may wish to describe why you awarded, denied, revoked, this badge. Your student will also be able to add comments if they wish to describe why the think they deserve this badge</p>
+          {% endif %}
+          <form method="post">
+            <textarea class="form-control" rows="10" name="content"></textarea>
+            <br>
+            <button class="submit btn btn-primary btn-block">Submit Comment</button>
+
+          </form>
+        {% endif %}
+      </div>
+      {% if not (student_badge or teacher_view_student_badge) %}
+        <div class="row hidden-sm">
+          {% include 'badge_course_list.html' %}
+        </div>
+      {% endif %}
+    </div>
     
-  {% if not (student_badge or teacher_view_student_badge) %}
-    <div class="row" id ="badge-course-list">
-      {% include 'badge_course_list.html' %}
-    </div>
   
-  {% endif %}
 </div>
 
 <div class="mobile-page visible-sm">
@@ -177,7 +167,22 @@
     {% endif %}
     {% if student_badge %}
       <div class="col-12">
-        <a class="btn btn-default btn-block" href="/student_profile/{{teacher.key.id}}/{{course.key.id()}}">Return to {{course.course_name}}</a>
+        <a class="btn btn-default btn-block" href="/student_profile/{{teacher.key.id()}}/{{course.key.id()}}">Return to {{course.course_name}}</a>
+        <h4>Your Progress</h4>
+        {% if achievement_status == 'awarded' %}
+          <p>Awesome! Your teacher has awarded you this badge</p>
+        {% elif achievement_status =='requested' %}
+          <p>You have requested this badge</p>
+        {% elif achievement_status =='denied' %}
+          <p>Your request has been denied</p>
+          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+        {% elif achievement_status =='revoked' %}
+          <p>Your badge has been revoked</p>
+          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+        {% else %}
+          <p>You have not yet been awarded this badge</p>
+          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+        {% endif %}
       </div>
     {% endif %}
   </div>
@@ -215,6 +220,9 @@
                 {% else %}
                   <a class="btn-loading btn btn-warning btn-block" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true">revoke</a>
                 {% endif %}
+                <a class="btn btn-info btn-block" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                  view
+                </a>
               </td>
             </tr>
           {% endfor %}
@@ -227,24 +235,6 @@
 
 </div>
 
-{% if not (student_badge or teacher_view_student_badge) %}
-<script type="text/javascript">
-  $('#badge-course-list').on('submit', '.achievement-form', function(e){
-    e.preventDefault();
-    var form = $(this).closest('form');
-    $.ajax({
-      type: form.attr('method'),
-      url: form.attr('action'),
-      data: form.serialize(),
-      cache: false,
-      success: function(data, status, xHTTP){
-        $('#badge-course-list').html(data);
-      }
-    });
-    return false;
-  });
-</script>
-{% endif %}
 
 
 

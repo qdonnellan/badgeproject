@@ -42,16 +42,21 @@ class student_checkpoint_class():
 class course_requests_class():
   def __init__(self, courseID, teacherID = None, studentID = None):
     self.requests = []
+    requests = None
     if teacherID:
       teacher = get_teacher(teacherID)
       course = existing_course(courseID, teacher)
       if course:
         requests = get_badge_requests(course)
-        if requests:
-          for request in requests:
-            self.requests.append(request_class(request, teacher))
-          self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
-      self.number = get_number_of_badge_requests(course)
+    if studentID and teacherID:
+      student = get_student(studentID)
+      requests = get_badge_requests(course, student)
+    if requests:
+      for request in requests:
+        self.requests.append(request_class(request, teacher))
+      self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
+    self.number = get_number_of_badge_requests(course)
+
 
 class request_class():
   def __init__(self, request, teacher):
@@ -93,6 +98,14 @@ def get_cached_teacher_requests(courseID, teacherID, refresh = False):
   cached_requests = memcache.get(cache_key)
   if refresh or not cached_requests:
     cached_requests = course_requests_class(courseID, teacherID = teacherID)
+    memcache.set(cache_key, cached_requests)
+  return cached_requests
+
+def get_cached_student_requests(courseID, studentID, teacherID, refresh = False):
+  cache_key = "student_requests:%s_%s_%s" % (courseID, teacherID, studentID)
+  cached_requests = memcache.get(cache_key)
+  if refresh or not cached_requests:
+    cached_requests = course_requests_class(courseID, teacherID = teacherID, studentID = studentID)
     memcache.set(cache_key, cached_requests)
   return cached_requests
 

@@ -9,6 +9,9 @@
         <a class="btn btn-success pull-right hidden-sm" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
         {% endif %}
       <h1>{{course.course.course_name}}</h1>
+      {% if student_profile %}
+      <p class="text-muted">Instructor: {{course.teacher.formalName}}</p>
+    {% endif %}
     </div>
     
     {% if teacher_view_student_profile %}
@@ -17,9 +20,6 @@
         <h4><span class="text-muted">Student:</span> {{student.formalName}}</h4>
         <p>You are currently viewing this student's course profile. This page will appear to you as it does to the student. Clicking on badges will take you to the student's view of those badges. If you would like to go back to the teacher view of this page, just click <a href="/course/{{courseID}}">back to teacher view</a></p>
       </div>
-    {% endif %}
-    {% if student_profile %}
-      <p class="text-muted">Instructor: {{course.teacher.formalName}}</p>
     {% endif %}
     
   </div>
@@ -140,8 +140,8 @@
       {% if student_profile or teacher_view_student_profile %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
         
-        {% set requests = course.requests %}
-        {% if requests %}
+        {% set requests = student_requests.requests %}
+        {% if student_requests.number > 0 %}
           <table class="table">
             <thead>
               <tr>
@@ -325,7 +325,7 @@
                 {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
                 {% set badges = student_checkpoint.badges %}
               {% endif %}
-              {% for badge in badge %}
+              {% for badge in badges %}
                 {% include 'small_badge_mobile.html' %}
               {% endfor %}
             </td>
@@ -334,7 +334,7 @@
                 <h4>{{student_checkpoint.percent_complete}}%</h4>
                 <p class="text-muted">complete</p>
               {% else %}
-                <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info">view</a>
+                <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>
               {% endif %}
             </td>
           </tr>
@@ -361,7 +361,7 @@
                   <h4>{{student_checkpoint.percent_complete}}%</h4>
                   <p class="text-muted">complete</p>
                 {% else %}
-                  <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info">view</a>
+                  <a href="/course/{{course.course.key.id()}}/checkpoint/{{checkpoint.checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>
                 {% endif %}
               </td>
             </tr>
@@ -375,8 +375,8 @@
           <tr class="mobile-break-row">
             <td class="mobile-break-row " colspan="2"><h5>Active badge requests</h5></td>
           </tr>
-          {% set requests = course.requests %}
-          {% if requests %}
+          {% set requests = student_requests.requests %}
+          {% if student_requests.number > 0 %}
             {% for request in requests %}
               {% if request.status in ['revoked', 'denied', 'requested'] %}
                 {% set badge = request.badge %}

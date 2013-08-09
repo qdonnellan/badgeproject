@@ -192,7 +192,8 @@ class studentProfile(MainHandler):
           teacherID=int(teacherID), 
           courseID = int(courseID),
           student_profile = True, 
-          student = valid_user()
+          student = valid_user(),
+          student_requests = get_cached_student_requests(courseID, valid_user().key.id(), teacherID)
           )
       else:
         self.write('You are not registered for this course...')
@@ -211,6 +212,7 @@ class teacherViewStudentProfile(MainHandler):
           student = get_student(studentID),
           teacher_view_student_profile = True,
           active_tab = self.request.get('active_tab'),
+          student_requests = get_cached_student_requests(courseID, studentID, teacherID)
           )
 
 class studentBadge(MainHandler):
@@ -250,8 +252,18 @@ class teacherViewStudentBadge(MainHandler):
           courseID = course.key.id(),
           teacher = teacher,
           teacherID = int(teacher.key.id()),
-          get_checkpoints_for_badge = get_checkpoints_for_badge
+          get_checkpoints_for_badge = get_checkpoints_for_badge, 
+          evidence = get_evidence(badge, studentID)
           )
+
+  def post(self, studentID, courseID, badgeID):
+    if valid_user():
+      course = get_user_courses(valid_user(), courseID)
+      if courseID:
+        badge = get_badge(valid_user(), badgeID)
+        content = self.request.get('content')
+        create_evidence(studentID, badge, content)
+    self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class teacherViewAwardBadge(MainHandler):
   def get(self, studentID, courseID, badgeID, status):
@@ -267,18 +279,19 @@ class teacherViewAwardBadge(MainHandler):
           status = status
           )
         teacherID = valid_user().key.id()
+        get_cached_teacher_requests(courseID, teacherID, refresh = True)
         for checkpoint in get_checkpoints_for_badge(badge, valid_user()):
           cached_checkpoint = get_cached_checkpoint(checkpoint, courseID, teacherID)
           get_cached_student_checkpoint(cached_checkpoint, studentID, refresh = True)
-        
-        get_cached_teacher_requests(courseID, teacherID, refresh = True)
         get_cached_course(courseID, teacherID, refresh = True)
-      if self.request.get('back_to_course') == 'true':
-        self.redirect('/course/%s?active_tab=requests' % courseID)
-      elif self.request.get('single_badge') == 'true':
-        self.redirect('/badge/%s?active_course=%s' % (badgeID, courseID))
-      else:
-        self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
+        get_cached_student_requests(courseID, studentID, teacherID, refresh = True)
+        student_requests = get_cached_student_requests(courseID, studentID, teacherID)
+        if self.request.get('back_to_course') == 'true':
+          self.redirect('/course/%s?active_tab=requests' % courseID)
+        elif self.request.get('single_badge') == 'true':
+          self.redirect('/badge/%s?active_course=%s' % (badgeID, courseID))
+        else:
+          self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class requestBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
@@ -289,6 +302,7 @@ class requestBadge(MainHandler):
       course = existing_course(courseID, teacher)
       edit_achievement(student, badge, teacher, course)
       get_cached_teacher_requests(courseID, teacherID, refresh = True)
+      get_cached_student_requests(courseID, valid_user().key.id(), teacherID, refresh = True)
       self.redirect('/student_badge/%s/%s/%s' % (teacherID, courseID, badgeID))
       get_cached_course(courseID, teacherID, refresh = True)
 
@@ -332,8 +346,8 @@ class editCheckpoint(MainHandler):
         featured = self.request.get('featured_checkpoint')
         update_checkpoint(checkpointID = checkpointID, name = name, description = description, course=course, featured = featured)
         checkpoint = get_single_checkpoint(course, checkpointID)
+        teacherID = valid_user().key.id()
         get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = True)
-        get_cached_course(course, refresh = True)
     self.redirect('/course/%s' % courseID)
 
 class singleBadge(MainHandler):

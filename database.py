@@ -40,6 +40,12 @@ class Achievement(ndb.Model):
   status = ndb.StringProperty(required = True)
   last_modified = ndb.DateTimeProperty(auto_now = True)
 
+class Evidence(ndb.Model):
+  content = ndb.TextProperty(required = False)
+  studentID = ndb.StringProperty(required = True)
+  created = ndb.DateTimeProperty(auto_now_add = True)
+  last_modified = ndb.DateTimeProperty(auto_now = True)
+
 
 def existing_user(google_user):
   if google_user:
@@ -437,5 +443,11 @@ def sort_by_name(query_object):
     return alist
 
 
+def create_evidence(studentID, badge, content):
+  evidence_object = Evidence(studentID = studentID, content = content, parent = badge.key)
+  evidence_object.put()
 
+def get_evidence(badge, studentID):
+  all_evidence = Evidence.query(Evidence.studentID == studentID, ancestor = badge.key)
+  return all_evidence
 
