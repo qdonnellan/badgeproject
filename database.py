@@ -22,6 +22,7 @@ class Checkpoint(ndb.Model):
 class Registrations(ndb.Model):
   student_id = ndb.StringProperty(required = True)
   status = ndb.StringProperty(required = True)
+  section = ndb.StringProperty(required = False)
 
 class Badge(ndb.Model):
   icon = ndb.StringProperty(required = False)
@@ -141,6 +142,12 @@ def edit_registration(courseID, teacher, studentID, action):
       registration_object.status = action
       registration_object.put()
 
+def change_section_number(course, studentID, section_number):
+  if course:
+    registration_object = Registrations.query(Registrations.student_id == studentID, ancestor = course.key).get()
+    if registration_object:
+      registration_object.section = section_number
+      registration_object.put()
 
 def get_registrations(course):
   total_registrations = Registrations.query(ancestor = course.key)

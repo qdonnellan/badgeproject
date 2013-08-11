@@ -12,7 +12,7 @@ class course_class():
     self.code = course.course_code
     self.teacher = teacher
     self.enrolled_students = get_enrolled_students(course)
-    self.registrations = get_registrations(course)
+    self.registrations = get_registered_students(course)
     self.number_of_badge_requests = get_number_of_badge_requests(course)
     self.number_of_pending_registrations = get_number_of_pending_registrations(course)
     self.number_of_notifications = self.number_of_pending_registrations + self.number_of_badge_requests
@@ -37,7 +37,24 @@ class student_checkpoint_class():
     for badge in checkpoint.badges:
       self.badges.append(student_badge_class(badge, checkpoint.checkpoint, studentID))
     self.percent_complete = get_checkpoint_percent_completion(studentID, checkpoint)
-    
+
+
+class registered_student_class():
+  def __init__(self, registration_entry):
+    self.student = get_student(registration_entry.student_id)
+    self.registration = registration_entry
+    self.status = registration_entry.status
+    if self.status in ['revoked', 'denied', 'pending']:
+      self.section = '0'
+    else:
+      self.section = registration_entry.section
+    self.student_id = registration_entry.student_id
+    formalName = self.student.formalName
+    if ' ' in formalName:
+      last_name = formalName.split(' ')[-1]
+    else:
+      last_name = formalName
+    self.name = last_name
 
 class course_requests_class():
   def __init__(self, courseID, teacherID = None, studentID = None):
@@ -56,7 +73,6 @@ class course_requests_class():
         self.requests.append(request_class(request, teacher))
       self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
     self.number = get_number_of_badge_requests(course)
-
 
 class request_class():
   def __init__(self, request, teacher):
@@ -80,6 +96,17 @@ class student_badge_class():
     course = checkpoint.key.parent().get()
     student = get_student(studentID)
     self.status = achievement_status(student, badge, course.key.parent().get(), course)
+
+def get_registered_students(course):
+    all_registrations = []
+    for item in get_registrations(course):
+      all_registrations.append(registered_student_class(item))
+    if all_registrations == []:
+      return None
+    else:
+      all_registrations = sorted(all_registrations, key = attrgetter('name'), reverse = False)
+      all_registrations = sorted(all_registrations, key = attrgetter('section'), reverse = False)
+      return all_registrations
 
 def get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = False, refresh_students = False):
   cache_key = "checkpoint:%s_%s_%s" % (teacherID, courseID, checkpoint.key.id())
@@ -127,6 +154,8 @@ def get_cached_checkpoints(courseID, teacherID):
   cached_checkpoints = []
   for checkpoint in course_checkpoints:
     cached_checkpoints.append(get_cached_checkpoint(checkpoint, courseID, teacherID))
+  if cached_checkpoints == []:
+    cached_checkpoints = None
   return cached_checkpoints
 
 def get_cached_course(courseID, teacherID, refresh=False):

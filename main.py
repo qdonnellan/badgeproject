@@ -98,7 +98,8 @@ class editCourse(MainHandler):
       course_code = self.request.get('course_code')
       if verify_unique_course_code(course_code,valid_user(), courseID = courseID):
         course = edit_course(course_name = course_name, course_code = course_code, courseID = courseID, user = valid_user())
-        get_cached_course(course, refresh = True)
+        if courseID:
+          get_cached_course(courseID, teacherID, refresh = True)
         self.redirect('/profile')
       else:
         self.redirect('/edit_course?error=you are already using that course code in another course')
@@ -114,8 +115,10 @@ class course(MainHandler):
   def get(self, courseID):
     if valid_user():
       teacherID = valid_user().key.id()
+      course = get_cached_course(courseID, teacherID)
       self.render('course.html', 
-        course = get_cached_course(courseID, teacherID),
+        course = course,
+        registrations = get_registered_students(course.course),
         checkpoints = get_cached_checkpoints(courseID, teacherID),
         teacher_requests = get_cached_teacher_requests(courseID, teacherID),
         courseID = int(courseID),
@@ -166,13 +169,22 @@ class register(MainHandler):
           if success:
             self.redirect('/profile')
             course = get_course_by_code(teacher=teacher, course_code = course_code)
-            get_cached_course(course, refresh = True)
+            get_cached_course(course.key.id(), teacher.key.id(), refresh = True)
           else:
             self.redirect('/register?error=invalid course code')
         else:
           self.redirect('/register?error=that teacher email does not exist in the system')
       else:
         self.redirect('/register?error=you cannot leave the teacher email field blank')
+
+class changeSection(MainHandler):
+  def get(self, courseID, studentID, section_number):
+    if valid_user():
+      if section_number in '12345678':
+        course = existing_course(courseID, valid_user())
+        change_section_number(course, studentID, section_number)
+    self.redirect('/course/%s?active_tab=students' % courseID)
+    get_cached_course(courseID, valid_user().key.id(), refresh = True)
 
 class completeRegistration(MainHandler):
   def get(self, courseID, studentID, action):
@@ -353,7 +365,6 @@ class editCheckpoint(MainHandler):
 class singleBadge(MainHandler):
   def get(self, badgeID):
     if valid_user():
-
       self.render('single_badge.html', 
         badge = get_badge(valid_user(),badgeID), 
         achievement_status = achievement_status, 
@@ -407,6 +418,7 @@ app = webapp2.WSGIApplication([
   #('/student_course/(\w+)', studentCourse),
   ('/complete_registration/(\w+)/(\w+)/(\w+)', completeRegistration),
   ('/link', link),
+  ('/change_section/(\w+)/(\w+)/section/(\w+)', changeSection),
   ('/register', register),
   ('/profile', profile),
   ('/badges', listBadges),

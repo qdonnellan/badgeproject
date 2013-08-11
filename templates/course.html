@@ -57,24 +57,25 @@
     <div class="tab-content">
       {% if not (student_profile or teacher_view_student_profile) %}
       <div class="tab-pane fade {% if active_tab == 'students' %}in active{% endif %}" id="students">
-        {% if course.registrations %}
+        {% if registrations %}
           <div>
-            <h3>Students Enrolled in Course</h3>
+            <h3>Student Registrations</h3>
             <p class='text-muted'>Click on a student's name to view that student's progress in this course</p>
             <table class="table table-hover">
               <thead>
                 <tr>
                   <th>Student Name</th>
-                  <th class="hidden-sm">Registration Status</th>
+                  <th>Registration Status</th>
+                  <th>Section</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% for registration in course.registrations %}
+                {% for registration in registrations %}
                 <tr>
                   <td>
                     <a href="/student_profile/{{registration.student_id}}/{{courseID}}/teacher_view">
-                       {{get_student(registration.student_id).formalName}}
+                       {{registration.student.formalName}}
                     </a>
                   </td>
                   <td class="hidden-sm">
@@ -89,6 +90,23 @@
                       <span class="text-muted">not enrolled</span>
                     {% endif %}
                     
+                  </td>
+                  <td>
+                    {% if registration.status == 'approved' %}
+                    <div class="btn-group section-group">
+                    {% for number in '12345678' %}
+                      <a class="btn 
+                        {% if registration.section == number %}btn-default{% else %}btn-link{% endif %} btn-small" 
+                        href="/change_section/{{course.course.key.id()}}/{{registration.student_id}}/section/{{number}}"
+                      >
+                        {{ number }}
+                      </a>
+                    {% endfor %}
+                    </div>
+                    {% else %}
+
+                    {% endif %}
+
                   </td>
                   <td>
                   {% if registration.status == "pending"%}
@@ -121,7 +139,7 @@
 
       <div class="tab-pane fade {% if active_tab == 'checkpoints' or not active_tab %}in active{% endif %}" id="checkpoints">
         <br>
-        
+        {% if checkpoints %}
           {% for checkpoint in checkpoints %}
             {% if checkpoint.featured %}
               <div class="col-12 hidden-sm callout-checkpoint checkpoint-featured callout">
@@ -136,6 +154,13 @@
               </div>
             {% endif %}
           {% endfor %}
+        {% elif not (student_profile or teacher_view_student_profile) %}
+          <div class="marketing-div">
+            <h1>No checkpoints</h1>
+            <p class='lead'>Create your first checkpoint now!</p>
+            <p><a class="btn btn-primary" href="/course/{{courseID}}/new_checkpoint">New Checkpoint</a></p>
+          </div>
+        {% endif %}
       </div>
       {% if student_profile or teacher_view_student_profile %}
       <div class="tab-pane fade {% if active_tab == 'requests' %}in active{% endif %}" id="requests">
@@ -176,7 +201,10 @@
             </tbody>
           </table>
         {% else %}
-          <h3 class='text-muted'>No active badge requests</h3>
+          <div class="marketing-div">
+            <br><br><br>
+            <h2 class="text-muted">No active badge requests</h2>
+          </div>
         {% endif %}
       </div>
       {% else %}
@@ -226,7 +254,7 @@
           <div class="marketing-div">
             <br><br><br>
             <h2 class="text-muted">No active badge requests</h2>
-        </div>
+          </div>
         {% endif %}
       </div>
       {% endif %}
@@ -310,9 +338,13 @@
         </tr>
         {% else %}
         <tr >
-          <td class="mobile-break-row " colspan="2"><h5>Checkpoints for this course</h5></td>
+          <td class="mobile-break-row mobile-table-left"><h5>Checkpoints for this course</h5></td>
+          <td class="mobile-break-row mobile-table-right">
+            <a class="btn btn-success" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
+          </td>
         </tr>
         {% endif %}
+      {% if checkpoints %}
       {% for checkpoint in checkpoints %}
         {% if checkpoint.featured %}
           <tr class="mobile-checkpoint-featured">
@@ -367,6 +399,13 @@
             </tr>
           {% endif %}
       {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="2" class="mobile-table-right">
+        <h1 class="text-muted">No checkpoints yet</h1>
+        </td>
+      </tr>
+      {% endif %}
       </table>
     </div>
     {% if student_profile or teacher_view_student_profile %}
@@ -445,34 +484,49 @@
         <tr class="mobile-break-row">
           <td class="mobile-break-row " colspan="2"><h5>Students in this coursee</h5></td>
         </tr>
-          {% if course.registrations %}
-            {% for registration in course.registrations %}
+          {% if registrations %}
+            {% for registration in registrations %}
               <tr> 
-                <td class="col-8 mobile-table-left">
-                  <h4>{{get_student(registration.student_id).formalName}}</h4>
+                <td class="col-12 mobile-table-left">
+                  <h4 class="mobile-course-action-pane">
+                    {{registration.student.formalName}}
+                    {% if registration.status == "pending"%}
+                    <a class="btn-loading pull-right btn btn-success" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">approve</a>
+                    <a class="btn btn-loading pull-right btn-danger" href="/complete_registration/{{courseID}}/{{registration.student_id}}/denied">deny</a>
+                    {% elif registration.status == "approved" %}
+                      <a class="btn-loading btn pull-right btn-warning" href="/complete_registration/{{courseID}}/{{registration.student_id}}/revoked">un-enroll</a>
+                      <a class="btn pull-right btn-info" href="/student_profile/{{registration.student_id}}/{{courseID}}/teacher_view">view</a>
+                    {% elif registration.status == "denied" %}
+                      <a class="btn-loading btn pull-right btn-success" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">approve</a> 
+                    {% elif registration.status == "revoked" %}
+                      <a class="btn-loading btn pull-right btn-info" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">re-admit</a>
+                    {% endif %} 
+
+                  </h4>
+                   
                   {% if registration.status == 'revoked' %}
                     <p class="text-danger">enrollment revoked</p>
                   {% elif registration.status == 'approved' %}
-                    <p class="text-success">enrolled</p>
+                    <p class="text-success">
+                      enrolled{% if registration.section %} in section {{registration.section}}{% endif %}
+                    </p>
+                    <div class="btn-group section-group btn-group-justified">
+                    {% for number in '12345678' %}
+                      <a class="btn 
+                        {% if registration.section == number %}btn-default{% else %}btn-link{% endif %} btn-small" 
+                        href="/change_section/{{course.course.key.id()}}/{{registration.student_id}}/section/{{number}}"
+                      >
+                        {{ number }}
+                      </a>
+                    {% endfor %}
+                    </div>
                   {% elif registration.status == 'pending' %}
                     <p class="text-info">pending confirmation</p>
                   {% elif registration.status == 'denied' %}
                     <p class="text-danger">denied enrollment</p>
                   {% endif %}
                 </td>
-                <td class="col-4 mobile-table-right">
-                  {% if registration.status == "pending"%}
-                    <a class="btn-loading col-12 btn btn-success" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">approve</a> <br><br>
-                    <a class="btn btn-loading col-12 btn-danger" href="/complete_registration/{{courseID}}/{{registration.student_id}}/denied">deny</a>
-                  {% elif registration.status == "approved" %}
-                    <a class="btn-loading btn col-12 btn-warning" href="/complete_registration/{{courseID}}/{{registration.student_id}}/revoked">un-enroll</a> <br><br>
-                    <a class="btn col-12 btn-info" href="/student_profile/{{registration.student_id}}/{{courseID}}/teacher_view">view</a>
-                  {% elif registration.status == "denied" %}
-                    <a class="btn-loading btn col-12 btn-success" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">approve</a> 
-                  {% elif registration.status == "revoked" %}
-                    <a class="btn-loading btn col-12 btn-info" href="/complete_registration/{{courseID}}/{{registration.student_id}}/approved">re-admit</a>
-                  {% endif %}  
-                </td>
+                  
               </tr>
             {% endfor %}
           {% endif %}

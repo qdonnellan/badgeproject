@@ -523,3 +523,19 @@ fieldset[disabled] .btn-primary.active {
   margin-top: -0.5em;
 }
 
+.section-group .btn-link {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #383838;
+  text-decoration: none;
+}
+
+.section-group .btn-link:hover {
+  background-color: #33B5E5;
+  color: #fff
+}
+
+
+.mobile-course-action-pane .btn {
+  margin-left: 5px !important
+}
