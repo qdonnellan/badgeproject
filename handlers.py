@@ -4,6 +4,7 @@ import webapp2
 from google.appengine.api import users
 from database import *
 from cached_objects import get_cached_user_courses
+from useful import get_local_time
 
 template_dir=os.path.join(os.path.dirname(__file__),"templates")
 jinja_environment=jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),autoescape=True)
@@ -27,6 +28,7 @@ class MainHandler(webapp2.RequestHandler):
       get_student = get_student,
       courses = get_cached_user_courses(local_user),
       enrollments = get_enrolled_courses(local_user),
+      get_local_time = get_local_time,
       **kw))
 
 

@@ -185,6 +185,7 @@ a {
 .btn-default {
   background-color: #474949 !important;
   border-color: #474949 !important;
+  color: #fff !important
 }
 
 .btn-default:hover {
@@ -538,4 +539,19 @@ fieldset[disabled] .btn-primary.active {
 
 .mobile-course-action-pane .btn {
   margin-left: 5px !important
+}
+
+.teacher-quote {
+  border-color: #33B5E5 !important;
+  background-color: #EBF8FC !important;
+  padding-left: 10px !important
+}
+
+.student-quote {
+  border-color: #99CC00 !important;
+  background-color: #F5FAE6 !important;
+}
+
+.comment-form-div {
+  margin-bottom: 10px !important
 }

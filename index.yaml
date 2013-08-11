@@ -14,3 +14,10 @@ indexes:
   ancestor: yes
   properties:
   - name: name
+
+- kind: Evidence
+  ancestor: yes
+  properties:
+  - name: studentID
+  - name: created
+    direction: desc

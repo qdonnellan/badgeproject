@@ -45,6 +45,7 @@ class Evidence(ndb.Model):
   content = ndb.TextProperty(required = False)
   studentID = ndb.StringProperty(required = True)
   created = ndb.DateTimeProperty(auto_now_add = True)
+  teacher = ndb.BooleanProperty(default = False)
   last_modified = ndb.DateTimeProperty(auto_now = True)
 
 
@@ -450,11 +451,16 @@ def sort_by_name(query_object):
     return alist
 
 
-def create_evidence(studentID, badge, content):
-  evidence_object = Evidence(studentID = studentID, content = content, parent = badge.key)
+def create_evidence(studentID, badge, content, teacher=False):
+  evidence_object = Evidence(
+    studentID = str(studentID), 
+    content = content, 
+    parent = badge.key, 
+    teacher = teacher
+    )
   evidence_object.put()
 
 def get_evidence(badge, studentID):
-  all_evidence = Evidence.query(Evidence.studentID == studentID, ancestor = badge.key)
+  all_evidence = Evidence.query(Evidence.studentID == str(studentID), ancestor = badge.key).order(-Evidence.created)
   return all_evidence
 

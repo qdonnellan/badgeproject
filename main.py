@@ -230,38 +230,48 @@ class teacherViewStudentProfile(MainHandler):
 class studentBadge(MainHandler):
   def get(self, teacherID, courseID, badgeID):
     if valid_user():
-      course = get_student_course(courseID = courseID, student = valid_user(), teacherID = teacherID)
-      teacher = get_teacher(teacherID)
+      course = get_cached_course(courseID, teacherID)
+      teacher = course.teacher
       student = valid_user()
       badge = get_badge(teacher, badgeID)
-      this_badge_status = achievement_status(student = student, course = course, badge = badge, teacher = teacher)
+      this_badge_status = achievement_status(student = student, course = course.course, badge = badge, teacher = teacher)
       self.render('single_badge.html', 
         badge = badge,
         achievement_status = this_badge_status,
         student_badge = True,
-        courseID = course.key.id(),
+        courseID = courseID,
         course = course, 
         teacher = teacher,
+        student = valid_user(),
         teacherID = int(teacherID),
-        get_checkpoints_for_badge = get_checkpoints_for_badge
+        get_checkpoints_for_badge = get_checkpoints_for_badge,
+        evidence = get_evidence(badge, student.key.id())
         )
+  def post(self, teacherID, courseID, badgeID):
+    if valid_user():
+      if courseID:
+        teacher = get_teacher(teacherID)
+        badge = get_badge(teacher, badgeID)
+        content = self.request.get('content')
+        create_evidence(valid_user().key.id(), badge, content, teacher=False)
+    self.redirect('/student_badge/%s/%s/%s' % (teacherID, courseID, badgeID))
 
 class teacherViewStudentBadge(MainHandler):
   def get(self, studentID, courseID, badgeID):
     if valid_user():
-      course = get_user_courses(valid_user(), courseID)
+      course = get_cached_course(courseID, valid_user().key.id())
       if course:
         student = get_student(studentID)
         teacher = valid_user()
         badge = get_badge(valid_user(), badgeID)
-        this_badge_status = achievement_status(student = student, course = course, badge = badge, teacher = teacher)
+        this_badge_status = achievement_status(student = student, course = course.course, badge = badge, teacher = teacher)
         self.render('single_badge.html',
           badge = badge,
           achievement_status = this_badge_status,
           teacher_view_student_badge = True,
           student = student,
           course = course, 
-          courseID = course.key.id(),
+          courseID = courseID,
           teacher = teacher,
           teacherID = int(teacher.key.id()),
           get_checkpoints_for_badge = get_checkpoints_for_badge, 
@@ -270,11 +280,10 @@ class teacherViewStudentBadge(MainHandler):
 
   def post(self, studentID, courseID, badgeID):
     if valid_user():
-      course = get_user_courses(valid_user(), courseID)
       if courseID:
         badge = get_badge(valid_user(), badgeID)
         content = self.request.get('content')
-        create_evidence(studentID, badge, content)
+        create_evidence(studentID, badge, content, teacher=True)
     self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
 class teacherViewAwardBadge(MainHandler):
@@ -404,7 +413,6 @@ class teacherAccessRequest(MainHandler):
         self.redirect('/profile')
       else:
         self.redirect('/request_teacher_access?error=invalid code')
-
 
 app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
