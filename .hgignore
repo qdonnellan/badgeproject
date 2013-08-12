@@ -4,3 +4,5 @@ ajax.pyc
 cached_objects.pyc
 useful.pyc
 main.pyc
+handlers.pyc
+database.pyc
