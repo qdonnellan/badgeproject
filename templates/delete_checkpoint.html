@@ -1,0 +1,32 @@
+{% extends 'user_base.html' %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+
+    <div class="page-header col-12">
+      <h1>Delete Checkpoint</h1>
+    </div>
+    <div class="col-12">
+         
+        {% if error %}
+          <div class="alert alert-danger">
+            <strong>Woops!</strong> {{error}}
+          </div>
+        {% endif %}
+        <p class="lead col-12"><span class="text-muted">Checkpoint Name: </span>{{checkpoint.name}}</p>
+        <p class="lead col-12"><span class="text-muted">Description: </span>{{checkpoint.description}}</p>
+        <p class='col-12'>You are about to delete this checkpoint. Deleting a checkpoint does not delete any of the badges associated with it. If you are certian that you want to delete this checkpoint, type "<strong class="text-danger">Delete</strong>" in the box below. </p>    
+      <form method="post" class="col-lg-6">
+        <input type="text" id="delete_phrase" class="form-control" name="delete_phrase"/>
+        <br>
+        <button class="btn btn-danger btn-block visible-sm" type="submit">Delete Checkpoint</button>
+        <button class="btn btn-danger hidden-sm" type="submit">Delete Checkpoint</button> 
+      </form>
+    </div>
+  </div>
+</div>  
+
+
+{% endblock %}

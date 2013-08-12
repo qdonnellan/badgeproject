@@ -124,6 +124,7 @@
         <p>If you are satisfied with the description, design, and assinged checkpoints, go ahead and save!</p>
       </div>
       <div class="col-lg-6">
+      {% if courses %}
         {% for course in courses %}
           <h3>{{course.name}}</h3>
           <div id="checkpoint_course_{{course.course.key.id()}}">
@@ -145,7 +146,14 @@
           {% endif %}
           </div>
           <hr>
-        {% endfor %}      
+        {% endfor %}  
+      {% else %}  
+        <div class="marketing-div">
+        <br><br><br>
+          <h2>You haven't got any courses!</h2>
+          <p class="lead">Once you've create a course and some checkpoints to go along with it, they will show up right here</p>
+        </div>
+      {% endif %}  
       </div>
       <div class="col-lg-6 callout callout-info hidden-sm">
         <p><strong>Checkpoints</strong> are our way of grouping your badges. When you award a student a badge, that badge counts toward the completion of the checkpoint based on the badge value you've set for each badge (see the description tab above). </p>

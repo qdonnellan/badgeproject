@@ -17,62 +17,32 @@
         {% elif not active_course and loop.first %}in active
         {% endif %}" id="badge_course_{{course.course.key.id()}}">
         
-      {% set registrations = course.registrations %}
-      {% if course.enrolled_students %}
-      
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Student Name</th>
-            <th>Course Section</th>
-            <th>Badge Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for registration in registrations %}
-            {% if registration.status == 'approved' %}
-              {% set student = registration.student %}
-              {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
-                <tr>
-                  <td>
-                    <a href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view">
-                      {{student.formalName}}
-                    </a>
-                  </td>
-                  <td>{{registration.section}}</td>
-                  <td>
-                    {% if 'awarded' in current_achievement_status %}
-                      <span class="text-success"><i class="icon-certificate"></i> awarded</span>
-                    {% elif 'revoked' in current_achievement_status %}
-                      <span class="text-danger"><i class="icon-exclamation-sign"></i> you revoked this badge</span>
-                    {% elif 'requested' in current_achievement_status %}
-                      <span class="text-warning"><i class="icon-exclamation-sign"></i> student has requested badge</span>
-                    {% elif 'denied' in current_achievement_status %}
-                      <span class="text-danger"><i class="icon-exclamation-sign"></i> you denied student request</span>
-                    {% else %}
-                      <span class="text-muted">not yet obtained</span>
-                    {% endif %}
-                  </td>
-                  <td>
-                    
-                    {% if current_achievement_status != 'awarded' %}
-                      <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded?single_badge=true">award</a>
-                      {% if current_achievement_status == 'requested' %}
-                        <a class="btn-loading btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied?single_badge=true">deny</a>
-                      {% endif %}
-                    {% else %}
-                      <a class="btn-loading btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true">revoke</a>
-                    {% endif %}
-                      
-                  </td>
-                </tr>
-            {% endif %}
+        {% set registrations = course.registrations %}
+        {% if course.enrolled_students %}
+        <br>
+        {% set section_string = get_section_string(course.course) %}
+        <div class="btn-group section-group section-toggle-group">
+          <button class="btn btn-info section-toggle-button {% if not active_section or active_section == 'all' %}active{% endif %}" data-toggle="tab" href="#all_{{course.course.key.id()}}_sections">All Sections</button>
+          {% for number in section_string %}
+            <button class="btn btn-info section-toggle-button {%if active_section == number %}active{% endif %}" data-toggle="tab" href="#{{course.course.key.id()}}_section_{{number}}">{{number}}</button>
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
         
-      {% endif %}
+          <div class="tab-content">
+            <div class="tab-pane fade {% if not active_section or active_section == 'all' or active_section not in section_string %}in active{% endif %}" id="all_{{course.course.key.id()}}_sections">
+              {% set current_section = 'all' %}
+              {% include 'badge_section_tab.html' %}
+              
+            </div>
+            {% for number in section_string %}
+              <div class="tab-pane fade {%if active_section == number %}in active{% endif %}" id="{{course.course.key.id()}}_section_{{number}}">
+                {% set current_section = number %}
+                {% include 'badge_section_tab.html' %}
+                
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
     {% endfor %}
   </div>

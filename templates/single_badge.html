@@ -16,7 +16,9 @@
         {% if badge_checkpoints and (teacher_view_student_badge or not student_badge) %}
           <p><span class="text-muted">Associated with the following checkpoints: </span></p>
           {% for checkpoint in badge_checkpoints %}
+            {% if checkpoint %}
             <p><a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().course_name}}, {{checkpoint.name}} </a></p>
+            {% endif %}
           {% endfor %}
           
         {% else %}
@@ -106,9 +108,9 @@
         {% endif %}
         
         {% if teacher_view_student_badge or student_badge %}
-        <h4>Add Comment</h4>
+          <h4>Add Comment</h4>
           {% if teacher_view_student_badge %}
-          <p class="text-muted">Give your student a reason for approving or denying their badge request, or respond to previous comments the student has made on this page.</p>
+            <p class="text-muted">Give your student a reason for approving or denying their badge request, or respond to previous comments the student has made on this page.</p>
           {% endif %}
           {% if student_badge %}
             <p>In addition you simply requesting this badge, you may wish to include why you think you deserve this badge</p>
@@ -122,12 +124,10 @@
       </div>
   </div>
   {% if not (student_badge or teacher_view_student_badge) %}
-    <div class="hidden-sm row">
-      {% include 'badge_course_list.html' %}
-    </div>
+  <div class="hidden-sm row">
+    {% include 'badge_course_list.html' %}
+  </div>
   {% endif %}
-    
-  
 </div>
 
 <div class="mobile-page visible-sm">
@@ -148,9 +148,11 @@
     {% if not (student_badge or teacher_view_student_badge) %}
       <div class="col-12">
         <a class="btn btn-default btn-block" href="/badge_creator/{{badge.key.id()}}">Edit Badge</a>
-        {% for course in courses %}
-          <a class="btn btn-default btn-block" data-toggle="tab" href="#mobile_badge_course_{{courseID}}">Students in {{course.name}}</a>
-        {% endfor %}
+        {% if courses %}
+          {% for course in courses %}
+            <a class="btn btn-default btn-block" data-toggle="tab" href="#mobile_badge_course_{{courseID}}">Students in {{course.name}}</a>
+          {% endfor %}
+        {% endif %}
       </div>
     {% endif %}
     {% if teacher_view_student_badge %}
@@ -205,86 +207,88 @@
     {% endif %}
   </div>
   {% if student_badge or teacher_view_student_badge %}
-  <div class="mobile-break-row row">
-    <h4>Comments</h4>
+    <div class="mobile-break-row row">
+      <h4>Comments</h4>
     </div>
-  <br>
-  <div class="row mobile-row comment-form-div">  
-    <form method="post" class="col-12">
-      <textarea class="form-control" rows="5" name="content" placeholder="type comment here"></textarea>
-      <br>
-      <button class="submit btn btn-primary btn-block">Submit Comment</button>
-    </form>
-  </div><hr>
-  <div class="row">
-    {% if evidence %}
-      {% for item in evidence %}
-      <div class='col-12'>
-        <blockquote {% if item.teacher %}class="pull-right teacher-quote"{% else %}class="student-quote pull-left"{% endif %}>
-          <p>{{item.content}}</p>
-          {% if item.teacher %}
-            <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.teacher.formalName}}</cite></small>
-          {% else %}
-            <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.formalName}}</cite></small>
+    <br>
+    <div class="row mobile-row comment-form-div">  
+      <form method="post" class="col-12">
+        <textarea class="form-control" rows="5" name="content" placeholder="type comment here"></textarea>
+        <br>
+        <button class="submit btn btn-primary btn-block">Submit Comment</button>
+      </form>
+    </div><hr>
+    <div class="row">
+      {% if evidence %}
+        {% for item in evidence %}
+        <div class='col-12'>
+          <blockquote {% if item.teacher %}class="pull-right teacher-quote"{% else %}class="student-quote pull-left"{% endif %}>
+            <p>{{item.content}}</p>
+            {% if item.teacher %}
+              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.teacher.formalName}}</cite></small>
+            {% else %}
+              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.formalName}}</cite></small>
+            {% endif %}
+          </blockquote>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endif %}
+  
+  {% if not (student_badge or teacher_view_student_badge) %}
+    <div class="tab-content">
+    {% if courses %}
+      {% for course in courses %}
+      <div class="tab-pane fade 
+          {% if active_course == courseID %}in active 
+          {% elif not active_course and loop.first %}in active
+          {% endif %}" id="mobile_badge_course_{{courseID}}">
+
+          {% set registrations = course.registrations %}
+          <table class="table mobile-table">
+            <tr>
+              <td class="mobile-table-right mobile-break-row" colspan="2">
+                <h4>{{course.name}}</h4>
+                <p>Badge status for each student enrolled in this course</p>
+                <a class="btn btn-info btn-block" href="/course/{{courseID}}">Course Home</a>
+              </td>
+            </tr>
+          {% if course.enrolled_students %}
+            {% for registration in registrations %}
+              {% if registration.status == 'approved' %}
+                {% set student = registration.student %}
+                {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
+                <tr>
+                  <td class="col-8 mobile-table-left">
+                    <h4>{{student.formalName}}</h4>
+                    <p class="text-muted">Badge Status: {{current_achievement_status }} </p>
+                  </td>
+                  <td class="col-4 mobile-table-right">
+                    {% if current_achievement_status != 'awarded' %}
+                      <a class="btn-loading btn btn-success btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/awarded?single_badge=true">award</a>
+                      {% if current_achievement_status == 'requested' %}
+                        <a class="btn-loading btn btn-danger btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/denied?single_badge=true">deny</a>
+                      {% endif %}
+                    {% else %}
+                      <a class="btn-loading btn btn-warning btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true">revoke</a>
+                    {% endif %}
+                    <a class="btn btn-info btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view">
+                      view
+                    </a>
+                  </td>
+                </tr>
+              {% endif %}
+            {% endfor %}
           {% endif %}
-        </blockquote>
+          </table>  
       </div>
       {% endfor %}
     {% endif %}
-  {% endif %}
-  </div>
-  {% if not (student_badge or teacher_view_student_badge) %}
-  <div class="tab-content">
-    {% for course in courses %}
-    <div class="tab-pane fade 
-        {% if active_course == courseID %}in active 
-        {% elif not active_course and loop.first %}in active
-        {% endif %}" id="mobile_badge_course_{{courseID}}">
-
-        {% set registrations = course.registrations %}
-        <table class="table mobile-table">
-          <tr>
-            <td class="mobile-table-right mobile-break-row" colspan="2">
-              <h4>{{course.name}}</h4>
-              <p>Badge status for each student enrolled in this course</p>
-              <a class="btn btn-info btn-block" href="/course/{{courseID}}">Course Home</a>
-            </td>
-          </tr>
-        {% if course.enrolled_students %}
-          {% for registration in registrations %}
-            {% if registration.status == 'approved' %}
-            {% set student = registration.student %}
-            {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
-            <tr>
-              <td class="col-8 mobile-table-left">
-                <h4>{{student.formalName}}</h4>
-                <p class="text-muted">Badge Status: {{current_achievement_status }} </p>
-              </td>
-              <td class="col-4 mobile-table-right">
-                {% if current_achievement_status != 'awarded' %}
-                  <a class="btn-loading btn btn-success btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/awarded?single_badge=true">award</a>
-                  {% if current_achievement_status == 'requested' %}
-                    <a class="btn-loading btn btn-danger btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/denied?single_badge=true">deny</a>
-                  {% endif %}
-                {% else %}
-                  <a class="btn-loading btn btn-warning btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true">revoke</a>
-                {% endif %}
-                <a class="btn btn-info btn-block" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view">
-                  view
-                </a>
-              </td>
-            </tr>
-            {% endif %}
-          {% endfor %}
-        {% endif %}
-        </table>  
     </div>
-  {% endfor %}
-  </div>
   {% endif %}
 
 </div>
-
 
 
 

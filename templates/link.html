@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block body %}
-
+<div class="container">
 {% if google_user_api.get_current_user() %}
-  <div class="col-lg-6 col-offset-3">
+  <div class="col-lg-6 col-lg-offset-3">
     <div class="row">
       <div class="marketing">
         <h1>Google Account Linked</h1>
@@ -30,7 +30,7 @@
     </div>
   </div>  
 {% else %}
-  <div class="col-lg-6 col-offset-3">
+  <div class="col-lg-6 col-lg-offset-3">
     <div class="row">
       <div class="marketing span8 offset2">
         <h1>Link Google Account</h1>

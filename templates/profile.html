@@ -88,7 +88,7 @@
       </div>
     {% else %}
     <div class="marketing-div">
-    <h1>No courses</h1>
+    <h1>No teacher courses!</h1>
     <p class="lead">Hey, you haven't created any courses yet!</p>
     <p><a class = "btn btn-info" href="/edit_course">Create Your First Course</a></p>
     </div>
@@ -100,7 +100,11 @@
 <div class="mobile-page visible-sm">
   <div class="row mobile-row mobile-header">
     <h1>{{local_user.formalName}}</h1>
-    <p class="text-muted">Student Account</p>
+    {% if local_user.teacher %}
+      <p class="text-muted">Teacher Account</p>
+    {% else %}
+      <p class="text-muted">Student Account</p>
+    {% endif %}
     <div class="col-12">
       <a href="/edit_profile" class="btn btn-default btn-block">Edit Profile</a>
       <a href="/register" class="btn btn-default btn-block">Register for Course</a>

@@ -1,0 +1,45 @@
+<table class="table table-hover row">
+  <thead>
+    <tr>
+      <th>Student Name</th>
+      <th>Course Section</th>
+      <th class="hidden-sm">Badge Progress</th>
+      <th class="hidden-sm">Percent Completion</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for registration in course.registrations %}
+    {% if registration.section == current_section or (current_section == 'all') %}
+      {% set student = registration.student %}
+        {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
+      
+      <tr>
+        <td>
+          <a href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">{{student.formalName}}</a>
+        </td>
+        <td>{{registration.section}}</td>
+        <td class="hidden-sm">
+          {% for badge in student_checkpoint.badges %}
+            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
+              {% if badge.status == 'awarded' %}
+                <div class="tiny-badge pull-left">
+                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  </div>
+                </div>
+              {% else %}
+                <div class="tiny-badge pull-left">
+                  <div class="badge-grey badge-new">
+                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  </div>
+                </div>
+              {% endif %}
+            </a>
+          {% endfor %}
+        </td>
+        <td class="hidden-sm"><h4>{{student_checkpoint.percent_complete}}%</h4></td>
+      </tr>
+    {% endif %}
+    {% endfor %}
+  </tbody>
+</table>

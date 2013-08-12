@@ -5,55 +5,32 @@
 <div class="hidden-sm container">
   <div class="row">
     <div class="page-header">
-    <h1>{{checkpoint.name}}</h1>
+    <h1>{{checkpoint.name}}<a class="btn btn-success btn-small pull-right" href="/course/{{courseID}}/edit_checkpoint/{{checkpoint.checkpoint.key.id()}}">Edit Checkpoint</a></h1>
     <p class="text-muted">Checkpoint for the course <a href="/course/{{courseID}}">{{course.name}}</a></p>
     </div>
     
     <p class="lead">{{checkpoint.description}}</p>
-    <p><a class="btn btn-info btn-small" href="/course/{{courseID}}/edit_checkpoint/{{checkpoint.checkpoint.key.id()}}">Edit Checkpoint</a></p>
-    <hr>
-  </div>
-  <table class="table table-hover row">
-    <thead>
-      <tr>
-        <th>Student Name</th>
-        <th class="hidden-sm">Badge Progress</th>
-        <th class="hidden-sm">Percent Completion</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for student in course.enrolled_students %}
-        {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
-      <tr>
-        <td>
-          <a href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">{{student.formalName}}</a>
-        </td>
-
-        <td class="hidden-sm">
-          {% for badge in student_checkpoint.badges %}
-            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
-              {% if badge.status == 'awarded' %}
-                <div class="tiny-badge pull-left">
-                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                  </div>
-                </div>
-              {% else %}
-                <div class="tiny-badge pull-left">
-                  <div class="badge-grey badge-new">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                  </div>
-                </div>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </td>
-        <td class="hidden-sm"><h4>{{student_checkpoint.percent_complete}}%</h4></td>
-      </tr>
-      
+    
+    <div class="btn-group section-group section-toggle-group">
+      <button class="btn btn-info section-toggle-button {% if not active_section or active_section == 'all' %}active{% endif %}" data-toggle="tab" href="#all_{{courseID}}_sections">All Sections</button>
+      {% for number in section_string %}
+        <button class="btn btn-info section-toggle-button {%if active_section == number %}active{% endif %}" data-toggle="tab" href="#{{courseID}}_section_{{number}}">{{number}}</button>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+  </div>
+  <div class="tab-content">
+    <div class="tab-pane fade {% if not active_section or active_section == 'all' or active_section not in section_string %}in active{% endif %}" id="all_{{courseID}}_sections">
+      {% set current_section = 'all' %}
+      {% include 'checkpoint_section_tab.html' %}
+    </div>
+    {% for number in section_string %}
+      <div class="tab-pane fade {%if active_section == number %}in active{% endif %}" id="{{courseID}}_section_{{number}}">
+        {% set current_section = number %}
+        {% include 'checkpoint_section_tab.html' %}
+        
+      </div>
+    {% endfor %}
+  </div>
 </div>
 <div class="mobile-page visible-sm">
   <div class="row mobile-row mobile-header">
@@ -67,41 +44,30 @@
   {% if checkpoint.description not in [none, ''] %}
   <div class="col-12 checkpoint-lead">
     <p class="lead"><strong>Description:</strong> {{checkpoint.description}}</p>
+
   </div>
   {% endif %}
-  <table class="table mobile-table">
-    {% for student in course.enrolled_students %}
-      {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
-      <tr>
-        <td class="col-9 mobile-table-left">
-          <h4>{{student.formalName}}</h4>
-          {% for badge in student_checkpoint.badges %}
-            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
-              {% if badge.status == 'awarded' %}
-                <div class="small-badge-mobile pull-left">
-                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                  </div>
-                </div>
-              {% else %}
-                <div class="small-badge-mobile pull-left">
-                  <div class="badge-grey badge-new">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-                  </div>
-                </div>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </td>
-        <td class="col-3 mobile-table-right">
-          <h4>{{student_checkpoint.percent_complete}}%</h4>
-          <a class="btn btn-info btn-block" href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">profile</a>
-        </td>
-
-      </tr>
-
+  <div class="row">
+    <div class="btn-group section-toggle-group btn-group-justified">
+      <a class="btn btn-info section-toggle-button {% if not active_section or active_section == 'all' %}active{% endif %}" data-toggle="tab" href="#all_{{courseID}}_sections_mobile">All</a>
+      {% for number in section_string %}
+        <a class="btn btn-info section-toggle-button {%if active_section == number %}active{% endif %}" data-toggle="tab" href="#{{courseID}}_section_{{number}}_mobile">{{number}}</a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="tab-content">
+    <div class="tab-pane fade {% if not active_section or active_section == 'all' or active_section not in section_string %}in active{% endif %}" id="all_{{courseID}}_sections_mobile">
+      {% set current_section = 'all' %}
+      {% include 'checkpoint_mobile_section_tab.html' %}
+    </div>
+    {% for number in section_string %}
+      <div class="tab-pane fade {%if active_section == number %}in active{% endif %}" id="{{courseID}}_section_{{number}}_mobile">
+        {% set current_section = number %}
+        {% include 'checkpoint_mobile_section_tab.html' %}
+        
+      </div>
     {% endfor %}
-  </table>
+  </div>
   
 </div>
 {% endblock %}

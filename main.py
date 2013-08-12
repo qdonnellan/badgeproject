@@ -310,7 +310,8 @@ class teacherViewAwardBadge(MainHandler):
         if self.request.get('back_to_course') == 'true':
           self.redirect('/course/%s?active_tab=requests' % courseID)
         elif self.request.get('single_badge') == 'true':
-          self.redirect('/badge/%s?active_course=%s' % (badgeID, courseID))
+          section = self.request.get('active_section')
+          self.redirect('/badge/%s?active_course=%s&active_section=%s' % (badgeID, courseID, section))
         else:
           self.redirect('/student_badge/%s/%s/%s/teacher_view' % (studentID, courseID, badgeID))
 
@@ -380,7 +381,9 @@ class singleBadge(MainHandler):
         teacher=valid_user(),
         badges_active = 'active',
         get_checkpoints_for_badge = get_checkpoints_for_badge,
-        active_course = self.request.get('active_course')
+        active_course = self.request.get('active_course'),
+        get_section_string = get_section_string,
+        active_section = self.request.get('active_section')
         )
 
 class singleCheckpoint(MainHandler):
@@ -396,8 +399,37 @@ class singleCheckpoint(MainHandler):
         courseID = int(courseID), 
         checkpointID = int(checkpointID),
         badge_achieved = badge_achieved,
-        get_student_checkpoint = get_cached_student_checkpoint
+        get_student_checkpoint = get_cached_student_checkpoint,
+        section_string = get_section_string(course.course)
         )
+
+class deleteCheckpoint(MainHandler):
+  def get(self, courseID, checkpointID):
+    logging.info('made it')
+    if valid_user():
+      logging.info('made it')
+      teacherID = valid_user().key.id()
+      course = get_cached_course(courseID, teacherID)
+      checkpoint = get_single_checkpoint(course.course, checkpointID)
+      checkpoint = get_cached_checkpoint(checkpoint, courseID, teacherID)
+      self.render('delete_checkpoint.html',
+        checkpoint = checkpoint, 
+        course = course
+        )
+
+  def post(self, courseID, checkpointID):
+    if valid_user():
+      delete_phrase = self.request.get('delete_phrase')
+      if delete_phrase == 'Delete':
+        course = existing_course(courseID, valid_user())
+        checkpoint = get_single_checkpoint(course, checkpointID)
+        checkpoint.key.delete()
+        get_cached_course(courseID, valid_user().key.id(), refresh = True)
+        self.redirect('/course/%s' % courseID)
+      else:
+        self.redirect('/delete_checkpoint/%s/%s?error=You did not type "Delete" correctly' % (courseID, checkpointID))
+    
+
 
 class teacherAccessRequest(MainHandler):
   def get(self):
@@ -426,6 +458,7 @@ app = webapp2.WSGIApplication([
   #('/student_course/(\w+)', studentCourse),
   ('/complete_registration/(\w+)/(\w+)/(\w+)', completeRegistration),
   ('/link', link),
+  ('/delete_checkpoint/(\w+)/(\w+)', deleteCheckpoint),
   ('/change_section/(\w+)/(\w+)/section/(\w+)', changeSection),
   ('/register', register),
   ('/profile', profile),

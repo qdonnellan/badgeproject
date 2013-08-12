@@ -12,7 +12,10 @@
         </div>
       {% else %}
         <div class="page-header">
-          <h1>Edit existing checkpoint</h1>
+          <h1>
+            Edit existing checkpoint
+            <a class="btn btn-danger pull-right" href="/delete_checkpoint/{{course.key.id()}}/{{checkpoint.key.id()}}"><i class="icon-trash"></i> Delete Checkpoint</a>
+          </h1>
           <p><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</p>
         </div>
       {% endif %}
@@ -59,8 +62,14 @@
           </div>
         </div>
         <br>
-        <button class="btn btn-primary hidden-sm " type="submit">Save Checkpoint</button>
-        <button class="btn btn-primary btn-block visible-sm" type="submit">Save Checkpoint</button>
+       
+          <button class="btn btn-primary hidden-sm" type="submit">Save Checkpoint</button>
+          
+        
+        <span class="visible-sm">
+          <button class="btn btn-primary btn-block visible-sm" type="submit">Save Checkpoint</button>
+          <a class="btn btn-danger btn-block visible-sm">Delete Checkpoint</a>
+        </span>
       </form>
     </div>
   </div>

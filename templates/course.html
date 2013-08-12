@@ -336,11 +336,15 @@
           </td>
         </tr>
         {% else %}
-        <tr >
-          <td class="mobile-break-row mobile-table-left"><h5>Checkpoints for this course</h5></td>
-          <td class="mobile-break-row mobile-table-right">
-            <a class="btn btn-success" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New Checkpoint</a>
-          </td>
+        <tr class="mobile-break-row"  >
+          {% if student_profile %}
+            <td colspan="2"><h5>Checkpoints for this course</h5></td>
+          {% else %}
+            <td class="mobile-table-left"><h5>Checkpoints for this course</h5></td>
+            <td class="col-3">
+              <a class="btn btn-success" href="/course/{{courseID}}/new_checkpoint"><i class="icon-plus-sign-alt icon-large"></i> New</a>
+            </td>
+          {% endif %}
         </tr>
         {% endif %}
       {% if checkpoints %}
