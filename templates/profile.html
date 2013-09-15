@@ -6,7 +6,7 @@
   <div>
     <div class="row">
       <div class="page-header">
-      <h1>{{local_user.formalName}}</h1>
+      <h1>{{local_user.name}}</h1>
       {% if local_user.teacher %}
         <p class='lead'>Teacher Account: <span class="text-muted">{{google_user_api.get_current_user().email()}}</span></p>
         <p>
@@ -41,7 +41,7 @@
         <tbody>
           {% for entry in enrollments %}
           <tr>
-            <td>{{entry["course"].course_name}} 
+            <td>{{entry["course"].name}} 
             <td>{{entry["status"]}}</td>
             <td>{% if entry["status"]=='approved' %}<a class="btn btn-small btn-primary" href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">View Course</a>{% endif %}</td>
           </tr>
@@ -69,17 +69,13 @@
                 {{course.name}}
               </td>
               <td>
-                {% set requests = course.number_of_badge_requests %}
-                {% if requests > 0 %}
-                  <p><span class="badge badge-notification">{{requests}}</span> 
-                  <a href="/course/{{course.course.key.id()}}?active_tab=requests">badge request{% if requests >1 %}s{% endif %}</a></p>
-                {% endif %}
-                {% set registrations = course.number_of_pending_registrations %}
+                
+                {% set registrations = 0 %}
                 {% if registrations > 0 %}<p><span class="badge badge-notification">{{registrations}}</span> 
-                  <a href="/course/{{course.course.key.id()}}?active_tab=students">pending enrollment{% if registrations > 1 %}s{% endif %}</a></p>
+                  <a href="/course/{{course.key.id()}}?active_tab=students">pending enrollment{% if registrations > 1 %}s{% endif %}</a></p>
                 {% endif %}
               </td>
-              <td><a class="btn btn-small btn-primary" href="/course/{{course.course.key.id()}}">View Course</a></td>
+              <td><a class="btn btn-small btn-primary" href="/course/{{course.key.id()}}">View Course</a></td>
 
             </tr>
             {% endfor %}
@@ -126,13 +122,13 @@
       <tr>
         <td class="col-9 mobile-table-left">
           <h4>{{course.name}}</h4>
-          {% set notifications = course.number_of_notifications %}
+          {% set notifications = 0 %}
           {% if notifications > 0 %}
             <p class="text-muted"><span class="badge badge-notification">{{notifications}}</span> Pending Notifications</p>
           {% endif %}
         </td>
         <td class="col-3 mobile-table-right">
-          <a class="btn btn-primary" href="/course/{{course.course.key.id()}}">View</a>
+          <a class="btn btn-primary" href="/course/{{course.key.id()}}">View</a>
         </td>
       </tr>
       {% endfor %}
@@ -147,7 +143,7 @@
     {% for entry in enrollments %}
       <tr>
         <td class="col-9 mobile-table-left">
-          <h4>{{entry["course"].course_name}}</h4>
+          <h4>{{entry["course"].name}}</h4>
           {% set status = entry["status"] %}
           {% if status == 'approved' %}
             <p class="text-success">currently enrolled</p>

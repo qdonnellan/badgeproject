@@ -8,7 +8,7 @@
       {% if new_checkpoint %}
         <div class="page-header">
           <h1>Create a new checkpoint</h1>
-          <p><span class="text-muted">This checkpoint will belong to the course:</span> {{course.course_name}}</p>
+          <p><span class="text-muted">This checkpoint will belong to the course:</span> {{course.name}}</p>
         </div>
       {% else %}
         <div class="page-header">
@@ -16,7 +16,7 @@
             Edit existing checkpoint
             <a class="btn btn-danger pull-right" href="/delete_checkpoint/{{course.key.id()}}/{{checkpoint.key.id()}}"><i class="icon-trash"></i> Delete Checkpoint</a>
           </h1>
-          <p><span class="text-muted">This checkpoint belongs to the course:</span> {{course.course_name}}</p>
+          <p><span class="text-muted">This checkpoint belongs to the course:</span> {{course.name}}</p>
         </div>
       {% endif %}
       {% if not (student_profile or teacher_view_student_profile) %}

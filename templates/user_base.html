@@ -25,7 +25,7 @@
 
       <!-- navbar for large screens -->
         <ul class="nav navbar-nav pull-right visible-lg">
-          <li><a href="/profile">{{local_user.formalName}}</a></li>
+          <li><a href="/profile">{{local_user.name}}</a></li>
           <li><a href="{{google_user_api.create_logout_url('/')}}"><i class='icon-signout'></i> Log out</a></li>
         </ul>
       <!-- -->
@@ -61,9 +61,9 @@
       {% if courses and local_user.teacher %}
         <ul class="side-list">          
         {% for course in courses %}
-          {% set notifications = course.number_of_notifications %}
-          <li class="{% if courseID == course.course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
-            <a href="/course/{{course.course.key.id()}}">
+          {% set notifications = 0 %}
+          <li class="{% if courseID == course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
+            <a href="/course/{{course.key.id()}}">
               {% if notifications > 0 %}<span class="badge badge-notification">{{notifications}}</span> {% endif %}
               {{course.name}}
               <i class="icon-chevron-sign-right"></i>
@@ -76,7 +76,7 @@
       <ul class="side-list"> 
         {% for entry in enrollments %}
           {% if entry['status'] == 'approved' %}
-            <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"> {{entry["course"].course_name}}<i class="icon-chevron-sign-right"></i></a></li>
+            <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}"> {{entry["course"].name}}<i class="icon-chevron-sign-right"></i></a></li>
           {% endif %}
         {% endfor %}
       </ul>
@@ -106,7 +106,7 @@
       })
     </script>
 
-
+    <script type="text/javascript" src="/javascript/common.js"></script>
     <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>    
     <script src="/bootstrap/js/bootstrap.min.js"></script> 
     <script src="/javascript/bootstrap-typeahead.js"></script>     

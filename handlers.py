@@ -19,16 +19,19 @@ class MainHandler(webapp2.RequestHandler):
   
   def render(self, template, **kw):  
     local_user = existing_user(users.get_current_user())              
-    self.write(self.render_str(
+    raw_html = self.render_str(
       template, 
       error = self.request.get('error'),
       success = self.request.get('success'),
       google_user_api = users,
       local_user = local_user,
       get_student = get_student,
-      courses = get_cached_user_courses(local_user),
+      courses = get_user_courses(local_user),
       enrollments = get_enrolled_courses(local_user),
       get_local_time = get_local_time,
-      **kw))
+      **kw)
+    self.write(raw_html)
+    return raw_html
+
 
 

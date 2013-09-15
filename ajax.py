@@ -1,7 +1,7 @@
 from database import *
 from handlers import MainHandler
 from useful import valid_user
-from cached_objects import get_cached_course, get_cached_user_courses
+from cached_objects import *
 
 class achievementHandler(MainHandler):
   def post(self):
@@ -24,3 +24,74 @@ class achievementHandler(MainHandler):
     get_cached_course(course, refresh = True)
     get_cached_course(course, studentID = student_id, refresh = True)
     self.response.out.write(html)
+
+class ajaxBadgeHandler(MainHandler):
+  def post(self):
+    teacher = valid_user()
+    if teacher:
+      studentID = self.request.get('student_id')
+      courseID = self.request.get('course_id')
+      badgeID = self.request.get('badge_id')
+      teacherID = teacher.key.id()
+      badge_action = self.request.get('action')
+      if badge_action == 'award':
+        status = 'awarded'
+      elif badge_action == 'revoke':
+        status = 'revoked'
+      elif badge_action == 'deny':
+        status = 'denied'
+      html = self.render_str('badge_actions.html', 
+        studentID = studentID,
+        courseID = courseID, 
+        badgeID = badgeID,
+        current_achievement_status = status,
+        )
+      self.response.out.write(html)
+      
+      if badge_action in ['award', 'revoke', 'deny']:
+        course = existing_course(courseID, teacher)
+        badge = get_badge(valid_user(),badgeID)
+        new_achievement(
+          teacher = teacher, 
+          student = get_student(studentID), 
+          badge = badge, 
+          course = course,
+          status = status
+          )
+        delete_cached_teacher_requests(courseID, teacherID)
+        for checkpoint in get_checkpoints_for_badge(badge, teacher):
+          delete_cached_checkpoint(checkpoint.key.id(), courseID, teacherID)
+          delete_cached_student_checkpoint(checkpoint.key.id(), studentID, courseID, teacherID)
+        delete_cached_student_requests(courseID, studentID, teacherID)
+        delete_cached_course(courseID, teacherID)
+
+class ajaxSectionHandler(MainHandler):
+  def post(self):
+    teacher = valid_user()
+    if teacher:
+      courseID = self.request.get('course_id')
+      studentID = self.request.get('student_id')
+      teacherID = teacher.key.id()
+      section_number = self.request.get('section_number')
+      if section_number in '12345678':
+        course = existing_course(courseID, teacher)
+        change_section_number(course, studentID, section_number)
+      html = self.render_str('section_list.html',
+        studentID = studentID,
+        section_number = section_number, 
+        courseID = courseID
+        )
+      self.response.out.write(html)
+      delete_cached_course(courseID, teacherID)
+
+      
+
+
+
+
+
+
+
+
+
+

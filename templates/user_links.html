@@ -10,16 +10,16 @@
 {% endif %}
 {% if courses and local_user.teacher %}          
   {% for course in courses %}
-  {% set notifications = course.number_of_notifications %}
-    <li class="{% if courseID == course.course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
-      <a href="/course/{{course.course.key.id()}}">{{course.name}}{% if notifications > 0 %}<span class="pull-right badge badge-notification">{{notifications}}</span>{% endif %} </a>
+  {% set notifications = 0 %}
+    <li class="{% if courseID == course.key.id() and not (student_profile or student_badge) %}active{% endif %}">
+      <a href="/course/{{course.key.id()}}">{{course.name}}{% if notifications > 0 %}<span class="pull-right badge badge-notification">{{notifications}}</span>{% endif %} </a>
     </li>
   {% endfor %}
 {% endif %}
 {% if enrollments %}
   {% for entry in enrollments %}
     {% if entry['status'] == 'approved' %}
-      <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">{{entry["course"].course_name}}</a></li>
+      <li class="{% if teacherID == entry['course'].key.parent().id() and courseID == entry['course'].key.id() and (student_profile or student_badge)%}active{% endif %}"><a href="/student_profile/{{entry['course'].key.parent().id()}}/{{entry['course'].key.id()}}">{{entry["course"].name}}</a></li>
     {% endif %}
   {% endfor %}
 {% endif %}

@@ -6,13 +6,16 @@ import re
 class User(ndb.Model):
   google_id = ndb.StringProperty(required = True)
   email = ndb.StringProperty(required = True)
-  formalName = ndb.StringProperty(required = False)
+  name = ndb.StringProperty(required = False)
+  formalName = ndb.StringProperty(required = False) #deprecated
   teacher = ndb.BooleanProperty(default = False)
-  formalName_lower = ndb.ComputedProperty(lambda self: self.formalName.lower())
+  name_lower = ndb.ComputedProperty(lambda self: self.name.lower())
 
 class Course(ndb.Model):
-  course_name = ndb.StringProperty(required = True)
-  course_code = ndb.StringProperty(required = True)
+  name = ndb.StringProperty(required = True)
+  course_name = ndb.StringProperty(required = False) #deprecated
+  code = ndb.StringProperty(required = True)
+  course_code = ndb.StringProperty(required = False) #deprecated
 
 class Checkpoint(ndb.Model):
   name = ndb.StringProperty(required = False)
@@ -61,12 +64,12 @@ def existing_user(google_user):
 
 def new_user(google_user, formalName):
   if not existing_user(google_user):
-    new_user_object = User(google_id = str(google_user.user_id()), formalName = formalName, email = google_user.email())
+    new_user_object = User(google_id = str(google_user.user_id()), name = formalName, email = google_user.email())
     new_user_object.put()
 
 def edit_user(user, formalName):
   if user:
-    user.formalName = formalName
+    user.name = formalName
     user.put()
 
 def existing_course(courseID, user):
@@ -81,7 +84,7 @@ def verify_unique_course_code(course_code, user, courseID=None):
   user_courses = get_user_courses(user)
   if user_courses:
     for course in user_courses:
-      if course_code == course.course_code:
+      if course_code == course.code:
         if not courseID:
           verification = False
         elif str(courseID) != str(course.key.id()):
@@ -91,11 +94,11 @@ def verify_unique_course_code(course_code, user, courseID=None):
 def edit_course(course_name, course_code, courseID, user):
   course_object = existing_course(courseID, user)
   if course_object:
-    course_object.course_name = course_name
-    course_object.course_code = course_code
+    course_object.name = course_name
+    course_object.code = course_code
     course_object.put()
   else:
-    course_object = Course(course_name = course_name, course_code = course_code, parent = user.key)
+    course_object = Course(name = course_name, code = course_code, parent = user.key)
     course_object.put()
 
   return course_object
@@ -120,7 +123,7 @@ def get_user_by_email(email):
   return User.query(User.email == email).get()
 
 def register_for_course(student, teacher, course_code):
-  the_course = Course.query(Course.course_code == course_code, ancestor = teacher.key).get()
+  the_course = Course.query(Course.code == course_code, ancestor = teacher.key).get()
   if the_course:
     existing_registration = Registrations.query(Registrations.student_id == str(student.key.id()), ancestor = the_course.key).get()
     if not existing_registration:
@@ -133,7 +136,7 @@ def register_for_course(student, teacher, course_code):
     return False
 
 def get_course_by_code(teacher, course_code):
-  return Course.query(Course.course_code == course_code, ancestor = teacher.key).get()
+  return Course.query(Course.code == course_code, ancestor = teacher.key).get()
 
 def edit_registration(courseID, teacher, studentID, action):
   course = existing_course(courseID, teacher)
@@ -157,13 +160,48 @@ def get_registrations(course):
   else:
     return None
 
+class registered_student_class():
+  def __init__(self, registration_entry):
+    self.student = get_student(registration_entry.student_id)
+    self.registration = registration_entry
+    self.status = registration_entry.status
+    if self.status in ['revoked', 'denied', 'pending', None, '']:
+      self.section = '0'
+    else:
+      self.section = registration_entry.section
+    self.student_id = registration_entry.student_id
+    formalName = self.student.name
+    if ' ' in formalName:
+      last_name = formalName.split(' ')[-1]
+    else:
+      last_name = formalName
+    self.name = last_name
+
+def get_registered_students(course):
+  logging.info('start get_registered_students')
+  all_registrations = []
+  registrations = get_registrations(course)
+  if registrations:
+    for item in registrations:
+      all_registrations.append(registered_student_class(item))
+  if all_registrations == []:
+    logging.info('end get_registered_students')
+    return None
+  else:
+    all_registrations = sorted(all_registrations, key = attrgetter('name'), reverse = False)
+    all_registrations = sorted(all_registrations, key = attrgetter('section'), reverse = False)
+    logging.info('end get_registered_students')
+    return all_registrations
+
 def get_number_of_pending_registrations(course):
+  logging.info('start get_number_of_pending_registrations')
   total_registrations = get_registrations(course)
   total = 0
   if total_registrations:
     for item in total_registrations:
       if item.status == 'pending':
         total += 1
+  logging.info('end get_number_of_pending_registrations')
   return total
 
 
@@ -245,10 +283,12 @@ def edit_badge(teacher, icon, icon_color, border_color, background, name, requir
   
 
 def get_badge(teacher=None, badgeID = None):
+  logging.info("start get_badge")
   if badgeID and teacher:
     the_badge = ndb.Key(Badge, int(badgeID), parent = teacher.key).get()
   else:
     the_badge = default_badge()
+  logging.info('end get_badge')
   return the_badge
 
 class default_badge():
@@ -285,10 +325,13 @@ def update_checkpoint(name, description, course, checkpointID, featured):
     the_checkpoint.put()
 
 def get_course_checkpoints(course):
+  logging.info('start get_course_checkpoints')
   checkpoints = Checkpoint.query(ancestor = course.key)
   if checkpoints:
+    logging.info('end get_course_checkpoints')
     return sort_by_name(checkpoints)
   else:
+    logging.info('end get_course_checkpoints')
     return None
 
 def get_single_checkpoint(course, checkpointID):
@@ -344,6 +387,7 @@ def badge_achieved(badge, course, student):
     return False
 
 def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
+  logging.info('start get_number_of_badge_requests')
   if course:
     teacher = course.key.parent().get()
     badges = get_all_badges(teacher)
@@ -361,9 +405,12 @@ def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
           possible_achievement = achievement_status(student, badge, teacher, course)
           if possible_achievement == 'requested':
             total += 1
+    logging.info('end get_number_of_badge_requests')
     return total
 
+
 def get_badge_requests(course, indiv_student=None):
+  logging.info('start get_badge_requests')
   if course:
     teacher = course.key.parent().get()
     badges = get_all_badges(teacher)
@@ -379,10 +426,11 @@ def get_badge_requests(course, indiv_student=None):
           possible_achievement = fetch_achievement(student, badge, teacher, course)
           if possible_achievement:
             all_requests.append(possible_achievement)
-
     if all_requests == []:
+      logging.info('end get_badge_requests')
       return None
     else:
+      logging.info('end get_badge_requests')
       return all_requests
 
 
@@ -396,12 +444,13 @@ def user_is_teacher(course, user):
     return False
 
 def get_checkpoint_percent_completion(studentID, checkpoint):
+  logging.info('start get_checkpoint_percent_completion')
   total_possible_points = 0
   student_points = 0
-  course = checkpoint.checkpoint.key.parent().get()
+  course = checkpoint.key.parent().get()
   student = get_student(studentID)
-  for badge in checkpoint.badges:
-    checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.checkpoint.key.id())
+  for badge in get_checkpoint_badges(checkpoint):
+    checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
     if badge.checkpoints and (checkpoint_key in badge.checkpoints):
       total_possible_points += badge.value
       if achievement_status(student, badge, course.key.parent().get(), course) == 'awarded':
@@ -412,8 +461,19 @@ def get_checkpoint_percent_completion(studentID, checkpoint):
   else:
     raw_score = (100.0 * student_points) / total_possible_points
   rounded_score = int(raw_score)
+  logging.info('end get_checkpoint_percent_completion')
   return rounded_score
 
+def get_checkpoint_badges(checkpoint):
+  logging.info('start get_checkpoint_badges')
+  teacher = checkpoint.key.parent().get().key.parent().get()
+  all_teacher_badges = get_all_badges(teacher)
+  badges = []
+  for badge in all_teacher_badges:
+    if badge_in_checkpoint(badge, checkpoint):
+      badges.append(badge)
+  logging.info('end get_checkpoint_badges')
+  return badges
 
 def badge_in_checkpoint(badge, checkpoint):
   course = checkpoint.key.parent().get()

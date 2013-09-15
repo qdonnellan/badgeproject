@@ -3,76 +3,16 @@ from database import *
 from operator import attrgetter
 from useful import valid_user
 
-class course_class():
-  def __init__(self, courseID, teacherID): 
-    teacher = get_teacher(teacherID)
-    course = existing_course(courseID, teacher)
-    self.course = course
-    self.name = course.course_name
-    self.code = course.course_code
-    self.teacher = teacher
-    self.enrolled_students = get_enrolled_students(course)
-    self.registrations = get_registered_students(course)
-    self.number_of_badge_requests = get_number_of_badge_requests(course)
-    self.number_of_pending_registrations = get_number_of_pending_registrations(course)
-    self.number_of_notifications = self.number_of_pending_registrations + self.number_of_badge_requests
 
-class checkpoint_class():
-  def __init__(self, checkpoint):
-    self.checkpoint = checkpoint
-    self.name = checkpoint.name
-    self.featured = checkpoint.featured
-    self.description = checkpoint.description
-    course = checkpoint.key.parent().get()
-    teacher = course.key.parent().get()
-    all_teacher_badges = get_all_badges(teacher)
-    self.badges = []
-    for badge in all_teacher_badges:
-      if badge_in_checkpoint(badge, checkpoint):
-        self.badges.append(badge)
 
 class student_checkpoint_class():
   def __init__(self, checkpoint, studentID):
     self.badges = []
-    for badge in checkpoint.badges:
-      self.badges.append(student_badge_class(badge, checkpoint.checkpoint, studentID))
+    for badge in get_checkpoint_badges(checkpoint):
+      self.badges.append(student_badge_class(badge, checkpoint, studentID))
     self.percent_complete = get_checkpoint_percent_completion(studentID, checkpoint)
 
 
-class registered_student_class():
-  def __init__(self, registration_entry):
-    self.student = get_student(registration_entry.student_id)
-    self.registration = registration_entry
-    self.status = registration_entry.status
-    if self.status in ['revoked', 'denied', 'pending', None, '']:
-      self.section = '0'
-    else:
-      self.section = registration_entry.section
-    self.student_id = registration_entry.student_id
-    formalName = self.student.formalName
-    if ' ' in formalName:
-      last_name = formalName.split(' ')[-1]
-    else:
-      last_name = formalName
-    self.name = last_name
-
-class course_requests_class():
-  def __init__(self, courseID, teacherID = None, studentID = None):
-    self.requests = []
-    requests = None
-    if teacherID:
-      teacher = get_teacher(teacherID)
-      course = existing_course(courseID, teacher)
-      if course:
-        requests = get_badge_requests(course)
-    if studentID and teacherID:
-      student = get_student(studentID)
-      requests = get_badge_requests(course, student)
-    if requests:
-      for request in requests:
-        self.requests.append(request_class(request, teacher))
-      self.requests.sort(key = attrgetter('last_modified_raw'), reverse = True)
-    self.number = get_number_of_badge_requests(course)
 
 class request_class():
   def __init__(self, request, teacher):
@@ -97,25 +37,15 @@ class student_badge_class():
     student = get_student(studentID)
     self.status = achievement_status(student, badge, course.key.parent().get(), course)
 
-def get_registered_students(course):
-  all_registrations = []
-  registrations = get_registrations(course)
-  if registrations:
-    for item in registrations:
-      all_registrations.append(registered_student_class(item))
-  if all_registrations == []:
-    return None
-  else:
-    all_registrations = sorted(all_registrations, key = attrgetter('name'), reverse = False)
-    all_registrations = sorted(all_registrations, key = attrgetter('section'), reverse = False)
-    return all_registrations
 
 def get_section_string(course):
   all_registrations = get_registered_students(course)
   sections = ''
-  for registration in all_registrations:
-    if (registration.section in '12345678') and (registration.section not in sections):
-      sections += registration.section
+  if all_registrations:
+    for registration in all_registrations:
+      if registration.section:
+        if (registration.section in '12345678') and (registration.section not in sections):
+          sections += registration.section
   return sections
 
 def get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = False, refresh_students = False):
@@ -147,6 +77,11 @@ def get_cached_student_requests(courseID, studentID, teacherID, refresh = False)
     memcache.set(cache_key, cached_requests)
   return cached_requests
 
+def get_student_checkpoint(checkpoint, studentID):
+  logging.info('start get_student_checkpoint')
+  student_checkpoint = student_checkpoint_class(checkpoint, studentID)
+  logging.info('end get_student_checkpoint')
+  return student_checkpoint
 
 def get_cached_student_checkpoint(checkpoint, studentID, refresh = False):
   if checkpoint:
@@ -169,6 +104,18 @@ def get_cached_checkpoints(courseID, teacherID):
   if cached_checkpoints == []:
     cached_checkpoints = None
   return cached_checkpoints
+
+def get_checkpoint_id_list(courseID, teacherID):
+  cache_key = "checkpoint_list_for:%s_%s" % (courseID, teacherID)
+  cached_id_list = memcache.get(cache_key)
+  if not cached_id_list:
+    cached_id_list = []
+    course = get_cached_course(courseID, teacherID)
+    course_checkpoints = get_course_checkpoints(course.course)
+    for checkpoint in course_checkpoints:
+      cached_id_list.append(str(checkpoint.key.id()))
+    memcache.set(cache_key, cached_id_list)
+  return cached_id_list
 
 def get_cached_course(courseID, teacherID, refresh=False):
   cache_key = "course:%s_%s" % (teacherID, courseID)
@@ -197,6 +144,43 @@ def get_cached_user_courses(user):
       return None
   else:
     return None
+
+def delete_cached_course(courseID, teacherID):
+  cache_key = "html_course:%s_%s" % (teacherID, courseID)
+  memcache.delete(cache_key)
+
+def delete_cached_teacher_requests(courseID, teacherID):
+  cache_key = "teacher_requests:%s_%s" % (courseID, teacherID)
+  memcache.delete(cache_key)
+
+def delete_cached_checkpoint(checkpointID, courseID, teacherID):
+  cache_key = "checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
+  memcache.delete(cache_key)
+  delete_cached_html_page("html_%s" % cache_key)
+
+def delete_cached_student_checkpoint(checkpointID, studentID, courseID, teacherID):
+  cache_key = "checkpoint:%s_%s_%s_%s" % (teacherID, courseID, checkpointID, studentID)
+  memcache.delete(cache_key)
+
+def delete_all_cached_checkpoints(courseID, teacherID):
+  cached_id_list = get_checkpoint_id_list(courseID, teacherID)
+  logging.info(cached_id_list)
+  for checkpointID in cached_id_list:
+    delete_cached_checkpoint(checkpointID, courseID, teacherID)
+
+def delete_cached_student_requests(courseID, studentID, teacherID):
+  cache_key = "student_requests:%s_%s_%s" % (courseID, teacherID, studentID)
+  memcache.delete(cache_key)
+
+def get_cached_html_page(cache_key):
+  cached_template = memcache.get(cache_key)
+  if cached_template:
+    return cached_template
+  else:
+    return None
+
+def delete_cached_html_page(cache_key):
+  memcache.delete(cache_key)
 
 
 

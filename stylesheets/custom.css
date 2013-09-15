@@ -536,7 +536,11 @@ fieldset[disabled] .btn-primary.active {
   color: #fff
 }
 
-
+.btn-mini-award {
+  padding: 0px !important;
+  width: 3.5em;
+  text-align: center
+}
 
 
 .mobile-course-action-pane .btn {

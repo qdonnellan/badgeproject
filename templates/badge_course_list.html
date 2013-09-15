@@ -2,47 +2,47 @@
   <ul class="nav nav-tabs">
     {% for course in courses %}
     <li 
-      {% if active_course ==  '' ~ course.course.key.id() %} class="active"
+      {% if active_course ==  '' ~ course.key.id() %} class="active"
       {% elif not active_course and loop.first %} class="active"
       {% endif%}
       >
-      <a href="#badge_course_{{course.course.key.id()}}" data-toggle="tab">{{course.name}}</a>
+      <a href="#badge_course_{{course.key.id()}}" data-toggle="tab">{{course.name}}</a>
     </li>
     {% endfor %}
   </ul>
   <div class="tab-content">
     {% for course in courses %}
       <div class="tab-pane fade 
-        {% if active_course == '' ~ course.course.key.id() %}in active 
+        {% if active_course == '' ~ course.key.id() %}in active 
         {% elif not active_course and loop.first %}in active
-        {% endif %}" id="badge_course_{{course.course.key.id()}}">
+        {% endif %}" id="badge_course_{{course.key.id()}}">
         
-        {% set registrations = course.registrations %}
-        {% if course.enrolled_students %}
+        {% set registrations = get_registered_students(course) %}
+        
         <br>
-        {% set section_string = get_section_string(course.course) %}
+        {% set section_string = get_section_string(course) %}
         <div class="btn-group section-group section-toggle-group">
-          <button class="btn btn-info section-toggle-button {% if not active_section or active_section == 'all' %}active{% endif %}" data-toggle="tab" href="#all_{{course.course.key.id()}}_sections">All Sections</button>
+          <button class="btn btn-info section-toggle-button {% if not active_section or active_section == 'all' %}active{% endif %}" data-toggle="tab" href="#all_{{course.key.id()}}_sections">All Sections</button>
           {% for number in section_string %}
-            <button class="btn btn-info section-toggle-button {%if active_section == number %}active{% endif %}" data-toggle="tab" href="#{{course.course.key.id()}}_section_{{number}}">{{number}}</button>
+            <button class="btn btn-info section-toggle-button {%if active_section == number %}active{% endif %}" data-toggle="tab" href="#{{course.key.id()}}_section_{{number}}">{{number}}</button>
           {% endfor %}
         </div>
         
           <div class="tab-content">
-            <div class="tab-pane fade {% if not active_section or active_section == 'all' or active_section not in section_string %}in active{% endif %}" id="all_{{course.course.key.id()}}_sections">
+            <div class="tab-pane fade {% if not active_section or active_section == 'all' or active_section not in section_string %}in active{% endif %}" id="all_{{course.key.id()}}_sections">
               {% set current_section = 'all' %}
               {% include 'badge_section_tab.html' %}
               
             </div>
             {% for number in section_string %}
-              <div class="tab-pane fade {%if active_section == number %}in active{% endif %}" id="{{course.course.key.id()}}_section_{{number}}">
+              <div class="tab-pane fade {%if active_section == number %}in active{% endif %}" id="{{course.key.id()}}_section_{{number}}">
                 {% set current_section = number %}
                 {% include 'badge_section_tab.html' %}
                 
               </div>
             {% endfor %}
           </div>
-        {% endif %}
+        
       </div>
     {% endfor %}
   </div>

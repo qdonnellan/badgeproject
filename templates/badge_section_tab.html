@@ -12,11 +12,11 @@
       {% if (registration.section == current_section) or (current_section == 'all') %}
         {% if registration.status == 'approved' %}
           {% set student = registration.student %}
-          {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
+          {% set current_achievement_status = achievement_status(student, badge, teacher, course) %}
             <tr>
               <td>
-                <a href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view">
-                  {{student.formalName}}
+                <a href="/student_badge/{{student.key.id()}}/{{course.key.id()}}/{{badge.key.id()}}/teacher_view">
+                  {{student.name}}
                 </a>
               </td>
               <td>{{registration.section}}</td>
@@ -34,14 +34,13 @@
                 {% endif %}
               </td>
               <td>
-                {% if current_achievement_status != 'awarded' %}
-                  <a class="btn-loading btn btn-success btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/awarded?single_badge=true&active_section={{current_section}}">award</a>
-                  {% if current_achievement_status == 'requested' %}
-                    <a class="btn-loading btn btn-danger btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/denied?single_badge=true&active_section={{current_section}}">deny</a>
-                  {% endif %}
-                {% else %}
-                  <a class="btn-loading btn btn-warning btn-small" href="/student_badge/{{student.key.id()}}/{{course.course.key.id()}}/{{badge.key.id()}}/teacher_view/award/revoked?single_badge=true&active_section={{current_section}}">revoke</a>
-                {% endif %}
+                {% set studentID = student.key.id() %}
+                {% set courseID = course.key.id() %}
+                {% set badgeID = badge.key.id() %}
+                
+                <div class="badge-actions">
+                  {% include 'badge_actions.html' %}
+                </div>
               </td>
             </tr>
         {% endif %}

@@ -127,16 +127,16 @@
       {% if courses %}
         {% for course in courses %}
           <h3>{{course.name}}</h3>
-          <div id="checkpoint_course_{{course.course.key.id()}}">
-          {% set checkpoints = get_cached_checkpoints(course.course.key.id(), local_user.key.id())%}
+          <div id="checkpoint_course_{{course.key.id()}}">
+          {% set checkpoints = get_course_checkpoints(course) %}
           {% if checkpoints %}
             {% for checkpoint in checkpoints %}
               <div class="checkbox">
                 <label>
                   <input type="checkbox" 
-                    {% if (badge.checkpoints and course.course.key.id() ~ '_' ~ checkpoint.checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.checkpoint.key.id() and courseID == course.course.key.id()) %}
+                    {% if (badge.checkpoints and course.key.id() ~ '_' ~ checkpoint.key.id() in badge.checkpoints) or (checkpointID == checkpoint.key.id() and courseID == course.key.id()) %}
                       checked
-                    {% endif %} value="{{course.course.key.id()}}_{{checkpoint.checkpoint.key.id()}}" name="checkpoint_options">
+                    {% endif %} value="{{course.key.id()}}_{{checkpoint.key.id()}}" name="checkpoint_options">
                     {{checkpoint.name}}
                 </label>
               </div>

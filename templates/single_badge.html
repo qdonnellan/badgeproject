@@ -17,7 +17,7 @@
           <p><span class="text-muted">Associated with the following checkpoints: </span></p>
           {% for checkpoint in badge_checkpoints %}
             {% if checkpoint %}
-            <p><a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().course_name}}, {{checkpoint.name}} </a></p>
+            <p><a href="/course/{{checkpoint.key.parent().get().key.id()}}/checkpoint/{{checkpoint.key.id()}}">{{checkpoint.key.parent().get().name}}, {{checkpoint.name}} </a></p>
             {% endif %}
           {% endfor %}
           
@@ -30,24 +30,22 @@
       {% if teacher_view_student_badge %}
       <div class="callout callout-checkpoint">
         {% if achievement_status =='requested' %}
-          <p><strong>{{student.formalName}}</strong> has requested this badge</p>
+          <p><strong>{{student.name}}</strong> has requested this badge</p>
         {% elif achievement_status =='denied' %}
-          <p>You denied the badge request from <strong>{{student.formalName}}</strong></p>
+          <p>You denied the badge request from <strong>{{student.name}}</strong></p>
         {% elif achievement_status =='revoked' %}
-          <p>You revoked this badge from <strong>{{student.formalName}}</strong></p>
+          <p>You revoked this badge from <strong>{{student.name}}</strong></p>
         {% elif achievement_status =='awarded' %}
-          <p>You awarded <strong>{{student.formalName}}</strong> this badge</p>
+          <p>You awarded <strong>{{student.name}}</strong> this badge</p>
         {% else %}
-          <p><strong>{{student.formalName}}</strong> has not yet recieved this badge</p>
+          <p><strong>{{student.name}}</strong> has not yet recieved this badge</p>
         {% endif %}
-        {% if achievement_status != 'awarded' %}
-          <a class="btn btn-success btn-loading" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/awarded">Award Badge</a>
-        {% else %}
-          <a class="btn btn-danger btn-loading" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/revoked">Revoke Badge</a>
-        {% endif %}
-        {% if achievement_status == 'requested' %}
-          <a class="btn btn-danger btn-loading" href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view/award/denied">Deny Request</a>
-        {% endif %}
+        {% set studentID = student.key.id() %}
+        {% set badgeID = badge.key.id() %}
+        {% set current_achievement_status = achievement_status %}
+        <div class="badge-actions">
+          {% include 'badge_actions.html' %}
+        </div>
       </div>
       {% endif %}
      
@@ -60,9 +58,9 @@
             <blockquote {% if item.teacher %}class="pull-right teacher-quote"{% else %}class="student-quote pull-left"{% endif %}>
               <p>{{item.content}}</p>
               {% if item.teacher %}
-                <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.teacher.formalName}}</cite></small>
+                <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.key.parent().get().name}}</cite></small>
               {% else %}
-                <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.formalName}}</cite></small>
+                <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.name}}</cite></small>
               {% endif %}
             </blockquote>
           </div>
@@ -102,18 +100,16 @@
             <p>You have not yet been awarded this badge</p>
           {% endif %}
         </div>
-          {% if achievement_status not in ['requested', 'approved'] %}
-            <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
-          {% endif %}
+          
         {% endif %}
         
         {% if teacher_view_student_badge or student_badge %}
           <h4>Add Comment</h4>
           {% if teacher_view_student_badge %}
-            <p class="text-muted">Give your student a reason for approving or denying their badge request, or respond to previous comments the student has made on this page.</p>
+            <p class="text-muted">Give your student a reason for approving or removing this badge, or respond to previous comments the student has made on this page.</p>
           {% endif %}
           {% if student_badge %}
-            <p>In addition you simply requesting this badge, you may wish to include why you think you deserve this badge</p>
+            <p>You may wish to include why you think you deserve this badge</p>
           {% endif %}
           <form method="post">
             <textarea class="form-control" rows="10" name="content"></textarea>
@@ -163,7 +159,7 @@
       </div>
 
       <div class="col-12">
-        <h3>{{student.formalName}}</h3>
+        <h3>{{student.name}}</h3>
         {% if achievement_status =='requested' %}
           <p class="lead">Student has requested this badge</p>
         {% elif achievement_status =='denied' %}
@@ -194,14 +190,11 @@
         {% elif achievement_status =='requested' %}
           <p>You have requested this badge</p>
         {% elif achievement_status =='denied' %}
-          <p>Your request has been denied</p>
-          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+          <p>Your request has been denied</p>\
         {% elif achievement_status =='revoked' %}
-          <p>Your badge has been revoked</p>
-          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
+          <p>Your badge has been revoked</p>\
         {% else %}
           <p>You have not yet been awarded this badge</p>
-          <a href="/request_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}" class="btn-loading btn btn-primary btn-block">Request This Badge</a>
         {% endif %}
       </div>
     {% endif %}
@@ -225,9 +218,9 @@
           <blockquote {% if item.teacher %}class="pull-right teacher-quote"{% else %}class="student-quote pull-left"{% endif %}>
             <p>{{item.content}}</p>
             {% if item.teacher %}
-              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.teacher.formalName}}</cite></small>
+              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{course.teacher.name}}</cite></small>
             {% else %}
-              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.formalName}}</cite></small>
+              <small>{{get_local_time(item.created)}}, <cite title="Source Title">{{student.name}}</cite></small>
             {% endif %}
           </blockquote>
         </div>
@@ -258,10 +251,10 @@
             {% for registration in registrations %}
               {% if registration.status == 'approved' %}
                 {% set student = registration.student %}
-                {% set current_achievement_status = achievement_status(student, badge, teacher, course.course) %}
+                {% set current_achievement_status = achievement_status(student, badge, teacher, course) %}
                 <tr>
                   <td class="col-8 mobile-table-left">
-                    <h4>{{student.formalName}}</h4>
+                    <h4>{{student.name}}</h4>
                     <p class="text-muted">Badge Status: {{current_achievement_status }} </p>
                   </td>
                   <td class="col-4 mobile-table-right">
