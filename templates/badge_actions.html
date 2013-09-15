@@ -1,0 +1,9 @@
+{% import 'common.html' as common %}
+{% if current_achievement_status != 'awarded' %}
+  {{ common.award_badge_btn('award', studentID = studentID, badgeID = badgeID, courseID = courseID) }}
+{% else %}
+  {{ common.award_badge_btn('revoke', studentID = studentID, badgeID = badgeID, courseID = courseID)  }}
+{% endif %}
+{% if current_achievement_status == 'requested' %}
+  {{ common.award_badge_btn('deny', studentID = studentID, badgeID = badgeID, courseID = courseID)  }}
+{% endif %}

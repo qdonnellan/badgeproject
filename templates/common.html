@@ -1,0 +1,32 @@
+
+{% macro award_badge_btn(action, badgeID, courseID, studentID) %}
+  <form action="/ajax/award_badge" method="post" class="badge-award-form">
+    <input type="hidden" name="action" value="{{action}}">
+    <input type="hidden" name="student_id" value="{{studentID}}">
+    <input type="hidden" name="course_id" value="{{courseID}}">
+    <input type="hidden" name="badge_id" value="{{badgeID}}">
+    <button class="submit btn {% if action == 'award' %}btn-success{% else %}btn-danger{% endif %}" type="submit">
+      {% if action == 'award' %}
+        Award Badge
+      {% elif action == 'revoke' %}
+        Revoke Badge
+      {% elif action == 'deny' %}
+        Deny Request
+      {% endif %}
+    </button>
+  </form>
+{% endmacro %}
+
+{% macro section_number_list(courseID, studentID, section_number) %}
+  {% for number in '12345678' %}
+    <form action="/ajax/change_section" method="post" class="change-section-form pull-left">
+      <input type="hidden" name="section_number" value = "{{number}}">
+      <input type="hidden" name="student_id" value="{{studentID}}">
+      <input type="hidden" name="course_id" value="{{courseID}}">
+      <button class="btn {% if section_number == number %}btn-default{% else %}btn-link{% endif %} btn-small">
+        {{ number }}
+      </button>
+    </form>
+  {% endfor %}
+{% endmacro %}
+
