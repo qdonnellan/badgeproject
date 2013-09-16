@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+from google.appengine.api import memcache
 import logging
 from operator import attrgetter
 import re
@@ -240,7 +241,6 @@ def get_student(studentID):
 def get_teacher(teacherID):
   return ndb.Key(User, int(teacherID)).get()
 
-
 def edit_badge(teacher, icon, icon_color, border_color, background, name, requirement, value, checkpoints, badgeID = None):
   if value.isdigit():
     value = int(value)
@@ -277,10 +277,7 @@ def edit_badge(teacher, icon, icon_color, border_color, background, name, requir
       )
     key = the_badge.put()
     badgeID = key.id()
-
   return badgeID
-
-  
 
 def get_badge(teacher=None, badgeID = None):
   logging.info("start get_badge")
@@ -370,7 +367,6 @@ def edit_achievement(student, badge, teacher, course):
   else:
     new_achievement(student, teacher, badge, course, "requested")
 
-
 def achievement_status(student, badge, teacher, course):
   the_achievement = fetch_achievement(student, badge, teacher, course)
   if the_achievement:
@@ -386,54 +382,6 @@ def badge_achieved(badge, course, student):
   else:
     return False
 
-def get_number_of_badge_requests(course, indiv_student=None, denied_on = False):
-  logging.info('start get_number_of_badge_requests')
-  if course:
-    teacher = course.key.parent().get()
-    badges = get_all_badges(teacher)
-    total = 0
-    for badge in badges:
-      if indiv_student:
-        possible_achievement = achievement_status(indiv_student, badge, teacher, course)
-        if possible_achievement == 'requested':
-          total += 1
-        if denied_on and possible_achievement == 'denied':
-          total += 1
-      else:
-        students = get_enrolled_students(course)
-        for student in students:
-          possible_achievement = achievement_status(student, badge, teacher, course)
-          if possible_achievement == 'requested':
-            total += 1
-    logging.info('end get_number_of_badge_requests')
-    return total
-
-
-def get_badge_requests(course, indiv_student=None):
-  logging.info('start get_badge_requests')
-  if course:
-    teacher = course.key.parent().get()
-    badges = get_all_badges(teacher)
-    all_requests = []
-    for badge in badges:
-      if indiv_student:
-        possible_achievement = fetch_achievement(indiv_student, badge, teacher, course)
-        if possible_achievement:
-          all_requests.append(possible_achievement)
-      else:
-        students = get_enrolled_students(course)
-        for student in students:
-          possible_achievement = fetch_achievement(student, badge, teacher, course)
-          if possible_achievement:
-            all_requests.append(possible_achievement)
-    if all_requests == []:
-      logging.info('end get_badge_requests')
-      return None
-    else:
-      logging.info('end get_badge_requests')
-      return all_requests
-
-
 def user_is_teacher(course, user):
   if user.teacher:
     if user.key.id() == course.key.parent().get().key.id():
@@ -445,33 +393,46 @@ def user_is_teacher(course, user):
 
 def get_checkpoint_percent_completion(studentID, checkpoint):
   logging.info('start get_checkpoint_percent_completion')
-  total_possible_points = 0
-  student_points = 0
+  studentID = str(studentID)
   course = checkpoint.key.parent().get()
-  student = get_student(studentID)
-  for badge in get_checkpoint_badges(checkpoint):
-    checkpoint_key = "%s_%s" % (course.key.id(), checkpoint.key.id())
-    if badge.checkpoints and (checkpoint_key in badge.checkpoints):
+  teacher = course.key.parent().get()
+  cache_key = 'percent_complete_dict:%s_%s_%s' % (teacher.key.id(), course.key.id(), checkpoint.key.id())
+  percent_complete_dict = memcache.get(cache_key)
+  if not percent_complete_dict:
+    percent_complete_dict = {}
+  if studentID in percent_complete_dict:
+    percent_complete = percent_complete_dict[studentID]
+  else:
+    total_possible_points = 0
+    student_points = 0
+    student = get_student(studentID)
+    for badge in get_checkpoint_badges(checkpoint):
       total_possible_points += badge.value
       if achievement_status(student, badge, course.key.parent().get(), course) == 'awarded':
         student_points += badge.value
-
-  if total_possible_points == 0:
-    raw_score = 0
-  else:
-    raw_score = (100.0 * student_points) / total_possible_points
-  rounded_score = int(raw_score)
+    if total_possible_points == 0:
+      raw_score = 0
+    else:
+      raw_score = (100.0 * student_points) / total_possible_points
+    percent_complete = int(raw_score)
+    percent_complete_dict[studentID] = percent_complete
+    memcache.set(cache_key, percent_complete_dict)
   logging.info('end get_checkpoint_percent_completion')
-  return rounded_score
+  return percent_complete
 
 def get_checkpoint_badges(checkpoint):
   logging.info('start get_checkpoint_badges')
-  teacher = checkpoint.key.parent().get().key.parent().get()
-  all_teacher_badges = get_all_badges(teacher)
-  badges = []
-  for badge in all_teacher_badges:
-    if badge_in_checkpoint(badge, checkpoint):
-      badges.append(badge)
+  course = checkpoint.key.parent().get()
+  teacher = course.key.parent().get()
+  cache_key = "badges_for_checkpoint:%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.key.id())
+  badges = memcache.get(cache_key)
+  if not badges:
+    all_teacher_badges = get_all_badges(teacher)
+    badges = []
+    for badge in all_teacher_badges:
+      if badge_in_checkpoint(badge, checkpoint):
+        badges.append(badge)
+    memcache.set(cache_key, badges)
   logging.info('end get_checkpoint_badges')
   return badges
 
@@ -484,7 +445,7 @@ def badge_in_checkpoint(badge, checkpoint):
     return False
 
 def get_total_number_notifications(course):
-  return  get_number_of_badge_requests(course) + get_number_of_pending_registrations(course)
+  return  get_number_of_pending_registrations(course)
 
 def get_checkpoints_for_badge(badge, user):
   if badge:

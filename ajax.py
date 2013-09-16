@@ -58,13 +58,10 @@ class ajaxBadgeHandler(MainHandler):
           course = course,
           status = status
           )
-        delete_cached_teacher_requests(courseID, teacherID)
-        for checkpoint in get_checkpoints_for_badge(badge, teacher):
-          delete_cached_checkpoint(checkpoint.key.id(), courseID, teacherID)
-          delete_cached_student_checkpoint(checkpoint.key.id(), studentID, courseID, teacherID)
-        delete_cached_student_requests(courseID, studentID, teacherID)
-        delete_cached_course(courseID, teacherID)
-
+        for course_checkpoint_key in badge.checkpoints:
+          checkpointID = course_checkpoint_key.split('_')[1]
+          delete_cached_percent_completion(checkpointID ,courseID, teacherID, studentID)
+        
 class ajaxSectionHandler(MainHandler):
   def post(self):
     teacher = valid_user()

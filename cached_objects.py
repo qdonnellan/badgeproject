@@ -4,40 +4,6 @@ from operator import attrgetter
 from useful import valid_user
 
 
-
-class student_checkpoint_class():
-  def __init__(self, checkpoint, studentID):
-    self.badges = []
-    for badge in get_checkpoint_badges(checkpoint):
-      self.badges.append(student_badge_class(badge, checkpoint, studentID))
-    self.percent_complete = get_checkpoint_percent_completion(studentID, checkpoint)
-
-
-
-class request_class():
-  def __init__(self, request, teacher):
-    self.request = request
-    self.student = request.key.parent().get()
-    self.status = request.status
-    self.badge_id = request.badge_id
-    self.badge = get_badge(teacher, request.badge_id)
-    self.last_modified = request.last_modified.strftime("%d %B %Y")
-    self.last_modified_raw = request.last_modified
-
-class student_badge_class():
-  def __init__(self, badge, checkpoint, studentID):
-    self.badge = badge
-    self.icon_color = badge.icon_color
-    self.background = badge.background
-    self.icon = badge.icon
-    self.name = badge.name
-    self.requirement = badge.requirement
-    self.value = badge.value
-    course = checkpoint.key.parent().get()
-    student = get_student(studentID)
-    self.status = achievement_status(student, badge, course.key.parent().get(), course)
-
-
 def get_section_string(course):
   all_registrations = get_registered_students(course)
   sections = ''
@@ -57,8 +23,6 @@ def get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = False, refr
       memcache.set(cache_key, cached_checkpoint)
     if refresh_students:
       course = get_cached_course(courseID, teacherID)
-      for student in course.enrolled_students:
-        get_cached_student_checkpoint(cached_checkpoint, student.key.id(), refresh = True)
     return cached_checkpoint
 
 def get_cached_teacher_requests(courseID, teacherID, refresh = False):
@@ -76,24 +40,6 @@ def get_cached_student_requests(courseID, studentID, teacherID, refresh = False)
     cached_requests = course_requests_class(courseID, teacherID = teacherID, studentID = studentID)
     memcache.set(cache_key, cached_requests)
   return cached_requests
-
-def get_student_checkpoint(checkpoint, studentID):
-  logging.info('start get_student_checkpoint')
-  student_checkpoint = student_checkpoint_class(checkpoint, studentID)
-  logging.info('end get_student_checkpoint')
-  return student_checkpoint
-
-def get_cached_student_checkpoint(checkpoint, studentID, refresh = False):
-  if checkpoint:
-    course = checkpoint.checkpoint.key.parent().get()
-    teacher = course.key.parent().get()
-    cache_key = "checkpoint:%s_%s_%s_%s" % (teacher.key.id(), course.key.id(), checkpoint.checkpoint.key.id(), studentID)
-    cached_student_checkpoint = memcache.get(cache_key)
-    if refresh or not cached_student_checkpoint:
-      cached_checkpoint = get_cached_checkpoint(checkpoint.checkpoint, course.key.id(), teacher.key.id())
-      cached_student_checkpoint = student_checkpoint_class(cached_checkpoint, studentID)
-      memcache.set(cache_key, cached_student_checkpoint)
-    return cached_student_checkpoint
 
 def get_cached_checkpoints(courseID, teacherID):
   course = get_cached_course(courseID, teacherID)
@@ -154,13 +100,23 @@ def delete_cached_teacher_requests(courseID, teacherID):
   memcache.delete(cache_key)
 
 def delete_cached_checkpoint(checkpointID, courseID, teacherID):
-  cache_key = "checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
+  cache_key = "html_checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
   memcache.delete(cache_key)
-  delete_cached_html_page("html_%s" % cache_key)
+  cache_key = "badges_for_checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
+  memcache.delete(cache_key)
+  cache_key = 'percent_complete_dict:%s_%s_%s' % (teacherID, courseID, checkpointID)
+  memcache.delete(cache_key)
 
-def delete_cached_student_checkpoint(checkpointID, studentID, courseID, teacherID):
-  cache_key = "checkpoint:%s_%s_%s_%s" % (teacherID, courseID, checkpointID, studentID)
+def delete_cached_percent_completion(checkpointID, courseID, teacherID, studentID):
+  cache_key = "html_checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
   memcache.delete(cache_key)
+  cache_key = 'percent_complete_dict:%s_%s_%s' % (teacherID, courseID, checkpointID)
+  cached_dict = memcache.get(cache_key)
+  logging.info(cached_dict)
+  if cached_dict and str(studentID) in cached_dict:
+    del cached_dict[str(studentID)]
+    logging.info(cached_dict)
+    memcache.set(cache_key, cached_dict)
 
 def delete_all_cached_checkpoints(courseID, teacherID):
   cached_id_list = get_checkpoint_id_list(courseID, teacherID)

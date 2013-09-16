@@ -44,8 +44,10 @@ class badgeCreator(MainHandler):
         )
       checkpointID = self.request.get('checkpointID')
       courseID = self.request.get('courseID')
-      delete_cached_course(courseID, teacherID)
+      if courseID:
+        delete_cached_course(courseID, teacherID)
       if checkpointID and courseID:
+        delete_cached_checkpoint(checkpointID, courseID, teacherID)
         self.redirect('/course/%s#%s' % (courseID, checkpointID))
       else:
         self.redirect('/badge/%s' % badgeID)
@@ -207,9 +209,9 @@ class studentProfile(MainHandler):
           student_profile = True, 
           student = student,
           teacher = teacher,
-          get_student_checkpoint = get_student_checkpoint,
           get_checkpoint_badges = get_checkpoint_badges,
-          badge_achieved = badge_achieved
+          badge_achieved = badge_achieved,
+          get_checkpoint_percent_completion = get_checkpoint_percent_completion
           )
       else:
         self.write('You are not registered for this course...')
@@ -231,9 +233,9 @@ class teacherViewStudentProfile(MainHandler):
           get_badge = get_badge,
           teacher_view_student_profile = True,
           active_tab = self.request.get('active_tab'),
-          get_student_checkpoint = get_student_checkpoint,
           get_checkpoint_badges = get_checkpoint_badges,
-          badge_achieved = badge_achieved
+          badge_achieved = badge_achieved,
+          get_checkpoint_percent_completion = get_checkpoint_percent_completion
           )
 
 class studentBadge(MainHandler):
@@ -372,7 +374,7 @@ class singleCheckpoint(MainHandler):
           checkpoint = checkpoint, 
           badges = get_checkpoint_badges(checkpoint),
           registrations = get_registered_students(course),
-          percent_complete = get_checkpoint_percent_completion,
+          get_checkpoint_percent_completion = get_checkpoint_percent_completion,
           course= course,
           courseID = int(courseID), 
           checkpointID = int(checkpointID),
@@ -433,6 +435,10 @@ class awardMiniBadge(MainHandler):
         course = course,
         status = 'awarded'
         )
+      for course_checkpoint_key in badge.checkpoints:
+        checkpointID = course_checkpoint_key.split('_')[1]
+        logging.info(checkpointID)
+        delete_cached_percent_completion(checkpointID ,courseID, teacher.key.id(), studentID)
       self.redirect('/student_profile/%s/%s/teacher_view' % (studentID, courseID))
 
 app = webapp2.WSGIApplication([

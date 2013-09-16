@@ -8,7 +8,6 @@
     </tr>
   </thead>
   <tbody>
-    
     {% for registration in registrations %}
     {% if registration.section == current_section or (current_section == 'all') %}
       {% set student = registration.student %}
@@ -36,7 +35,7 @@
             </a>
           {% endfor %}
         </td>
-        <td class="hidden-sm"><h4>{{percent_complete(student.key.id(), checkpoint)}}%</h4></td>
+        <td class="hidden-sm"><h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4></td>
       </tr>
     {% endif %}
     {% endfor %}

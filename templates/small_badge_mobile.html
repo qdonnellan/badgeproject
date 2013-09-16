@@ -1,9 +1,9 @@
 <div class="badge-div pull-left">
   <div class="small-badge-mobile" data-placement="top">
     {% if student_profile %}
-      <a href="/student_badge/{{teacherID}}/{{courseID}}/{{badge.badge.key.id()}}">
+      <a href="/student_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}">
     {% elif teacher_view_student_profile %}
-      <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.badge.key.id()}}/teacher_view">
+      <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view">
     {% else %}
       <a href="/badge/{{badge.key.id()}}" >
     {% endif %}

@@ -238,7 +238,7 @@
           {% elif not active_course and loop.first %}in active
           {% endif %}" id="mobile_badge_course_{{courseID}}">
 
-          {% set registrations = course.registrations %}
+          {% set registrations = get_registered_students(course) %}
           <table class="table mobile-table">
             <tr>
               <td class="mobile-table-right mobile-break-row" colspan="2">
@@ -247,7 +247,7 @@
                 <a class="btn btn-info btn-block" href="/course/{{courseID}}">Course Home</a>
               </td>
             </tr>
-          {% if course.enrolled_students %}
+          {% if registrations %}
             {% for registration in registrations %}
               {% if registration.status == 'approved' %}
                 {% set student = registration.student %}

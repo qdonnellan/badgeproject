@@ -230,19 +230,14 @@
             <td class="col-9 mobile-table-left">
               <h4>{{checkpoint.name}}</h4>
               <p>{{checkpoint.description}}</p>
-              {% if not (student_profile or teacher_view_student_profile) %}
-                {% set badges = get_checkpoint_badges(checkpoint) %}
-              {% else %}
-                {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
-                {% set badges = student_checkpoint.badges %}
-              {% endif %}
+              {% set badges = get_checkpoint_badges(checkpoint) %}
               {% for badge in badges %}
                 {% include 'small_badge_mobile.html' %}
               {% endfor %}
             </td>
             <td class="col-3 mobile-table-right">
               {% if teacher_view_student_profile or student_profile %}
-                <h4>{{student_checkpoint.percent_complete}}%</h4>
+                <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
                 <p class="text-muted">complete</p>
               {% else %}
                 <a href="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>
@@ -257,19 +252,14 @@
               <td class="col-9 mobile-table-left">
                 <h4>{{checkpoint.name}}</h4>
                 <p>{{checkpoint.description}}</p>
-                {% if not (student_profile or teacher_view_student_profile) %}
-                  {% set badges = get_checkpoint_badges(checkpoint) %}
-                {% else %}
-                  {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
-                  {% set badges = student_checkpoint.badges %}
-                {% endif %}
+                {% set badges = get_checkpoint_badges(checkpoint) %}
                 {% for badge in badges %}
                   {% include 'small_badge_mobile.html' %}
                 {% endfor %}
               </td>
               <td class="col-3 mobile-table-right">
                 {% if teacher_view_student_profile or student_profile %}
-                  <h4>{{student_checkpoint.percent_complete}}%</h4>
+                  <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
                   <p class="text-muted">complete</p>
                 {% else %}
                   <a href="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>

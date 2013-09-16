@@ -1,7 +1,7 @@
 <table class="table mobile-table">
-  {% for registration in course.registrations %}
+  {% for registration in registrations %}
     {% if registration.section == current_section or (current_section == 'all') %}
-      {% set student = registration.student %}
+      {% set student = get_student(registration.student_id) %}
       
       <tr>
         <td class="col-9 mobile-table-left">
@@ -25,7 +25,7 @@
           {% endfor %}
         </td>
         <td class="col-3 mobile-table-right">
-          <h4>{{percent_complete(student.key.id(), checkpoint)}}%</h4>
+          <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
           <a class="btn btn-info btn-block" href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">profile</a>
         </td>
       </tr>

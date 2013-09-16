@@ -9,8 +9,7 @@
   {% endif %}
 </div>
 {% if student_profile or teacher_view_student_profile %}
-  {% set student_checkpoint = get_student_checkpoint(checkpoint, student.key.id()) %}
-  {% set percent_complete = student_checkpoint.percent_complete %}
+  {% set percent_complete = get_checkpoint_percent_completion(student.key.id(), checkpoint) %}
   <div class="percent-complete-progress-bar col-9">
     <div class="progress progress-striped active">
       <div class="progress-bar {% if percent_complete == 100 %}progress-bar-success{% endif %}" style="width: {{percent_complete}}%"></div>
