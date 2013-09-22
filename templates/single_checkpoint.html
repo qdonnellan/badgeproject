@@ -1,7 +1,10 @@
 {% extends 'user_base.html' %}
-
-
+    
 {% block body %}
+
+{% set badges = checkpoint.badges %}
+{% if not badges %}{% set badges = [] %}{% endif %}
+
 <div class="hidden-sm container">
   <div class="row">
     <div class="page-header">

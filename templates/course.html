@@ -227,48 +227,14 @@
       {% for checkpoint in checkpoints %}
         {% if checkpoint.featured %}
           <tr class="mobile-checkpoint-featured">
-            <td class="col-9 mobile-table-left">
-              <h4>{{checkpoint.name}}</h4>
-              <p>{{checkpoint.description}}</p>
-              {% set badges = checkpoint.badges %}
-              {% if not badges %}{% set badges = [] %}{% endif %}
-              {% for badgeID in badges %}
-                {% set badge = badges[badgeID] %}
-                {% include 'small_badge_mobile.html' %}
-              {% endfor %}
-            </td>
-            <td class="col-3 mobile-table-right">
-              {% if teacher_view_student_profile or student_profile %}
-                <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
-                <p class="text-muted">complete</p>
-              {% else %}
-                <a href="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>
-              {% endif %}
-            </td>
+            {% include 'checkpoint_panel_mobile.html' %}
           </tr>
         {% endif %}
         {% endfor %}
         {% for checkpoint in checkpoints %}
           {% if not checkpoint.featured %}
             <tr class="mobile-checkpoint">
-              <td class="col-9 mobile-table-left">
-                <h4>{{checkpoint.name}}</h4>
-                <p>{{checkpoint.description}}</p>
-                {% set badges = checkpoint.badges %}
-                {% if not badges %}{% set badges = [] %}{% endif %}
-                {% for badgeID in badges %}
-                  {% set badge = badges[badgeID] %}
-                  {% include 'small_badge_mobile.html' %}
-                {% endfor %}
-              </td>
-              <td class="col-3 mobile-table-right">
-                {% if teacher_view_student_profile or student_profile %}
-                  <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
-                  <p class="text-muted">complete</p>
-                {% else %}
-                  <a href="/course/{{course.key.id()}}/checkpoint/{{checkpoint.key.id()}}" class="btn btn-info btn-block">view</a>
-                {% endif %}
-              </td>
+              {% include 'checkpoint_panel_mobile.html' %}
             </tr>
           {% endif %}
       {% endfor %}

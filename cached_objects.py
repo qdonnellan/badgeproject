@@ -70,6 +70,7 @@ def get_cached_user_courses(user):
   else:
     return None
 
+
 def delete_cached_course(courseID, teacherID):
   cache_key = "html_course:%s_%s" % (teacherID, courseID)
   memcache.delete(cache_key)

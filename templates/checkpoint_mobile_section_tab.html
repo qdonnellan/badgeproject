@@ -1,14 +1,25 @@
 <table class="table mobile-table">
   {% for registration in registrations %}
-    {% if registration.section == current_section or (current_section == 'all') %}
-      {% set student = get_student(registration.student_id) %}
+    {% if registration.section == current_section or (current_section == 'none') %}
+
+      {% set student = registration.student %}
+      {% set progress = checkpoint.progress %}
+      {% if registration.student_id in progress %}
+        {% set student_progress = progress[registration.student_id] %}
+        {% set percent_complete = student_progress['percent_complete'] %}
+      {% else %}
+        {% set student_progress = none %}
+        {% set percent_complete = 0 %}
+      {% endif %}
+
       
       <tr>
         <td class="col-9 mobile-table-left">
           <h4>{{student.name}}</h4>
-          {% for badge in badges %}
+          {% for badgeID in badges %}
+          {% set badge = badges[badgeID] %}
             <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badgeID}}/teacher_view">
-              {% if badge_achieved(badge, course, student) %}
+              {% if student_progress and student_progress[badgeID] == 'awarded' %}
                 <div class="small-badge-mobile pull-left">
                   <div class="badge-new" style="background: {{badge['background']}}; color: {{badge['icon_color']}}">
                     <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
@@ -25,7 +36,7 @@
           {% endfor %}
         </td>
         <td class="col-3 mobile-table-right">
-          <h4>{{get_checkpoint_percent_completion(student.key.id(), checkpoint)}}%</h4>
+          <h4>{{percent_complete}}%</h4>
           <a class="btn btn-info btn-block" href="/student_profile/{{student.key.id()}}/{{courseID}}/teacher_view">profile</a>
         </td>
       </tr>

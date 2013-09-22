@@ -24,6 +24,7 @@ class Checkpoint(ndb.Model):
   description = ndb.TextProperty(required = False)
   featured = ndb.BooleanProperty(default = False)
   badges = ndb.JsonProperty(required = False)
+  progress = ndb.JsonProperty(required = False)
 
 class Registrations(ndb.Model):
   student_id = ndb.StringProperty(required = True)
@@ -141,13 +142,19 @@ def register_for_course(student, teacher, course_code):
 def get_course_by_code(teacher, course_code):
   return Course.query(Course.code == course_code, ancestor = teacher.key).get()
 
-def edit_registration(courseID, teacher, studentID, action):
+def edit_registration(courseID, teacher, studentID, action, new=False):
   course = existing_course(courseID, teacher)
   if course:
     registration_object = Registrations.query(Registrations.student_id == studentID, ancestor = course.key).get()
     if registration_object:
       registration_object.status = action
       registration_object.put()
+
+    if new:
+      for checkpoint in get_course_checkpoints(course):
+        checkpointID = checkpoint.key.id()
+        teacherID = teacher.key.id()
+        update_checkpoint_progress(studentID, 'init_progress', checkpointID, courseID, teacherID, 'blank')
 
 def change_section_number(course, studentID, section_number):
   if course:
@@ -172,7 +179,7 @@ class registered_student_class():
       self.section = '0'
     else:
       self.section = registration_entry.section
-    self.student_id = registration_entry.student_id
+    self.student_id = str(registration_entry.student_id)
     formalName = self.student.name
     if ' ' in formalName:
       last_name = formalName.split(' ')[-1]
@@ -319,11 +326,9 @@ def add_badge_to_checkpoint(badgeID, checkpointID, courseID, teacherID):
   if not badges:
     badges = {}
   badges[badgeID] = badge_dict
-  logging.info(badge_dict['icon_color'])
   checkpoint.badges = badges
   checkpoint.put()
-  logging.info('hey mom I made it here!!!!')
-  logging.info(checkpoint.badges)
+  logging.info('just added this badge')
 
 def remove_badge_from_checkpoint(badgeID, checkpointID, courseID, teacherID):
   teacher = get_teacher(teacherID)
@@ -336,6 +341,64 @@ def remove_badge_from_checkpoint(badgeID, checkpointID, courseID, teacherID):
   checkpoint.badges = badges
   checkpoint.put()
 
+def update_checkpoint_progress(studentID, badgeID, checkpointID, courseID, teacherID, new_progress):
+  teacher = get_teacher(teacherID)
+  course = existing_course(courseID, teacher)
+  checkpoint = get_single_checkpoint(course, checkpointID)
+  progress = checkpoint.progress
+  if not progress:
+    progress = {}
+  if studentID in progress:
+    student_progress = progress[studentID]
+  else:
+    student_progress = {}
+  student_progress[badgeID] = new_progress
+  progress[studentID] = student_progress
+
+  #calculate the percent completion for this student
+  total_value = 0
+  student_value = 0
+  for badgeID in checkpoint.badges:
+    badge_value = checkpoint.badges[badgeID]['value']
+    total_value += badge_value
+    if badgeID in student_progress:
+      if student_progress[badgeID] == 'awarded':
+        student_value += badge_value
+  if total_value == 0:
+    percent = 0
+  else:
+    percent = (100.0 * student_value) / total_value
+  student_progress['percent_complete'] = int(percent)
+  progress[studentID] = student_progress
+
+  checkpoint.progress = progress
+  checkpoint.put()
+
+def update_percent_completions(checkpointID, courseID, teacherID):
+  teacher = get_teacher(teacherID)
+  course = existing_course(courseID, teacher)
+  checkpoint = get_single_checkpoint(course, checkpointID)
+  progress = checkpoint.progress
+  for studentID in progress:
+    student_progress = progress[studentID]
+    total_value = 0
+    student_value = 0
+    for badgeID in checkpoint.badges:
+      badge_value = checkpoint.badges[badgeID]['value']
+      total_value += badge_value
+      if badgeID in student_progress:
+        if student_progress[badgeID] == 'awarded':
+          student_value += badge_value
+    if total_value == 0:
+      percent = 0
+    else:
+      percent = (100.0 * student_value) / total_value
+    student_progress['percent_complete'] = int(percent)
+    progress[studentID] = student_progress
+
+  checkpoint.progress = progress
+  checkpoint.put()
+
 def get_all_badges(teacher):
   return Badge.query(ancestor = teacher.key).order(Badge.name)
 
@@ -344,7 +407,12 @@ def create_new_checkpoint(name, description, course, featured):
     featured = True
   else:
     featured = False
-  new_checkpoint = Checkpoint(name= name, description = description, featured = featured, parent = course.key)
+  new_checkpoint = Checkpoint(
+    name= name, 
+    description = description, 
+    featured = featured, 
+    progress = {},
+    parent = course.key)
   new_checkpoint.put()
 
 def update_checkpoint(name, description, course, checkpointID, featured):

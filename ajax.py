@@ -59,8 +59,8 @@ class ajaxBadgeHandler(MainHandler):
           status = status
           )
         for course_checkpoint_key in badge.checkpoints:
-          checkpointID = course_checkpoint_key.split('_')[1]
-          delete_cached_percent_completion(checkpointID ,courseID, teacherID, studentID)
+          courseID, checkpointID = course_checkpoint_key.split('_')
+          update_checkpoint_progress(studentID, badgeID, checkpointID, courseID, teacherID, status)
         
 class ajaxSectionHandler(MainHandler):
   def post(self):

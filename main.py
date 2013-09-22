@@ -7,7 +7,6 @@ from database import *
 from ajax import *
 from useful import valid_user
 from cached_objects import *
-import json
 
 class badgeCreator(MainHandler):
   def get(self, badgeID=None):
@@ -56,15 +55,19 @@ class badgeCreator(MainHandler):
           old_courseID, old_checkpointID = old_checkpoint_key.split('_')
           remove_badge_from_checkpoint(badgeID, old_checkpointID, old_courseID, teacherID)
 
-      #add badge to new checkpoints in applicable
+      #add badge to new checkpoints if applicable
       for checkpoint_key in checkpoint_keys:
         courseID, checkpointID = checkpoint_key.split('_')
-        if courseID:
-          delete_cached_course(courseID, teacherID)
-        if checkpointID and courseID:
-          delete_cached_checkpoint(checkpointID, courseID, teacherID)
-          add_badge_to_checkpoint(badgeID, checkpointID, courseID, teacherID)
-          self.redirect('/course/%s#%s' % (courseID, checkpointID))
+        delete_cached_course(courseID, teacherID)
+        add_badge_to_checkpoint(badgeID, checkpointID, courseID, teacherID)
+
+        #update percent complete for every student affected by this badge
+        update_percent_completions(checkpointID, courseID, teacherID)
+
+      checkpointID = self.request.get('checkpointID')
+      courseID = self.request.get('courseID')
+      if courseID and checkpointID:
+        self.redirect('/course/%s#%s' % (courseID, checkpointID))
       else:
         self.redirect('/badge/%s' % badgeID)
 
@@ -135,6 +138,7 @@ class course(MainHandler):
         self.write(cached_html)
       else:
         course = existing_course(courseID, teacher)
+        checkpoints = get_course_checkpoints(course)
         raw_html = self.render('course.html', 
           course = course,
           registrations = get_registered_students(course),
@@ -143,7 +147,6 @@ class course(MainHandler):
           courseID = int(courseID),
           teacherID = int(teacherID),
           teacher = teacher,
-          json = json,
           active_tab = self.request.get('active_tab'))
         logging.info('start set memcache html course')
         memcache.set(html_cache_key, raw_html)
@@ -204,7 +207,7 @@ class register(MainHandler):
 class completeRegistration(MainHandler):
   def get(self, courseID, studentID, action):
     if valid_user():
-      edit_registration(courseID = courseID, teacher = valid_user(), action = action, studentID = studentID)
+      edit_registration(courseID = courseID, teacher = valid_user(), action = action, studentID = studentID, new=True)
       delete_cached_course(courseID, valid_user().key.id())
     self.redirect('/course/%s?active_tab=students' % courseID)
 
@@ -224,9 +227,7 @@ class studentProfile(MainHandler):
           student_profile = True, 
           student = student,
           teacher = teacher,
-          get_checkpoint_badges = get_checkpoint_badges,
-          badge_achieved = badge_achieved,
-          get_checkpoint_percent_completion = get_checkpoint_percent_completion
+          studentID = str(student.key.id()),
           )
       else:
         self.write('You are not registered for this course...')
@@ -243,14 +244,11 @@ class teacherViewStudentProfile(MainHandler):
           course = course,
           checkpoints = get_course_checkpoints(course),
           teacherID= int(teacherID), 
+          studentID = studentID,
           courseID = int(courseID),
           student = student,
-          get_badge = get_badge,
           teacher_view_student_profile = True,
           active_tab = self.request.get('active_tab'),
-          get_checkpoint_badges = get_checkpoint_badges,
-          badge_achieved = badge_achieved,
-          get_checkpoint_percent_completion = get_checkpoint_percent_completion
           )
 
 class studentBadge(MainHandler):
@@ -301,7 +299,7 @@ class teacherViewStudentBadge(MainHandler):
           teacher = teacher,
           teacherID = int(teacher.key.id()),
           get_checkpoints_for_badge = get_checkpoints_for_badge, 
-          evidence = get_evidence(badge, studentID)
+          evidence = get_evidence(badge, studentID),
           )
 
   def post(self, studentID, courseID, badgeID):
@@ -379,7 +377,7 @@ class singleCheckpoint(MainHandler):
       teacher = valid_user()
       teacherID = teacher.key.id()
       html_cache_key = "html_checkpoint:%s_%s_%s" % (teacherID, courseID, checkpointID)
-      cached_html = get_cached_html_page(html_cache_key)
+      cached_html = None #get_cached_html_page(html_cache_key)
       if cached_html:
         self.write(cached_html)
       else:
@@ -387,13 +385,10 @@ class singleCheckpoint(MainHandler):
         checkpoint = get_single_checkpoint(course, checkpointID)
         raw_html = self.render('single_checkpoint.html',  
           checkpoint = checkpoint, 
-          badges = get_checkpoint_badges(checkpoint),
           registrations = get_registered_students(course),
-          get_checkpoint_percent_completion = get_checkpoint_percent_completion,
-          course= course,
+          course = course,
           courseID = int(courseID), 
           checkpointID = int(checkpointID),
-          badge_achieved = badge_achieved,
           section_string = get_section_string(course)
           )
         memcache.set(html_cache_key, raw_html)
@@ -441,6 +436,7 @@ class awardMiniBadge(MainHandler):
   def get(self, badgeID, studentID, courseID):
     if valid_user():
       teacher = valid_user()
+      teacherID = teacher.key.id()
       course = existing_course(courseID, teacher)
       badge = get_badge(teacher,badgeID)
       new_achievement(
@@ -451,10 +447,28 @@ class awardMiniBadge(MainHandler):
         status = 'awarded'
         )
       for course_checkpoint_key in badge.checkpoints:
-        checkpointID = course_checkpoint_key.split('_')[1]
-        logging.info(checkpointID)
-        delete_cached_percent_completion(checkpointID ,courseID, teacher.key.id(), studentID)
+        courseID, checkpointID = course_checkpoint_key.split('_')
+        update_checkpoint_progress(studentID, badgeID, checkpointID, courseID, teacherID, 'awarded')
       self.redirect('/student_profile/%s/%s/teacher_view' % (studentID, courseID))
+
+class updateProgress(MainHandler):
+  def get(self):
+    if valid_user():
+      teacher = valid_user()
+      for course in get_user_courses(teacher):
+        all_students = get_registered_students(course)
+        if all_students:
+          for checkpoint in get_course_checkpoints(course):
+            for badgeID in checkpoint.badges:
+              badge = get_badge(teacher, badgeID)
+              for registration in all_students:
+                progress = checkpoint.progress
+                studentID = str(registration.student_id)
+                if studentID in progress:
+                  if badgeID not in progress[studentID]:
+                    student = registration.student
+                    status = achievement_status(student, badge, teacher, course)
+                    update_checkpoint_progress(studentID, badgeID, checkpoint.key.id(), course.key.id(), teacher.key.id(), status)
 
 app = webapp2.WSGIApplication([
   ('/badge_creator', badgeCreator),
@@ -482,6 +496,7 @@ app = webapp2.WSGIApplication([
   ('/course/(\w+)/new_checkpoint', newCheckpoint),
   ('/course/(\w+)/edit_checkpoint/(\w+)', editCheckpoint),
   ('/course/(\w+)', course),
+  #('/update_progress', updateProgress),
   ('/front', front),
   ('.*', home)
 ], debug=True)
