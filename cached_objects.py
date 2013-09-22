@@ -14,17 +14,6 @@ def get_section_string(course):
           sections += registration.section
   return sections
 
-def get_cached_checkpoint(checkpoint, courseID, teacherID, refresh = False, refresh_students = False):
-  if checkpoint:
-    cache_key = "checkpoint:%s_%s_%s" % (teacherID, courseID, checkpoint.key.id())
-    cached_checkpoint = memcache.get(cache_key)
-    if refresh or not cached_checkpoint:
-      cached_checkpoint = checkpoint_class(checkpoint)
-      memcache.set(cache_key, cached_checkpoint)
-    if refresh_students:
-      course = get_cached_course(courseID, teacherID)
-    return cached_checkpoint
-
 def get_cached_teacher_requests(courseID, teacherID, refresh = False):
   cache_key = "teacher_requests:%s_%s" % (courseID, teacherID)
   cached_requests = memcache.get(cache_key)
@@ -40,16 +29,6 @@ def get_cached_student_requests(courseID, studentID, teacherID, refresh = False)
     cached_requests = course_requests_class(courseID, teacherID = teacherID, studentID = studentID)
     memcache.set(cache_key, cached_requests)
   return cached_requests
-
-def get_cached_checkpoints(courseID, teacherID):
-  course = get_cached_course(courseID, teacherID)
-  course_checkpoints = get_course_checkpoints(course.course)
-  cached_checkpoints = []
-  for checkpoint in course_checkpoints:
-    cached_checkpoints.append(get_cached_checkpoint(checkpoint, courseID, teacherID))
-  if cached_checkpoints == []:
-    cached_checkpoints = None
-  return cached_checkpoints
 
 def get_checkpoint_id_list(courseID, teacherID):
   cache_key = "checkpoint_list_for:%s_%s" % (courseID, teacherID)

@@ -19,37 +19,38 @@
   <h1 class="percent-complete col-3">{{percent_complete}}%</h1>
 {% endif %}
 <div class="col-12 badge-bank">
-    {% set badges = get_checkpoint_badges(checkpoint) %}
-    {% for badge in badges %}
-      <div class="badge-div pull-left">
-        <div class="small-badge"  rel="tooltip" title="{{badge.name}} ({{badge.value}} points)" data-placement="top">
-          {% if student_profile %}
-            <a href="/student_badge/{{teacherID}}/{{courseID}}/{{badge.key.id()}}">
-          {% elif teacher_view_student_profile %}
-            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view">
-          {% else %}
-            <a href="/badge/{{badge.key.id()}}" >
-          {% endif %}
-            {% if (student_profile or teacher_view_student_profile) and badge_achieved(badge, course, student)%}
-              <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-              </div>
-            {% elif (student_profile or teacher_view_student_profile) %}
-              <div class="badge-new badge-grey">
-                <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-              </div>
+    {% set badges = checkpoint.badges %}
+    {% if not badges %}{% set badges = [] %}{% endif %}
+    {% for badgeID in badges %}
+      {% set badge = badges[badgeID] %}
+        <div class="badge-div pull-left">
+          <div class="small-badge"  rel="tooltip" title="{{badge['name']}} ({{badge['value']}} points)" data-placement="top">
+            {% if student_profile %}
+              <a href="/student_badge/{{teacherID}}/{{courseID}}/{{badgeID}}">
+            {% elif teacher_view_student_profile %}
+              <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badgeID}}/teacher_view">
             {% else %}
-              <div  class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
-              </div>
+              <a href="/badge/{{badgeID}}" >
             {% endif %}
-          </a>
+              {% if (student_profile or teacher_view_student_profile) and badge_achieved(badge, course, student)%}
+                <div  class="badge-new" style="background: {{badge['background']}}; color: {{badge['icon_color']}}">
+                  <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
+                </div>
+              {% elif (student_profile or teacher_view_student_profile) %}
+                <div class="badge-new badge-grey">
+                  <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
+                </div>
+              {% else %}
+                <div  class="badge-new" style="background: {{badge['background']}}; color: {{badge['icon_color']}}">
+                  <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
+                </div>
+              {% endif %}
+            </a>
+          </div>
+          {% if teacher_view_student_profile and not badge_achieved(badge, course, student) %}
+            <a class = "btn btn-small btn-mini-award btn-success" href="/award_mini_badge/{{badgeID}}/{{student.key.id()}}/{{course.key.id()}}"><i class="icon-ok"></i></a>
+          {% endif %}
         </div>
-        {% if teacher_view_student_profile and not badge_achieved(badge, course, student) %}
-          <a class = "btn btn-small btn-mini-award btn-success" href="/award_mini_badge/{{badge.key.id()}}/{{student.key.id()}}/{{course.key.id()}}"><i class="icon-ok"></i></a>
-        {% endif %}
-      </div>
-
     {% endfor %}
 </div>
 {% if not (student_profile or teacher_view_student_profile) %}

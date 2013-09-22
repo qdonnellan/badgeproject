@@ -3,6 +3,7 @@ from google.appengine.api import memcache
 import logging
 from operator import attrgetter
 import re
+import json 
 
 class User(ndb.Model):
   google_id = ndb.StringProperty(required = True)
@@ -22,6 +23,7 @@ class Checkpoint(ndb.Model):
   name = ndb.StringProperty(required = False)
   description = ndb.TextProperty(required = False)
   featured = ndb.BooleanProperty(default = False)
+  badges = ndb.JsonProperty(required = False)
 
 class Registrations(ndb.Model):
   student_id = ndb.StringProperty(required = True)
@@ -297,6 +299,42 @@ class default_badge():
   requirement = '' 
   value = ''
   checkpoints = []
+
+def add_badge_to_checkpoint(badgeID, checkpointID, courseID, teacherID):
+  teacher = get_teacher(teacherID)
+  course = existing_course(courseID, teacher)
+  checkpoint = get_single_checkpoint(course, checkpointID)
+  badge = get_badge(teacher, badgeID)
+  badge_dict = {
+    'icon' : badge.icon,
+    'icon_color' : badge.icon_color,
+    'border_color' : badge.border_color,
+    'background' : badge.background,
+    'name' : badge.name,
+    'requirement' : badge.requirement,
+    'value' : badge.value
+  }
+  badgeID = str(badge.key.id())
+  badges = checkpoint.badges
+  if not badges:
+    badges = {}
+  badges[badgeID] = badge_dict
+  logging.info(badge_dict['icon_color'])
+  checkpoint.badges = badges
+  checkpoint.put()
+  logging.info('hey mom I made it here!!!!')
+  logging.info(checkpoint.badges)
+
+def remove_badge_from_checkpoint(badgeID, checkpointID, courseID, teacherID):
+  teacher = get_teacher(teacherID)
+  course = existing_course(courseID, teacher)
+  checkpoint = get_single_checkpoint(course, checkpointID)
+  badge = get_badge(teacher, badgeID)
+  badgeID = str(badge.key.id())
+  badges = checkpoint.badges
+  del badges[badgeID]
+  checkpoint.badges = badges
+  checkpoint.put()
 
 def get_all_badges(teacher):
   return Badge.query(ancestor = teacher.key).order(Badge.name)

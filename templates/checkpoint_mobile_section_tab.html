@@ -7,17 +7,17 @@
         <td class="col-9 mobile-table-left">
           <h4>{{student.name}}</h4>
           {% for badge in badges %}
-            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badge.key.id()}}/teacher_view">
+            <a href="/student_badge/{{student.key.id()}}/{{courseID}}/{{badgeID}}/teacher_view">
               {% if badge_achieved(badge, course, student) %}
                 <div class="small-badge-mobile pull-left">
-                  <div class="badge-new" style="background: {{badge.background}}; color: {{badge.icon_color}}">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                  <div class="badge-new" style="background: {{badge['background']}}; color: {{badge['icon_color']}}">
+                    <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
                   </div>
                 </div>
               {% else %}
                 <div class="small-badge-mobile pull-left">
                   <div class="badge-grey badge-new">
-                    <div class="badge-icon-container"><i class="icon-{{badge.icon}}"></i></div>
+                    <div class="badge-icon-container"><i class="icon-{{badge['icon']}}"></i></div>
                   </div>
                 </div>
               {% endif %}

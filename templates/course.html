@@ -230,8 +230,10 @@
             <td class="col-9 mobile-table-left">
               <h4>{{checkpoint.name}}</h4>
               <p>{{checkpoint.description}}</p>
-              {% set badges = get_checkpoint_badges(checkpoint) %}
-              {% for badge in badges %}
+              {% set badges = checkpoint.badges %}
+              {% if not badges %}{% set badges = [] %}{% endif %}
+              {% for badgeID in badges %}
+                {% set badge = badges[badgeID] %}
                 {% include 'small_badge_mobile.html' %}
               {% endfor %}
             </td>
@@ -252,8 +254,10 @@
               <td class="col-9 mobile-table-left">
                 <h4>{{checkpoint.name}}</h4>
                 <p>{{checkpoint.description}}</p>
-                {% set badges = get_checkpoint_badges(checkpoint) %}
-                {% for badge in badges %}
+                {% set badges = checkpoint.badges %}
+                {% if not badges %}{% set badges = [] %}{% endif %}
+                {% for badgeID in badges %}
+                  {% set badge = badges[badgeID] %}
                   {% include 'small_badge_mobile.html' %}
                 {% endfor %}
               </td>

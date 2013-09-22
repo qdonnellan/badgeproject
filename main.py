@@ -7,6 +7,7 @@ from database import *
 from ajax import *
 from useful import valid_user
 from cached_objects import *
+import json
 
 class badgeCreator(MainHandler):
   def get(self, badgeID=None):
@@ -30,6 +31,12 @@ class badgeCreator(MainHandler):
     if valid_user() and valid_user().teacher:
       teacher = valid_user()
       teacherID = valid_user().key.id()
+      old_checkpoints=[]
+      if badgeID:
+        old_badge = get_badge(teacher, badgeID)
+        if old_badge:
+          old_checkpoints = old_badge.checkpoints
+      checkpoint_keys = self.request.get_all("checkpoint_options")
       badgeID = edit_badge(
         badgeID = badgeID,
         icon = self.request.get("icon"),
@@ -40,15 +47,24 @@ class badgeCreator(MainHandler):
         requirement = self.request.get("requirement"), 
         value = self.request.get("badge_value"),
         teacher = teacher,
-        checkpoints = self.request.get_all("checkpoint_options")
+        checkpoints = checkpoint_keys
         )
-      checkpointID = self.request.get('checkpointID')
-      courseID = self.request.get('courseID')
-      if courseID:
-        delete_cached_course(courseID, teacherID)
-      if checkpointID and courseID:
-        delete_cached_checkpoint(checkpointID, courseID, teacherID)
-        self.redirect('/course/%s#%s' % (courseID, checkpointID))
+
+      #remove badge from old checkpoints if applicable
+      for old_checkpoint_key in old_checkpoints:
+        if old_checkpoint_key not in checkpoint_keys:
+          old_courseID, old_checkpointID = old_checkpoint_key.split('_')
+          remove_badge_from_checkpoint(badgeID, old_checkpointID, old_courseID, teacherID)
+
+      #add badge to new checkpoints in applicable
+      for checkpoint_key in checkpoint_keys:
+        courseID, checkpointID = checkpoint_key.split('_')
+        if courseID:
+          delete_cached_course(courseID, teacherID)
+        if checkpointID and courseID:
+          delete_cached_checkpoint(checkpointID, courseID, teacherID)
+          add_badge_to_checkpoint(badgeID, checkpointID, courseID, teacherID)
+          self.redirect('/course/%s#%s' % (courseID, checkpointID))
       else:
         self.redirect('/badge/%s' % badgeID)
 
@@ -114,7 +130,7 @@ class course(MainHandler):
       teacher = valid_user()
       teacherID = teacher.key.id()
       html_cache_key = "html_course:%s_%s" % (teacherID, courseID)
-      cached_html = get_cached_html_page(html_cache_key)
+      cached_html = None #get_cached_html_page(html_cache_key)
       if cached_html:
         self.write(cached_html)
       else:
@@ -124,11 +140,10 @@ class course(MainHandler):
           registrations = get_registered_students(course),
           number_of_pending_registrations = get_number_of_pending_registrations(course),
           checkpoints = get_course_checkpoints(course),
-          get_checkpoint_badges = get_checkpoint_badges, 
           courseID = int(courseID),
           teacherID = int(teacherID),
           teacher = teacher,
-          get_badge = get_badge,
+          json = json,
           active_tab = self.request.get('active_tab'))
         logging.info('start set memcache html course')
         memcache.set(html_cache_key, raw_html)
@@ -178,7 +193,7 @@ class register(MainHandler):
           if success:
             self.redirect('/profile')
             course = get_course_by_code(teacher=teacher, course_code = course_code)
-            delete_cached_course(courseID, teacher.key.id())
+            delete_cached_course(course.key.id(), teacher.key.id())
           else:
             self.redirect('/register?error=invalid course code')
         else:
